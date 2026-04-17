@@ -31,6 +31,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('events', AdminEventController::class)->except(['show']);
     Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
+
+    Route::view('/categories', 'admin.categories')->name('categories');
+    Route::view('/position-templates', 'admin.position-templates')->name('position-templates');
+    Route::view('/event-types', 'admin.event-types')->name('event-types');
+    Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
