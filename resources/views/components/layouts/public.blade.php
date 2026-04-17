@@ -15,7 +15,7 @@
     <header class="bg-fct-navy text-white shadow-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
             <a href="{{ route('calendar') }}" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo.png') }}"
+                <img src="{{ asset('images/logo-white.png') }}"
                      alt="Florida Chautauqua Theater &amp; Institute"
                      class="h-12 sm:h-14 w-auto">
                 <span class="hidden md:inline text-sm text-fct-cyan-light tracking-widest uppercase border-l border-fct-navy-light pl-3">
@@ -53,7 +53,8 @@
 
     <footer class="bg-fct-navy-dark text-fct-cyan-light mt-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-center">
-            &copy; {{ date('Y') }} The Florida Chautauqua Theater &amp; Institute
+            <div>&copy; {{ date('Y') }} The Florida Chautauqua Theater &amp; Institute</div>
+            <div class="mt-1 text-xs text-fct-cyan-light/60">{{ config('app.version') }}</div>
         </div>
     </footer>
 </body>

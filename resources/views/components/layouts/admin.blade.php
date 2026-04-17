@@ -62,5 +62,9 @@
             {{ $slot }}
         </div>
     </main>
+
+    <footer class="text-xs text-gray-500 text-center py-4">
+        {{ config('app.version') }}
+    </footer>
 </body>
 </html>
