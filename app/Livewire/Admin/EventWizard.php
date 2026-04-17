@@ -28,6 +28,7 @@ class EventWizard extends Component
     public ?int $categoryId = null;
     public string $positionTitle = '';
     public int $positionSlots = 1;
+    public bool $positionIsPublic = true;
     public string $positionStartsAt = '';
     public string $positionEndsAt = '';
 
@@ -74,6 +75,7 @@ class EventWizard extends Component
             'categoryId' => $data['categoryId'],
             'title' => $data['positionTitle'],
             'slotsNeeded' => $data['positionSlots'],
+            'isPublic' => $this->positionIsPublic,
             'startsAt' => $data['positionStartsAt'],
             'endsAt' => $data['positionEndsAt'],
         ];
@@ -90,6 +92,7 @@ class EventWizard extends Component
         $this->categoryId = $p['categoryId'];
         $this->positionTitle = $p['title'];
         $this->positionSlots = $p['slotsNeeded'];
+        $this->positionIsPublic = $p['isPublic'] ?? true;
         $this->positionStartsAt = $p['startsAt'];
         $this->positionEndsAt = $p['endsAt'];
         $this->resetValidation();
@@ -112,6 +115,7 @@ class EventWizard extends Component
             'categoryId' => $data['categoryId'],
             'title' => $data['positionTitle'],
             'slotsNeeded' => $data['positionSlots'],
+            'isPublic' => $this->positionIsPublic,
             'startsAt' => $data['positionStartsAt'],
             'endsAt' => $data['positionEndsAt'],
         ];
@@ -160,6 +164,7 @@ class EventWizard extends Component
                     'category_id' => $draft['categoryId'],
                     'title' => $draft['title'],
                     'slots_needed' => $draft['slotsNeeded'],
+                    'is_public' => $draft['isPublic'] ?? true,
                     'starts_at' => $draft['startsAt'],
                     'ends_at' => $draft['endsAt'],
                 ]);
@@ -204,6 +209,7 @@ class EventWizard extends Component
     {
         $this->reset(['templateId', 'categoryId', 'positionTitle', 'editingIndex']);
         $this->positionSlots = 1;
+        $this->positionIsPublic = true;
         $this->positionStartsAt = $this->startsAt;
         $this->positionEndsAt = $this->endsAt;
         $this->resetValidation();

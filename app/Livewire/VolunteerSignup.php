@@ -147,6 +147,7 @@ class VolunteerSignup extends Component
 
         return Position::query()
             ->with(['event.type', 'category', 'signups'])
+            ->where('is_public', true)
             ->whereIn('category_id', $this->selectedCategoryIds)
             ->whereHas('event', fn ($q) => $q
                 ->where('is_published', true)

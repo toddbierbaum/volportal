@@ -17,6 +17,7 @@ class PositionEditor extends Component
     public ?int $categoryId = null;
     public string $title = '';
     public int $slotsNeeded = 1;
+    public bool $isPublic = true;
     public string $startsAt = '';
     public string $endsAt = '';
 
@@ -60,6 +61,7 @@ class PositionEditor extends Component
             'category_id' => $data['categoryId'],
             'title' => $data['title'],
             'slots_needed' => $data['slotsNeeded'],
+            'is_public' => $this->isPublic,
             'starts_at' => $data['startsAt'],
             'ends_at' => $data['endsAt'],
         ]);
@@ -77,6 +79,7 @@ class PositionEditor extends Component
         $this->categoryId = $position->category_id;
         $this->title = $position->title;
         $this->slotsNeeded = $position->slots_needed;
+        $this->isPublic = (bool) $position->is_public;
         $this->startsAt = $position->starts_at->format('Y-m-d\TH:i');
         $this->endsAt = $position->ends_at->format('Y-m-d\TH:i');
     }
@@ -99,6 +102,7 @@ class PositionEditor extends Component
             'category_id' => $data['categoryId'],
             'title' => $data['title'],
             'slots_needed' => $data['slotsNeeded'],
+            'is_public' => $this->isPublic,
             'starts_at' => $data['startsAt'],
             'ends_at' => $data['endsAt'],
         ]);
@@ -122,6 +126,7 @@ class PositionEditor extends Component
     {
         $this->reset(['templateId', 'categoryId', 'title', 'editingPositionId']);
         $this->slotsNeeded = 1;
+        $this->isPublic = true;
         $this->startsAt = $this->event->starts_at->format('Y-m-d\TH:i');
         $this->endsAt = $this->event->ends_at->format('Y-m-d\TH:i');
         $this->resetValidation();

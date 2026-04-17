@@ -83,6 +83,9 @@
                                         {{ $category->name }}
                                     </span>
                                 @endif
+                                @if (! ($pos['isPublic'] ?? true))
+                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">Admin-only</span>
+                                @endif
                             </div>
                             <div class="text-sm text-gray-600 mt-0.5">
                                 {{ $startStr }}–{{ $endStr }} · {{ $pos['slotsNeeded'] }} slot{{ $pos['slotsNeeded'] === 1 ? '' : 's' }}
@@ -137,7 +140,16 @@
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
                     @error('positionSlots') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
-                <div></div>
+                <div class="flex items-end">
+                    <label class="inline-flex items-start gap-2 text-sm pb-2">
+                        <input type="checkbox" wire:model="positionIsPublic"
+                               class="mt-0.5 rounded border-gray-300 text-fct-navy focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 font-medium">Show on public portal</span>
+                            <span class="block text-xs text-gray-500">Uncheck to fill via admin only.</span>
+                        </span>
+                    </label>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Starts</label>
                     <input type="datetime-local" wire:model="positionStartsAt"
