@@ -42,4 +42,8 @@
     <div class="mt-6">
         <livewire:admin.event-signup-manager :event="$event" />
     </div>
+
+    <div class="mt-6">
+        <livewire:admin.event-schedule-manager :event="$event" />
+    </div>
 </x-layouts.admin>
