@@ -24,15 +24,28 @@
             </a>
             <nav class="flex items-center gap-4 text-sm">
                 @auth
-                    <a href="{{ route('dashboard') }}"
-                       class="text-white hover:text-fct-cyan transition">Dashboard</a>
+                    @if (auth()->user()->isAdmin())
+                        <a href="{{ route('dashboard') }}"
+                           class="text-white hover:text-fct-cyan transition">Dashboard</a>
+                    @else
+                        <a href="{{ route('volunteer.dashboard') }}"
+                           class="text-white hover:text-fct-cyan transition">My signups</a>
+                    @endif
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                        @csrf
+                        <button type="submit" class="text-fct-cyan-light hover:text-fct-cyan transition">Log out</button>
+                    </form>
                 @else
+                    <a href="{{ route('login-link') }}"
+                       class="text-white hover:text-fct-cyan transition">Volunteer Login</a>
                     <a href="{{ route('login') }}"
-                       class="text-fct-cyan-light hover:text-fct-cyan transition">Admin Login</a>
+                       class="text-fct-cyan-light hover:text-fct-cyan transition hidden sm:inline">Admin</a>
                 @endauth
             </nav>
         </div>
     </header>
+
+    <livewire:welcome-banner />
 
     <main class="flex-1">
         {{ $slot }}

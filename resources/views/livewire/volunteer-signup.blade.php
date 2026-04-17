@@ -148,6 +148,24 @@
             </div>
         @endif
 
+        {{-- Step 5: existing account detected, login link sent --}}
+        @if ($step === 5)
+            <div class="text-center py-4">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-fct-cyan-light">
+                    <svg class="h-6 w-6 text-fct-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-xl font-semibold text-fct-navy">Welcome back</h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    That email is already registered. We sent a login link to <strong>{{ $email }}</strong> &mdash; check your inbox (valid for 30 minutes).
+                </p>
+                <p class="mt-3 text-sm text-gray-500">
+                    Not your account? <button type="button" wire:click="backToDetails" class="text-fct-navy underline">Use a different email</button>.
+                </p>
+            </div>
+        @endif
+
         {{-- Step 4: confirmation --}}
         @if ($step === 4)
             <div class="text-center py-4">

@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Mail\MagicLinkMail;
 use App\Mail\SignupConfirmationMail;
 use App\Models\Category;
 use App\Models\Position;
 use App\Models\Signup;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -44,6 +46,13 @@ class VolunteerSignup extends Component
         $existing = User::where('email', $this->email)->first();
         if ($existing && $existing->isAdmin()) {
             $this->addError('email', 'This email belongs to an admin account. Please log in instead.');
+            return;
+        }
+
+        if ($existing) {
+            Mail::to($existing->email)->send(new MagicLinkMail($existing));
+            $this->userId = $existing->id;
+            $this->step = 5;
             return;
         }
 
@@ -118,6 +127,7 @@ class VolunteerSignup extends Component
 
             if ($user) {
                 Mail::to($user->email)->send(new SignupConfirmationMail($user, $signups));
+                Cookie::queue(cookie()->forever('volunteer_id', (string) $user->id));
             }
         }
 
