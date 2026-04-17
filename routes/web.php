@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagicLinkController;
@@ -25,7 +27,13 @@ Route::post('/logout', function () {
     return redirect()->route('calendar');
 })->name('logout');
 
-Route::view('dashboard', 'dashboard')
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('events', AdminEventController::class)->except(['show']);
+    Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
+});
+
+Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
     ->middleware(['auth'])
     ->name('dashboard');
 
