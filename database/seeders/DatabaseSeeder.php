@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\EventType;
+use App\Models\NotificationSchedule;
 use App\Models\PositionTemplate;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -68,6 +69,17 @@ class DatabaseSeeder extends Seeder
             PositionTemplate::updateOrCreate(
                 ['title' => $tpl['title']],
                 $tpl
+            );
+        }
+
+        $defaultSchedules = [
+            ['label' => '1 week before', 'offset_minutes' => 10080],
+            ['label' => '1 day before',  'offset_minutes' => 1440],
+        ];
+        foreach ($defaultSchedules as $s) {
+            NotificationSchedule::updateOrCreate(
+                ['event_id' => null, 'offset_minutes' => $s['offset_minutes']],
+                $s + ['event_id' => null]
             );
         }
     }
