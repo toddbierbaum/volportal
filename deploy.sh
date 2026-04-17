@@ -46,13 +46,20 @@ echo "==> Installing composer dependencies"
 composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
 # --- 4. Install and build JS/CSS ---
-echo "==> Building frontend assets"
-if [ -f package-lock.json ]; then
-    npm ci
+# On DreamHost shared hosting npm is usually unavailable, so built
+# assets are committed to the repo (public/build/) and ship with git.
+# If npm is present (VPS / dedicated), rebuild for freshness.
+if command -v npm >/dev/null 2>&1; then
+    echo "==> npm detected — rebuilding frontend assets"
+    if [ -f package-lock.json ]; then
+        npm ci
+    else
+        npm install
+    fi
+    npm run build
 else
-    npm install
+    echo "==> npm not available — using committed public/build/ assets"
 fi
-npm run build
 
 # --- 5. Apply migrations ---
 echo "==> Running migrations"
