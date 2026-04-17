@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\VolunteerController as AdminVolunteerController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagicLinkController;
@@ -31,6 +32,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('events', AdminEventController::class)->except(['show']);
     Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
+
+    Route::get('/volunteers', [AdminVolunteerController::class, 'index'])->name('volunteers.index');
+    Route::get('/volunteers/create', [AdminVolunteerController::class, 'create'])->name('volunteers.create');
+    Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
+    Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
+    Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
 
     Route::view('/categories', 'admin.categories')->name('categories');
     Route::view('/position-templates', 'admin.position-templates')->name('position-templates');
