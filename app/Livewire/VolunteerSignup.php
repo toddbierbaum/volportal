@@ -2,12 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Mail\SignupConfirmationMail;
 use App\Models\Category;
 use App\Models\Position;
 use App\Models\Signup;
 use App\Models\User;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -109,6 +110,17 @@ class VolunteerSignup extends Component
 
     public function finish(): void
     {
+        if ($this->userId) {
+            $user = User::find($this->userId);
+            $signups = Signup::with(['position.event'])
+                ->whereIn('id', $this->createdSignupIds)
+                ->get();
+
+            if ($user) {
+                Mail::to($user->email)->send(new SignupConfirmationMail($user, $signups));
+            }
+        }
+
         $this->step = 4;
     }
 
