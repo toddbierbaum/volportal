@@ -83,11 +83,10 @@
                         </ul>
 
                         <div class="mt-6">
-                            <button type="button"
-                                    class="inline-flex items-center px-5 py-2.5 bg-fct-navy border border-transparent rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                            <a href="{{ route('signup') }}"
+                               class="inline-flex items-center px-5 py-2.5 bg-fct-navy border border-transparent rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
                                 Sign up to volunteer
-                            </button>
-                            <p class="mt-2 text-xs text-gray-500">Signup form coming soon.</p>
+                            </a>
                         </div>
                     @endif
                 </div>
