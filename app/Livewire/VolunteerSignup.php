@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Position;
 use App\Models\Signup;
 use App\Models\User;
+use App\Support\SmsSender;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
@@ -45,6 +46,11 @@ class VolunteerSignup extends Component
             'phone' => 'required|string|max:30',
         ]);
 
+        if (! SmsSender::toE164($this->phone)) {
+            $this->addError('phone', 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.');
+            return;
+        }
+
         $existing = User::where('email', $this->email)->first();
         if ($existing && $existing->isAdmin()) {
             $this->addError('email', 'This email belongs to an admin account. Please log in instead.');
@@ -80,7 +86,7 @@ class VolunteerSignup extends Component
             ['email' => $this->email],
             [
                 'name' => $this->name,
-                'phone' => $this->phone,
+                'phone' => SmsSender::toE164($this->phone) ?? $this->phone,
                 'role' => 'volunteer',
                 'sms_opt_in' => $this->smsOptIn,
             ]

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Signup;
 use App\Models\User;
+use App\Support\SmsSender;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -81,10 +82,16 @@ class VolunteerController extends Controller
             'categories.*' => 'integer|exists:categories,id',
         ]);
 
+        $rawPhone = $data['phone'] ?? null;
+        $e164 = $rawPhone ? SmsSender::toE164($rawPhone) : null;
+        if ($rawPhone && ! $e164) {
+            return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
+        }
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
+            'phone' => $e164 ?: $rawPhone,
             'role' => 'volunteer',
         ]);
 

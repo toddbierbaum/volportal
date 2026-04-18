@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Signup;
+use App\Support\SmsSender;
 use Illuminate\Http\Request;
 
 class VolunteerDashboardController extends Controller
@@ -52,12 +53,18 @@ class VolunteerDashboardController extends Controller
         ]);
 
         $smsOptIn = (bool) ($data['sms_opt_in'] ?? false);
-        if ($smsOptIn && empty($data['phone'] ?? null)) {
-            return back()->withErrors(['phone' => 'A phone number is required to receive text reminders.']);
+        $rawPhone = $data['phone'] ?? null;
+        $e164 = $rawPhone ? SmsSender::toE164($rawPhone) : null;
+
+        if ($rawPhone && ! $e164) {
+            return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.']);
+        }
+        if ($smsOptIn && ! $e164) {
+            return back()->withErrors(['phone' => 'A valid phone number is required to receive text reminders.']);
         }
 
         $user->update([
-            'phone' => $data['phone'] ?? null,
+            'phone' => $e164 ?: $rawPhone,
             'sms_opt_in' => $smsOptIn,
         ]);
 
