@@ -2,7 +2,7 @@
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
         <div class="p-5 border-b border-gray-200">
             <h2 class="text-lg font-semibold text-fct-navy">Positions</h2>
-            <p class="text-sm text-gray-500 mt-0.5">Add the volunteer roles needed for this event. Use a template to prefill, or build a custom one.</p>
+            <p class="text-sm text-gray-500 mt-0.5">Add or tweak the volunteer roles for this event.</p>
         </div>
 
         @if ($positions->isEmpty())
@@ -69,6 +69,13 @@
                     </select>
                     @error('categoryId') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Description / what the volunteer does</label>
+                    <textarea wire:model="description" rows="3"
+                              placeholder="e.g. Greet guests at the door, check tickets, direct them to their seats."
+                              class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Shown in reminder emails to the volunteer.</p>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Slots needed</label>
                     <input type="number" min="1" max="50" wire:model="slotsNeeded"
@@ -86,16 +93,17 @@
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Starts</label>
-                    <input type="datetime-local" wire:model="startsAt"
+                    <label class="block text-sm font-medium text-gray-700">Call time (minutes before event)</label>
+                    <input type="number" min="0" max="1440" step="15" wire:model="callOffsetMinutes"
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('startsAt') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    <p class="mt-1 text-xs text-gray-500">0 = at event start.</p>
+                    @error('callOffsetMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Ends</label>
-                    <input type="datetime-local" wire:model="endsAt"
+                    <label class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                    <input type="number" min="15" max="1440" step="15" wire:model="durationMinutes"
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('endsAt') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('durationMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
 

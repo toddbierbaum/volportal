@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NotificationSchedule extends Model
 {
-    protected $fillable = ['event_id', 'label', 'offset_minutes'];
+    protected $fillable = ['event_id', 'label', 'offset_minutes', 'channel'];
 
     protected static function booted(): void
     {

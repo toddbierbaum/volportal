@@ -13,6 +13,7 @@ class EventScheduleManager extends Component
 
     public int $offsetValue = 2;
     public string $offsetUnit = 'hours';
+    public string $channel = 'email';
 
     public function mount(Event $event): void
     {
@@ -24,15 +25,18 @@ class EventScheduleManager extends Component
         $data = $this->validate([
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
+            'channel' => 'required|in:email,sms,both',
         ]);
 
         NotificationSchedule::create([
             'event_id' => $this->event->id,
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
+            'channel' => $data['channel'],
         ]);
 
         $this->offsetValue = 2;
         $this->offsetUnit = 'hours';
+        $this->channel = 'email';
         $this->resetValidation();
     }
 

@@ -6,7 +6,7 @@
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
         <div class="p-5 border-b border-gray-200">
             <h2 class="text-lg font-semibold text-fct-navy">Default reminder schedules</h2>
-            <p class="text-sm text-gray-500 mt-0.5">When volunteers get reminded about their signups. Applies to every event. Per-event overrides can be added from the event edit page.</p>
+            <p class="text-sm text-gray-500 mt-0.5">When volunteers get reminded about their signups. Applies to every event. Event templates and individual events can add their own on top.</p>
         </div>
 
         @if ($items->isEmpty())
@@ -17,6 +17,19 @@
                     <li class="p-4 flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <div class="font-medium text-gray-900">{{ $item->label }}</div>
+                            <div class="text-xs text-gray-500 mt-0.5">
+                                via
+                                @if ($item->channel === 'both')
+                                    email + SMS
+                                @elseif ($item->channel === 'sms')
+                                    SMS
+                                @else
+                                    email
+                                @endif
+                                @if ($item->channel !== 'email')
+                                    <span class="text-amber-600 ml-1">(SMS coming soon — email only for now)</span>
+                                @endif
+                            </div>
                         </div>
                         <div class="flex items-center gap-2 shrink-0 text-sm">
                             <button type="button" wire:click="startEdit({{ $item->id }})" class="text-fct-navy hover:underline">Edit</button>
@@ -40,16 +53,25 @@
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
                     @error('offsetValue') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">&nbsp;</label>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Unit</label>
                     <select wire:model="offsetUnit"
                             class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                        <option value="minutes">minute(s) before the event</option>
-                        <option value="hours">hour(s) before the event</option>
-                        <option value="days">day(s) before the event</option>
-                        <option value="weeks">week(s) before the event</option>
+                        <option value="minutes">minute(s) before</option>
+                        <option value="hours">hour(s) before</option>
+                        <option value="days">day(s) before</option>
+                        <option value="weeks">week(s) before</option>
                     </select>
                     @error('offsetUnit') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Channel</label>
+                    <select wire:model="channel"
+                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                        <option value="email">Email</option>
+                        <option value="sms">SMS (coming soon)</option>
+                        <option value="both">Email + SMS (coming soon)</option>
+                    </select>
                 </div>
             </div>
             <div class="mt-4 flex justify-end gap-2">

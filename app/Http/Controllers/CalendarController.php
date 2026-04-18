@@ -23,7 +23,7 @@ class CalendarController extends Controller
             ->when($start, fn ($q) => $q->where('ends_at', '>=', $start))
             ->when($end, fn ($q) => $q->where('starts_at', '<=', $end))
             ->with([
-                'type',
+                'template',
                 'positions' => fn ($q) => $q->where('is_public', true),
                 'positions.signups',
             ])

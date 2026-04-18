@@ -21,18 +21,19 @@ class EventWizard extends Component
     public string $location = '';
     public bool $isPublished = false;
 
-    /** @var array<int, array> each entry keys: categoryId, title, slotsNeeded, isPublic, startsAt, endsAt */
+    /** @var array<int, array> keys: categoryId, title, description, slotsNeeded, isPublic, callOffsetMinutes, durationMinutes */
     public array $draftPositions = [];
 
-    /** @var array<int, array> each entry keys: offsetMinutes, channel, label */
+    /** @var array<int, array> keys: offsetMinutes, channel, label */
     public array $draftSchedules = [];
 
     public ?int $categoryId = null;
     public string $positionTitle = '';
+    public string $positionDescription = '';
     public int $positionSlots = 1;
     public bool $positionIsPublic = true;
-    public string $positionStartsAt = '';
-    public string $positionEndsAt = '';
+    public int $positionCallOffsetMinutes = 60;
+    public int $positionDurationMinutes = 180;
 
     public ?int $editingIndex = null;
 
@@ -40,19 +41,6 @@ class EventWizard extends Component
     {
         $this->startsAt = now()->addWeek()->setTime(18, 0)->format('Y-m-d\TH:i');
         $this->endsAt = now()->addWeek()->setTime(20, 30)->format('Y-m-d\TH:i');
-        $this->syncPositionTimesFromEvent();
-    }
-
-    public function updatedStartsAt(): void
-    {
-        $this->syncPositionTimesFromEvent();
-        $this->refreshDraftPositionTimes();
-    }
-
-    public function updatedEndsAt(): void
-    {
-        $this->syncPositionTimesFromEvent();
-        $this->refreshDraftPositionTimes();
     }
 
     public function updatedEventTemplateId($value): void
@@ -65,9 +53,16 @@ class EventWizard extends Component
         $template = EventTemplate::with(['positions', 'schedules'])->find($value);
         if (! $template) return;
 
-        // Don't clobber user-added draft positions if they've already added some.
         if (empty($this->draftPositions)) {
-            $this->draftPositions = $this->positionsFromTemplate($template);
+            $this->draftPositions = $template->positions->map(fn ($p) => [
+                'categoryId' => $p->category_id,
+                'title' => $p->title,
+                'description' => (string) $p->description,
+                'slotsNeeded' => $p->slots_needed,
+                'isPublic' => (bool) $p->is_public,
+                'callOffsetMinutes' => $p->call_offset_minutes,
+                'durationMinutes' => $p->duration_minutes,
+            ])->all();
         }
 
         if (empty($this->draftSchedules)) {
@@ -79,50 +74,25 @@ class EventWizard extends Component
         }
     }
 
-    private function positionsFromTemplate(EventTemplate $template): array
-    {
-        $eventStart = Carbon::parse($this->startsAt);
-        return $template->positions->map(function ($p) use ($eventStart) {
-            $start = $eventStart->copy()->subMinutes($p->call_offset_minutes);
-            $end = $start->copy()->addMinutes($p->duration_minutes);
-            return [
-                'categoryId' => $p->category_id,
-                'title' => $p->title,
-                'slotsNeeded' => $p->slots_needed,
-                'isPublic' => (bool) $p->is_public,
-                'startsAt' => $start->format('Y-m-d\TH:i'),
-                'endsAt' => $end->format('Y-m-d\TH:i'),
-            ];
-        })->all();
-    }
-
-    private function refreshDraftPositionTimes(): void
-    {
-        if (! $this->eventTemplateId || empty($this->draftPositions)) return;
-        $template = EventTemplate::with('positions')->find($this->eventTemplateId);
-        if (! $template) return;
-        // Only re-derive positions that came from the template; leave
-        // admin-added custom ones alone.
-        $this->draftPositions = $this->positionsFromTemplate($template);
-    }
-
     public function addDraftPosition(): void
     {
         $data = $this->validate([
             'positionTitle' => 'required|string|max:255',
+            'positionDescription' => 'nullable|string',
             'categoryId' => 'required|exists:categories,id',
             'positionSlots' => 'required|integer|min:1|max:50',
-            'positionStartsAt' => 'required|date',
-            'positionEndsAt' => 'required|date|after_or_equal:positionStartsAt',
+            'positionCallOffsetMinutes' => 'required|integer|min:0|max:1440',
+            'positionDurationMinutes' => 'required|integer|min:15|max:1440',
         ]);
 
         $this->draftPositions[] = [
             'categoryId' => $data['categoryId'],
             'title' => $data['positionTitle'],
+            'description' => $data['positionDescription'],
             'slotsNeeded' => $data['positionSlots'],
             'isPublic' => $this->positionIsPublic,
-            'startsAt' => $data['positionStartsAt'],
-            'endsAt' => $data['positionEndsAt'],
+            'callOffsetMinutes' => $data['positionCallOffsetMinutes'],
+            'durationMinutes' => $data['positionDurationMinutes'],
         ];
 
         $this->resetPositionForm();
@@ -135,10 +105,11 @@ class EventWizard extends Component
         $this->editingIndex = $index;
         $this->categoryId = $p['categoryId'];
         $this->positionTitle = $p['title'];
+        $this->positionDescription = (string) ($p['description'] ?? '');
         $this->positionSlots = $p['slotsNeeded'];
         $this->positionIsPublic = $p['isPublic'] ?? true;
-        $this->positionStartsAt = $p['startsAt'];
-        $this->positionEndsAt = $p['endsAt'];
+        $this->positionCallOffsetMinutes = $p['callOffsetMinutes'] ?? 60;
+        $this->positionDurationMinutes = $p['durationMinutes'] ?? 180;
         $this->resetValidation();
     }
 
@@ -148,19 +119,21 @@ class EventWizard extends Component
 
         $data = $this->validate([
             'positionTitle' => 'required|string|max:255',
+            'positionDescription' => 'nullable|string',
             'categoryId' => 'required|exists:categories,id',
             'positionSlots' => 'required|integer|min:1|max:50',
-            'positionStartsAt' => 'required|date',
-            'positionEndsAt' => 'required|date|after_or_equal:positionStartsAt',
+            'positionCallOffsetMinutes' => 'required|integer|min:0|max:1440',
+            'positionDurationMinutes' => 'required|integer|min:15|max:1440',
         ]);
 
         $this->draftPositions[$this->editingIndex] = [
             'categoryId' => $data['categoryId'],
             'title' => $data['positionTitle'],
+            'description' => $data['positionDescription'],
             'slotsNeeded' => $data['positionSlots'],
             'isPublic' => $this->positionIsPublic,
-            'startsAt' => $data['positionStartsAt'],
-            'endsAt' => $data['positionEndsAt'],
+            'callOffsetMinutes' => $data['positionCallOffsetMinutes'],
+            'durationMinutes' => $data['positionDurationMinutes'],
         ];
 
         $this->resetPositionForm();
@@ -201,22 +174,24 @@ class EventWizard extends Component
                 'is_published' => $eventData['isPublished'],
             ]);
 
+            $eventStart = Carbon::parse($eventData['startsAt']);
             foreach ($this->draftPositions as $draft) {
+                $start = $eventStart->copy()->subMinutes((int) ($draft['callOffsetMinutes'] ?? 60));
+                $end = $start->copy()->addMinutes((int) ($draft['durationMinutes'] ?? 180));
+
                 $event->positions()->create([
                     'category_id' => $draft['categoryId'],
                     'title' => $draft['title'],
+                    'description' => ($draft['description'] ?? '') ?: null,
                     'slots_needed' => $draft['slotsNeeded'],
                     'is_public' => $draft['isPublic'] ?? true,
-                    'starts_at' => $draft['startsAt'],
-                    'ends_at' => $draft['endsAt'],
+                    'starts_at' => $start,
+                    'ends_at' => $end,
                 ]);
             }
 
-            // Intentionally NOT copying $this->draftSchedules into
-            // notification_schedules — the reminder command reads the
-            // template's schedules live via $event->template->schedules,
-            // so copying would duplicate. Per-event overrides can still
-            // be added from the event edit page.
+            // Template schedules are read live via $event->template->schedules
+            // by the reminder command — not copied to per-event rows.
 
             return $event;
         });
@@ -224,9 +199,6 @@ class EventWizard extends Component
         $msg = "Event \"{$event->title}\" created";
         if (count($this->draftPositions) > 0) {
             $msg .= ' with ' . count($this->draftPositions) . ' position' . (count($this->draftPositions) === 1 ? '' : 's');
-        }
-        if (count($this->draftSchedules) > 0) {
-            $msg .= ' and ' . count($this->draftSchedules) . ' reminder' . (count($this->draftSchedules) === 1 ? '' : 's');
         }
         $msg .= '.';
         session()->flash('status', $msg);
@@ -244,23 +216,13 @@ class EventWizard extends Component
         return Category::orderBy('name')->get();
     }
 
-    private function syncPositionTimesFromEvent(): void
-    {
-        if (! $this->positionStartsAt && $this->startsAt) {
-            $this->positionStartsAt = $this->startsAt;
-        }
-        if (! $this->positionEndsAt && $this->endsAt) {
-            $this->positionEndsAt = $this->endsAt;
-        }
-    }
-
     private function resetPositionForm(): void
     {
-        $this->reset(['categoryId', 'positionTitle', 'editingIndex']);
+        $this->reset(['categoryId', 'positionTitle', 'positionDescription', 'editingIndex']);
         $this->positionSlots = 1;
         $this->positionIsPublic = true;
-        $this->positionStartsAt = $this->startsAt;
-        $this->positionEndsAt = $this->endsAt;
+        $this->positionCallOffsetMinutes = 60;
+        $this->positionDurationMinutes = 180;
         $this->resetValidation();
     }
 

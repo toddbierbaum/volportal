@@ -39,14 +39,23 @@
                     <input type="number" min="1" max="52" wire:model="offsetValue"
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
                 </div>
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">&nbsp;</label>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Unit</label>
                     <select wire:model="offsetUnit"
                             class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                        <option value="minutes">minute(s) before the event</option>
-                        <option value="hours">hour(s) before the event</option>
-                        <option value="days">day(s) before the event</option>
-                        <option value="weeks">week(s) before the event</option>
+                        <option value="minutes">minute(s) before</option>
+                        <option value="hours">hour(s) before</option>
+                        <option value="days">day(s) before</option>
+                        <option value="weeks">week(s) before</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Channel</label>
+                    <select wire:model="channel"
+                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                        <option value="email">Email</option>
+                        <option value="sms">SMS (coming soon)</option>
+                        <option value="both">Email + SMS (coming soon)</option>
                     </select>
                 </div>
             </div>

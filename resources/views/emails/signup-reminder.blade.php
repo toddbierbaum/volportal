@@ -13,7 +13,15 @@ This is your **{{ $schedule->label }}** reminder for:
 @if ($signup->position->event->location)
 at {{ $signup->position->event->location }}
 @endif
+
+Call time: {{ $signup->position->starts_at->format('g:i A') }} ({{ $signup->position->starts_at->diffForHumans($signup->position->event->starts_at, ['parts' => 2, 'short' => true]) }} before showtime)
 </x-mail::panel>
+
+@if ($signup->position->description)
+### What you'll be doing
+
+{{ $signup->position->description }}
+@endif
 
 @if ($signup->status === 'waitlisted')
 You're currently on the **waitlist** — we'll email you again if a spot opens up.

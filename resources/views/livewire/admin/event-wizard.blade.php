@@ -79,8 +79,6 @@
                 @foreach ($draftPositions as $i => $pos)
                     @php
                         $category = $categories->firstWhere('id', $pos['categoryId']);
-                        $startStr = \Carbon\Carbon::parse($pos['startsAt'])->format('g:i A');
-                        $endStr = \Carbon\Carbon::parse($pos['endsAt'])->format('g:i A');
                     @endphp
                     <li class="p-4 flex items-center justify-between gap-3">
                         <div class="min-w-0">
@@ -97,7 +95,9 @@
                                 @endif
                             </div>
                             <div class="text-sm text-gray-600 mt-0.5">
-                                {{ $startStr }}–{{ $endStr }} · {{ $pos['slotsNeeded'] }} slot{{ $pos['slotsNeeded'] === 1 ? '' : 's' }}
+                                Call {{ $pos['callOffsetMinutes'] ?? 60 }} min before event
+                                &middot; {{ $pos['durationMinutes'] ?? 180 }} min duration
+                                &middot; {{ $pos['slotsNeeded'] }} slot{{ $pos['slotsNeeded'] === 1 ? '' : 's' }}
                             </div>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
@@ -132,6 +132,12 @@
                     </select>
                     @error('categoryId') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Description / what the volunteer does</label>
+                    <textarea wire:model="positionDescription" rows="2"
+                              placeholder="e.g. Greet guests at the door, check tickets, direct them to their seats."
+                              class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm"></textarea>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Slots</label>
                     <input type="number" min="1" max="50" wire:model="positionSlots"
@@ -149,16 +155,16 @@
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Starts</label>
-                    <input type="datetime-local" wire:model="positionStartsAt"
+                    <label class="block text-sm font-medium text-gray-700">Call time (min before event)</label>
+                    <input type="number" min="0" max="1440" step="15" wire:model="positionCallOffsetMinutes"
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('positionStartsAt') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('positionCallOffsetMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Ends</label>
-                    <input type="datetime-local" wire:model="positionEndsAt"
+                    <label class="block text-sm font-medium text-gray-700">Duration (min)</label>
+                    <input type="number" min="15" max="1440" step="15" wire:model="positionDurationMinutes"
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('positionEndsAt') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    @error('positionDurationMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
 

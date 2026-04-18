@@ -11,7 +11,7 @@ class EventController extends Controller
         abort_unless($event->is_published, 404);
 
         $event->load([
-            'type',
+            'template',
             'positions' => fn ($q) => $q->where('is_public', true),
             'positions.category',
             'positions.signups',

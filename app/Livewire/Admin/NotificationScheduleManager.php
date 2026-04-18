@@ -10,6 +10,7 @@ class NotificationScheduleManager extends Component
 {
     public int $offsetValue = 1;
     public string $offsetUnit = 'days';
+    public string $channel = 'email';
 
     public ?int $editingId = null;
     public string $flash = '';
@@ -19,11 +20,13 @@ class NotificationScheduleManager extends Component
         $data = $this->validate([
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
+            'channel' => 'required|in:email,sms,both',
         ]);
 
         NotificationSchedule::create([
             'event_id' => null,
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
+            'channel' => $data['channel'],
         ]);
 
         $this->resetForm();
@@ -39,6 +42,7 @@ class NotificationScheduleManager extends Component
         [$value, $unit] = $this->fromMinutes($s->offset_minutes);
         $this->offsetValue = $value;
         $this->offsetUnit = $unit;
+        $this->channel = $s->channel ?? 'email';
         $this->resetValidation();
     }
 
@@ -47,6 +51,7 @@ class NotificationScheduleManager extends Component
         $data = $this->validate([
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
+            'channel' => 'required|in:email,sms,both',
         ]);
 
         $s = NotificationSchedule::find($this->editingId);
@@ -54,6 +59,7 @@ class NotificationScheduleManager extends Component
 
         $s->update([
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
+            'channel' => $data['channel'],
         ]);
 
         $this->resetForm();
@@ -86,6 +92,7 @@ class NotificationScheduleManager extends Component
         $this->reset(['editingId']);
         $this->offsetValue = 1;
         $this->offsetUnit = 'days';
+        $this->channel = 'email';
         $this->resetValidation();
     }
 
