@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
-use App\Models\EventType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -12,12 +11,12 @@ class EventController extends Controller
 {
     public function index()
     {
-        $upcoming = Event::with('type', 'positions.signups')
+        $upcoming = Event::with('template', 'positions.signups')
             ->where('starts_at', '>=', now())
             ->orderBy('starts_at')
             ->get();
 
-        $past = Event::with('type')
+        $past = Event::with('template')
             ->where('starts_at', '<', now())
             ->orderByDesc('starts_at')
             ->take(25)
@@ -28,27 +27,13 @@ class EventController extends Controller
 
     public function create()
     {
-        return view('admin.events.create', [
-            'event' => new Event(['starts_at' => now()->addWeek()->setTime(18, 0), 'ends_at' => now()->addWeek()->setTime(20, 30)]),
-            'eventTypes' => EventType::orderBy('name')->get(),
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $data = $this->validateData($request);
-        $data['slug'] = $this->uniqueSlug($data['title']);
-        $event = Event::create($data);
-
-        return redirect()->route('admin.events.edit', $event)
-            ->with('status', "Event \"{$event->title}\" created. Add positions below.");
+        return view('admin.events.create');
     }
 
     public function edit(Event $event)
     {
         return view('admin.events.edit', [
-            'event' => $event->loadMissing('type'),
-            'eventTypes' => EventType::orderBy('name')->get(),
+            'event' => $event->loadMissing('template'),
         ]);
     }
 
@@ -85,10 +70,10 @@ class EventController extends Controller
         foreach ($event->positions as $position) {
             $copy->positions()->create([
                 'category_id' => $position->category_id,
-                'position_template_id' => $position->position_template_id,
                 'title' => $position->title,
                 'description' => $position->description,
                 'slots_needed' => $position->slots_needed,
+                'is_public' => $position->is_public,
                 'starts_at' => $position->starts_at->copy()->addWeek(),
                 'ends_at' => $position->ends_at->copy()->addWeek(),
             ]);
@@ -101,7 +86,6 @@ class EventController extends Controller
     private function validateData(Request $request, ?Event $event = null): array
     {
         return $request->validate([
-            'event_type_id' => 'nullable|exists:event_types,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'starts_at' => 'required|date',

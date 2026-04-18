@@ -146,7 +146,7 @@ class VolunteerSignup extends Component
         }
 
         return Position::query()
-            ->with(['event.type', 'category', 'signups'])
+            ->with(['event.template', 'category', 'signups'])
             ->where('is_public', true)
             ->whereIn('category_id', $this->selectedCategoryIds)
             ->whereHas('event', fn ($q) => $q

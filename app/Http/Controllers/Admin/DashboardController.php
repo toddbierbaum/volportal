@@ -12,7 +12,7 @@ class DashboardController extends Controller
     public function index()
     {
         $upcomingEvents = Event::query()
-            ->with(['type', 'positions.signups'])
+            ->with(['template', 'positions.signups'])
             ->where('starts_at', '>=', now())
             ->orderBy('starts_at')
             ->take(10)

@@ -52,17 +52,6 @@
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">Template (optional)</label>
-                    <select wire:model.live="templateId"
-                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                        <option value="">— None (custom) —</option>
-                        @foreach ($templates as $template)
-                            <option value="{{ $template->id }}">{{ $template->title }} ({{ $template->category?->name }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Title</label>
                     <input type="text" wire:model="title"

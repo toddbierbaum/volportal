@@ -1,5 +1,17 @@
 <div>
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-fct-navy mb-1">Start from a template</h2>
+        <p class="text-sm text-gray-600 mb-4">Pick a template to auto-populate default positions and reminders. You can tweak everything before saving.</p>
+        <select wire:model.live="eventTemplateId"
+                class="block w-full sm:max-w-md border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+            <option value="">— None (blank event) —</option>
+            @foreach ($templates as $template)
+                <option value="{{ $template->id }}">{{ $template->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
         <h2 class="text-lg font-semibold text-fct-navy mb-4">Event details</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -11,21 +23,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Event type</label>
-                <select wire:model="eventTypeId"
-                        class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
-                    <option value="">—</option>
-                    @foreach ($eventTypes as $type)
-                        <option value="{{ $type->id }}">{{ $type->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
                 <label class="block text-sm font-medium text-gray-700">Location</label>
                 <input type="text" wire:model="location"
                        class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
             </div>
+
+            <div></div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700">Starts at</label>
@@ -60,7 +63,13 @@
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
         <div class="p-5 border-b border-gray-200">
             <h2 class="text-lg font-semibold text-fct-navy">Positions</h2>
-            <p class="text-sm text-gray-500 mt-0.5">Add the volunteer roles needed. Pick a template to prefill, or build a custom one.</p>
+            <p class="text-sm text-gray-500 mt-0.5">
+                @if ($eventTemplateId)
+                    Pre-filled from the template. Tweak or add more below.
+                @else
+                    Add the volunteer roles needed for this event.
+                @endif
+            </p>
         </div>
 
         @if (empty($draftPositions))
@@ -106,17 +115,6 @@
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">Template (optional)</label>
-                    <select wire:model.live="templateId"
-                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                        <option value="">— None (custom) —</option>
-                        @foreach ($templates as $template)
-                            <option value="{{ $template->id }}">{{ $template->title }} ({{ $template->category?->name }})</option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Title</label>
                     <input type="text" wire:model="positionTitle"
@@ -177,6 +175,25 @@
             </div>
         </div>
     </div>
+
+    @if (! empty($draftSchedules))
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
+            <div class="p-5 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-fct-navy">Reminders (from template)</h2>
+                <p class="text-sm text-gray-500 mt-0.5">These will be set up on the event. You can add or remove reminders after saving.</p>
+            </div>
+            <ul class="divide-y divide-gray-200">
+                @foreach ($draftSchedules as $s)
+                    <li class="p-4 text-sm text-gray-700">
+                        &middot; {{ $s['label'] }}
+                        @if ($s['channel'] !== 'email')
+                            <span class="text-xs text-amber-600 ml-2">({{ $s['channel'] }} — SMS coming soon)</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <div class="flex items-center justify-end gap-3">
         <a href="{{ route('admin.events.index') }}" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">Cancel</a>

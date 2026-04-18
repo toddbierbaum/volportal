@@ -5,15 +5,15 @@
         </a>
 
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            @if ($event->type)
-                <div class="h-2" style="background-color: {{ $event->type->color }}"></div>
+            @if ($event->template)
+                <div class="h-2" style="background-color: {{ $event->template->color }}"></div>
             @endif
 
             <div class="p-6 sm:p-8">
-                @if ($event->type)
+                @if ($event->template)
                     <span class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded"
-                          style="background-color: {{ $event->type->color }}20; color: {{ $event->type->color }}">
-                        {{ $event->type->name }}
+                          style="background-color: {{ $event->template->color }}20; color: {{ $event->template->color }}">
+                        {{ $event->template->name }}
                     </span>
                 @endif
 

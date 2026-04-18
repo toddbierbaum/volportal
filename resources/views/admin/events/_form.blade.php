@@ -11,16 +11,15 @@
         @error('title') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
-    <div>
-        <label for="event_type_id" class="block text-sm font-medium text-gray-700">Event type</label>
-        <select name="event_type_id" id="event_type_id"
-                class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
-            <option value="">—</option>
-            @foreach ($eventTypes as $type)
-                <option value="{{ $type->id }}" @selected(old('event_type_id', $event->event_type_id) == $type->id)>{{ $type->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    @if ($event->template)
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Template</label>
+            <div class="mt-1 flex items-center gap-2 text-sm">
+                <span class="inline-block w-3 h-3 rounded" style="background-color: {{ $event->template->color }}"></span>
+                <span class="font-medium text-gray-900">{{ $event->template->name }}</span>
+            </div>
+        </div>
+    @endif
 
     <div>
         <label for="location" class="block text-sm font-medium text-gray-700">Location</label>

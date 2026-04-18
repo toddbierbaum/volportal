@@ -40,7 +40,7 @@ class VolunteerController extends Controller
     {
         abort_unless($volunteer->role === 'volunteer', 404);
 
-        $upcomingSignups = Signup::with(['position.event.type', 'position.category'])
+        $upcomingSignups = Signup::with(['position.event.template', 'position.category'])
             ->where('user_id', $volunteer->id)
             ->whereHas('position.event', fn ($q) => $q->where('starts_at', '>=', now()))
             ->get()

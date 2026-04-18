@@ -18,7 +18,7 @@ class VolunteerDashboardController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $upcomingSignups = Signup::with(['position.event.type', 'position.category'])
+        $upcomingSignups = Signup::with(['position.event.template', 'position.category'])
             ->where('user_id', $user->id)
             ->whereHas('position.event', fn ($q) => $q->where('starts_at', '>=', now()))
             ->whereIn('status', ['confirmed', 'waitlisted'])

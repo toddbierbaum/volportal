@@ -47,10 +47,10 @@
                         <div class="min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <a href="{{ route('admin.events.edit', $event) }}" class="font-medium text-gray-900 hover:text-fct-navy">{{ $event->title }}</a>
-                                @if ($event->type)
+                                @if ($event->template)
                                     <span class="text-xs px-2 py-0.5 rounded"
-                                          style="background-color: {{ $event->type->color }}20; color: {{ $event->type->color }}">
-                                        {{ $event->type->name }}
+                                          style="background-color: {{ $event->template->color }}20; color: {{ $event->template->color }}">
+                                        {{ $event->template->name }}
                                     </span>
                                 @endif
                                 @if (! $event->is_published)
