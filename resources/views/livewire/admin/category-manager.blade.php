@@ -25,7 +25,7 @@
                                     <div class="text-sm text-gray-500 mt-0.5">{{ $item->description }}</div>
                                 @endif
                                 <div class="text-xs text-gray-400 mt-0.5">
-                                    {{ $item->position_templates_count }} template{{ $item->position_templates_count === 1 ? '' : 's' }}
+                                    {{ $item->event_template_positions_count }} template{{ $item->event_template_positions_count === 1 ? '' : 's' }}
                                     &middot; {{ $item->positions_count }} position{{ $item->positions_count === 1 ? '' : 's' }}
                                 </div>
                             </div>

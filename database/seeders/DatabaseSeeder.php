@@ -3,9 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use App\Models\EventType;
+use App\Models\EventTemplate;
+use App\Models\EventTemplatePosition;
+use App\Models\EventTemplateSchedule;
 use App\Models\NotificationSchedule;
-use App\Models\PositionTemplate;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -27,16 +28,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $eventTypes = [
-            ['name' => 'Standing Show',    'slug' => 'standing-show',    'color' => '#4F46E5'],
-            ['name' => 'Kids Production',  'slug' => 'kids-production',  'color' => '#10B981'],
-            ['name' => 'Rental',           'slug' => 'rental',           'color' => '#F59E0B'],
-            ['name' => 'Other',            'slug' => 'other',            'color' => '#6B7280'],
-        ];
-        foreach ($eventTypes as $t) {
-            EventType::updateOrCreate(['slug' => $t['slug']], $t);
-        }
-
         $categories = [
             ['name' => 'Front of House', 'slug' => 'front-of-house', 'color' => '#4F46E5',
              'description' => 'Welcoming and managing patrons — House Manager, Door, seating.'],
@@ -51,36 +42,83 @@ class DatabaseSeeder extends Seeder
             Category::updateOrCreate(['slug' => $c['slug']], $c);
         }
 
-        $frontOfHouse = Category::where('slug', 'front-of-house')->first();
-        $concessions  = Category::where('slug', 'concessions')->first();
-        $boxOffice    = Category::where('slug', 'box-office')->first();
+        $frontOfHouse = Category::where('slug', 'front-of-house')->value('id');
+        $concessions  = Category::where('slug', 'concessions')->value('id');
+        $boxOffice    = Category::where('slug', 'box-office')->value('id');
 
-        $templates = [
-            ['title' => 'House Manager', 'category_id' => $frontOfHouse->id, 'default_duration_minutes' => 180,
-             'description' => 'Manages front-of-house operations during the event.'],
-            ['title' => 'Door',          'category_id' => $frontOfHouse->id, 'default_duration_minutes' => 150,
-             'description' => 'Greets patrons, checks tickets, directs seating.'],
-            ['title' => 'Concessions',   'category_id' => $concessions->id,  'default_duration_minutes' => 180,
-             'description' => 'Staffs the concessions counter before the show and at intermission.'],
-            ['title' => 'Box Office',    'category_id' => $boxOffice->id,    'default_duration_minutes' => 150,
-             'description' => 'Sells tickets and handles will-call at the door.'],
-        ];
-        foreach ($templates as $tpl) {
-            PositionTemplate::updateOrCreate(
-                ['title' => $tpl['title']],
-                $tpl
+        $defaultSchedules = [10080, 1440]; // 1 week, 1 day (in minutes)
+        foreach ($defaultSchedules as $offset) {
+            NotificationSchedule::firstOrCreate(
+                ['event_id' => null, 'offset_minutes' => $offset]
             );
         }
 
-        $defaultSchedules = [
-            ['label' => '1 week before', 'offset_minutes' => 10080],
-            ['label' => '1 day before',  'offset_minutes' => 1440],
+        $templates = [
+            [
+                'slug' => 'standing-show',
+                'name' => 'Standing Show',
+                'color' => '#4F46E5',
+                'positions' => [
+                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 30, 'duration' => 180, 'order' => 10],
+                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' => 30, 'duration' => 180, 'order' => 20],
+                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' => 30, 'duration' => 150, 'order' => 30],
+                ],
+            ],
+            [
+                'slug' => 'kids-production',
+                'name' => 'Kids Production',
+                'color' => '#10B981',
+                'positions' => [
+                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 45, 'duration' => 210, 'order' => 10],
+                    ['title' => 'Box Office',    'category_id' => $boxOffice,    'slots' => 1, 'is_public' => true,  'call_offset' => 60, 'duration' => 180, 'order' => 20],
+                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' => 30, 'duration' => 180, 'order' => 30],
+                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' => 30, 'duration' => 150, 'order' => 40],
+                ],
+            ],
+            [
+                'slug' => 'rental',
+                'name' => 'Rental',
+                'color' => '#F59E0B',
+                'positions' => [],
+            ],
+            [
+                'slug' => 'other',
+                'name' => 'Other',
+                'color' => '#6B7280',
+                'positions' => [],
+            ],
         ];
-        foreach ($defaultSchedules as $s) {
-            NotificationSchedule::updateOrCreate(
-                ['event_id' => null, 'offset_minutes' => $s['offset_minutes']],
-                $s + ['event_id' => null]
+
+        foreach ($templates as $tpl) {
+            $template = EventTemplate::updateOrCreate(
+                ['slug' => $tpl['slug']],
+                ['name' => $tpl['name'], 'color' => $tpl['color']]
             );
+
+            if ($template->positions()->count() === 0) {
+                foreach ($tpl['positions'] as $p) {
+                    EventTemplatePosition::create([
+                        'event_template_id' => $template->id,
+                        'category_id' => $p['category_id'],
+                        'title' => $p['title'],
+                        'slots_needed' => $p['slots'],
+                        'is_public' => $p['is_public'],
+                        'call_offset_minutes' => $p['call_offset'],
+                        'duration_minutes' => $p['duration'],
+                        'position_order' => $p['order'],
+                    ]);
+                }
+            }
+
+            if ($template->schedules()->count() === 0) {
+                foreach ($defaultSchedules as $offset) {
+                    EventTemplateSchedule::create([
+                        'event_template_id' => $template->id,
+                        'offset_minutes' => $offset,
+                        'channel' => 'email',
+                    ]);
+                }
+            }
         }
     }
 }

@@ -11,7 +11,6 @@ class Position extends Model
     protected $fillable = [
         'event_id',
         'category_id',
-        'position_template_id',
         'title',
         'description',
         'slots_needed',
@@ -37,11 +36,6 @@ class Position extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
-    }
-
-    public function template(): BelongsTo
-    {
-        return $this->belongsTo(PositionTemplate::class, 'position_template_id');
     }
 
     public function signups(): HasMany

@@ -43,8 +43,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);
 
     Route::view('/categories', 'admin.categories')->name('categories');
-    Route::view('/position-templates', 'admin.position-templates')->name('position-templates');
-    Route::view('/event-types', 'admin.event-types')->name('event-types');
     Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');
 });
 

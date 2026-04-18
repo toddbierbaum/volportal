@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
-    protected $fillable = ['event_type_id', 'event_template_id', 'title', 'slug', 'description', 'starts_at', 'ends_at', 'location', 'is_published'];
+    protected $fillable = ['event_template_id', 'title', 'slug', 'description', 'starts_at', 'ends_at', 'location', 'is_published'];
 
     protected function casts(): array
     {
@@ -17,11 +17,6 @@ class Event extends Model
             'ends_at' => 'datetime',
             'is_published' => 'boolean',
         ];
-    }
-
-    public function type(): BelongsTo
-    {
-        return $this->belongsTo(EventType::class, 'event_type_id');
     }
 
     public function template(): BelongsTo

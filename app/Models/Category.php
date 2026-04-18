@@ -15,9 +15,9 @@ class Category extends Model
         return $this->belongsToMany(User::class);
     }
 
-    public function positionTemplates(): HasMany
+    public function eventTemplatePositions(): HasMany
     {
-        return $this->hasMany(PositionTemplate::class);
+        return $this->hasMany(EventTemplatePosition::class);
     }
 
     public function positions(): HasMany

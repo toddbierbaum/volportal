@@ -69,7 +69,7 @@ class CategoryManager extends Component
         $c = Category::find($id);
         if (! $c) return;
 
-        $usage = $c->positionTemplates()->count() + $c->positions()->count();
+        $usage = $c->eventTemplatePositions()->count() + $c->positions()->count();
         if ($usage > 0) {
             $this->flash = "Can't delete \"{$c->name}\" — {$usage} position(s) or template(s) still reference it. Reassign or remove them first.";
             return;
@@ -81,7 +81,7 @@ class CategoryManager extends Component
 
     public function getItemsProperty(): Collection
     {
-        return Category::orderBy('name')->withCount(['positionTemplates', 'positions'])->get();
+        return Category::orderBy('name')->withCount(['eventTemplatePositions', 'positions'])->get();
     }
 
     private function resetForm(): void
