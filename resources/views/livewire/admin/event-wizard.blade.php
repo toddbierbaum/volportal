@@ -193,7 +193,7 @@
                     <li class="p-4 text-sm text-gray-700">
                         &middot; {{ $s['label'] }}
                         @if ($s['channel'] !== 'email')
-                            <span class="text-xs text-amber-600 ml-2">({{ $s['channel'] }} — SMS coming soon)</span>
+                            <span class="text-xs text-gray-500 ml-2">via {{ $s['channel'] }}</span>
                         @endif
                     </li>
                 @endforeach

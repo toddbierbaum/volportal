@@ -27,6 +27,8 @@ class VolunteerSignup extends Component
     #[Validate('required|string|max:30')]
     public string $phone = '';
 
+    public bool $smsOptIn = false;
+
     /** @var array<int> */
     public array $selectedCategoryIds = [];
 
@@ -80,6 +82,7 @@ class VolunteerSignup extends Component
                 'name' => $this->name,
                 'phone' => $this->phone,
                 'role' => 'volunteer',
+                'sms_opt_in' => $this->smsOptIn,
             ]
         );
 

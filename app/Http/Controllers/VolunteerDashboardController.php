@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Signup;
+use Illuminate\Http\Request;
 
 class VolunteerDashboardController extends Controller
 {
@@ -38,5 +39,29 @@ class VolunteerDashboardController extends Controller
             'upcomingSignups' => $upcomingSignups,
             'pastSignups' => $pastSignups,
         ]);
+    }
+
+    public function updatePreferences(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user && ! $user->isAdmin(), 403);
+
+        $data = $request->validate([
+            'phone' => 'nullable|string|max:30',
+            'sms_opt_in' => 'sometimes|boolean',
+        ]);
+
+        $smsOptIn = (bool) ($data['sms_opt_in'] ?? false);
+        if ($smsOptIn && empty($data['phone'] ?? null)) {
+            return back()->withErrors(['phone' => 'A phone number is required to receive text reminders.']);
+        }
+
+        $user->update([
+            'phone' => $data['phone'] ?? null,
+            'sms_opt_in' => $smsOptIn,
+        ]);
+
+        return redirect()->route('volunteer.dashboard')
+            ->with('status', 'Preferences updated.');
     }
 }

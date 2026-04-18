@@ -54,8 +54,8 @@
                     <select wire:model="channel"
                             class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
                         <option value="email">Email</option>
-                        <option value="sms">SMS (coming soon)</option>
-                        <option value="both">Email + SMS (coming soon)</option>
+                        <option value="sms">SMS</option>
+                        <option value="both">Email + SMS</option>
                     </select>
                 </div>
             </div>

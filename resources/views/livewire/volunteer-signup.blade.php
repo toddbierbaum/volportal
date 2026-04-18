@@ -45,6 +45,16 @@
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
                     @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
+                <div>
+                    <label class="inline-flex items-start gap-2 text-sm">
+                        <input type="checkbox" wire:model="smsOptIn"
+                               class="mt-0.5 rounded border-gray-300 text-fct-navy focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 font-medium">Also send me text reminders</span>
+                            <span class="block text-xs text-gray-500">Standard message rates apply. Reply STOP to opt back out any time.</span>
+                        </span>
+                    </label>
+                </div>
             </div>
 
             <div class="mt-6 flex justify-end">

@@ -17,6 +17,50 @@
             </form>
         </div>
 
+        @if (session('status'))
+            <div class="mb-4 px-4 py-3 rounded bg-green-50 border border-green-200 text-sm text-green-900">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        <details class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <summary class="p-6 sm:p-8 cursor-pointer list-none flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-fct-navy">Reminder preferences</h2>
+                    <p class="text-sm text-gray-600 mt-0.5">
+                        You currently receive reminders via <strong>email</strong>
+                        @if ($user->sms_opt_in && $user->phone)
+                            and <strong>text</strong> to {{ $user->phone }}
+                        @endif.
+                    </p>
+                </div>
+                <span class="text-fct-navy text-sm">Edit &rsaquo;</span>
+            </summary>
+            <form method="POST" action="{{ route('volunteer.preferences') }}" class="px-6 sm:px-8 pb-6 sm:pb-8 border-t border-gray-100 pt-4 space-y-4">
+                @csrf
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone (for text reminders)</label>
+                    <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" autocomplete="tel"
+                           class="mt-1 block w-full sm:max-w-sm border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                    @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="inline-flex items-start gap-2 text-sm">
+                        <input type="hidden" name="sms_opt_in" value="0">
+                        <input type="checkbox" name="sms_opt_in" value="1" @checked(old('sms_opt_in', $user->sms_opt_in))
+                               class="mt-0.5 rounded border-gray-300 text-fct-navy focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 font-medium">Send me text reminders</span>
+                            <span class="block text-xs text-gray-500">Standard message rates apply. Reply STOP to any text to opt back out.</span>
+                        </span>
+                    </label>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">Save preferences</button>
+                </div>
+            </form>
+        </details>
+
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
             <h2 class="text-lg font-semibold text-fct-navy mb-4">Your upcoming signups</h2>
 

@@ -22,6 +22,7 @@ Route::get('/magic-link/{user}', [MagicLinkController::class, 'login'])
     ->name('magic-link.login');
 
 Route::get('/my', [VolunteerDashboardController::class, 'index'])->name('volunteer.dashboard');
+Route::post('/my/preferences', [VolunteerDashboardController::class, 'updatePreferences'])->name('volunteer.preferences');
 
 Route::post('/logout', function () {
     auth()->guard('web')->logout();

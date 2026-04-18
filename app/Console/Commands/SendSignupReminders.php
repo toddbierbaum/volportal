@@ -6,18 +6,20 @@ use App\Mail\SignupReminderMail;
 use App\Models\NotificationLog;
 use App\Models\NotificationSchedule;
 use App\Models\Signup;
+use App\Support\SmsSender;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
 #[Signature('reminders:send {--dry-run : List what would be sent without sending}')]
-#[Description('Send volunteer reminder emails for signups whose event falls within a reminder schedule')]
+#[Description('Send volunteer reminder emails + texts for signups whose event falls within a reminder schedule')]
 class SendSignupReminders extends Command
 {
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');
+        $sms = SmsSender::fromConfig();
 
         $signups = Signup::query()
             ->with(['user', 'position.event.template.schedules'])
@@ -39,11 +41,9 @@ class SendSignupReminders extends Command
             $eventSchedules = NotificationSchedule::where('event_id', $event->id)->get();
             $templateSchedules = $event->template?->schedules ?? collect();
 
-            // Merge all three sources, deduped by offset_minutes. Preference
-            // order when the same offset appears in multiple sources
-            // (doesn't really matter for sending, but the canonical
-            // schedule's label is what the email displays):
-            //   per-event > template > global
+            // Merge all three sources, deduped by offset_minutes.
+            // Preference: per-event > template > global (for the canonical
+            // label + channel that drive dispatch).
             $byOffset = [];
             foreach ($globalSchedules as $s) {
                 $byOffset[$s->offset_minutes] = ['source' => 'global', 'schedule' => $s];
@@ -62,41 +62,69 @@ class SendSignupReminders extends Command
                     continue;
                 }
 
-                $alreadySent = NotificationLog::where('signup_id', $signup->id)
+                $schedule = $entry['schedule'];
+                $channel = $schedule->channel ?? 'email';
+
+                // Per-channel dedup: same offset on the same signup can send
+                // once via email and once via SMS (e.g. channel=both).
+                [$wantsEmail, $wantsSms] = match ($channel) {
+                    'sms' => [false, true],
+                    'both' => [true, true],
+                    default => [true, false],
+                };
+                $smsEligible = $wantsSms && $signup->user->sms_opt_in && $signup->user->phone;
+
+                $emailAlreadySent = $wantsEmail && NotificationLog::where('signup_id', $signup->id)
                     ->where('offset_minutes', $offsetMinutes)
+                    ->where('type', 'reminder:email')
+                    ->exists();
+                $smsAlreadySent = $smsEligible && NotificationLog::where('signup_id', $signup->id)
+                    ->where('offset_minutes', $offsetMinutes)
+                    ->where('type', 'reminder:sms')
                     ->exists();
 
-                if ($alreadySent) {
+                if ($wantsEmail && ! $emailAlreadySent) {
+                    $this->line(sprintf('%s [email] %s to %s — %s @ %s',
+                        $dryRun ? '[dry]' : '→',
+                        $schedule->label, $signup->user->email, $signup->position->title, $event->title,
+                    ));
+                    if (! $dryRun) {
+                        Mail::to($signup->user->email)->send(new SignupReminderMail($signup, $schedule));
+                        NotificationLog::create([
+                            'signup_id' => $signup->id,
+                            'notification_schedule_id' => in_array($entry['source'], ['global', 'event']) ? $schedule->id : null,
+                            'offset_minutes' => $offsetMinutes,
+                            'type' => 'reminder:email',
+                            'sent_at' => now(),
+                        ]);
+                    }
+                    $sent++;
+                } elseif ($emailAlreadySent) {
                     $skipped++;
-                    continue;
                 }
 
-                $schedule = $entry['schedule'];
-
-                $this->line(sprintf(
-                    '%s Reminder (%s, %s) to %s for %s @ %s',
-                    $dryRun ? '[dry]' : '→',
-                    $schedule->label,
-                    $entry['source'],
-                    $signup->user->email,
-                    $signup->position->title,
-                    $event->title,
-                ));
-
-                if (! $dryRun) {
-                    Mail::to($signup->user->email)->send(new SignupReminderMail($signup, $schedule));
-                    NotificationLog::create([
-                        'signup_id' => $signup->id,
-                        'notification_schedule_id' => $entry['source'] === 'global' || $entry['source'] === 'event'
-                            ? $schedule->id
-                            : null,
-                        'offset_minutes' => $offsetMinutes,
-                        'type' => 'reminder',
-                        'sent_at' => now(),
-                    ]);
+                if ($smsEligible && ! $smsAlreadySent) {
+                    $body = $this->smsBody($signup, $schedule);
+                    $this->line(sprintf('%s [sms] %s to %s — %s @ %s',
+                        $dryRun ? '[dry]' : '→',
+                        $schedule->label, $signup->user->phone, $signup->position->title, $event->title,
+                    ));
+                    $ok = $dryRun ? true : $sms->send($signup->user->phone, $body);
+                    if ($ok) {
+                        if (! $dryRun) {
+                            NotificationLog::create([
+                                'signup_id' => $signup->id,
+                                'notification_schedule_id' => in_array($entry['source'], ['global', 'event']) ? $schedule->id : null,
+                                'offset_minutes' => $offsetMinutes,
+                                'type' => 'reminder:sms',
+                                'sent_at' => now(),
+                            ]);
+                        }
+                        $sent++;
+                    }
+                } elseif ($smsAlreadySent) {
+                    $skipped++;
                 }
-
-                $sent++;
             }
         }
 
@@ -109,5 +137,19 @@ class SendSignupReminders extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    private function smsBody(Signup $signup, NotificationSchedule|\App\Models\EventTemplateSchedule $schedule): string
+    {
+        $event = $signup->position->event;
+        $when = $signup->position->starts_at->format('D M j, g:i A');
+        return sprintf(
+            "%s reminder: %s — %s on %s%s. Reply STOP to opt out.",
+            config('app.name'),
+            $signup->position->title,
+            $event->title,
+            $when,
+            $event->location ? ' at ' . $event->location : ''
+        );
     }
 }
