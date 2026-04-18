@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\EventTemplate;
 use App\Models\EventTemplatePosition;
 use App\Models\EventTemplateSchedule;
+use App\Models\NotificationSchedule;
 use App\Models\User;
 use App\Support\DurationFormatter;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -46,10 +47,19 @@ class DatabaseSeeder extends Seeder
         $concessions  = Category::where('slug', 'concessions')->value('id');
         $boxOffice    = Category::where('slug', 'box-office')->value('id');
 
-        // Default reminder offsets (in minutes). Each template carries
-        // its own copy of these; no global notification_schedules, since
-        // those would duplicate the template-derived reminders.
+        // Default reminder offsets (in minutes). Seeded as both global
+        // defaults (apply to every event) AND as each template's default
+        // schedule list. The reminder command dedupes by offset so a
+        // template that carries the same offset as a global only fires
+        // one email per signup.
         $defaultSchedules = [10080, 1440]; // 1 week, 1 day
+
+        foreach ($defaultSchedules as $offset) {
+            NotificationSchedule::firstOrCreate(
+                ['event_id' => null, 'offset_minutes' => $offset],
+                ['label' => DurationFormatter::beforeEvent($offset)]
+            );
+        }
 
         $templates = [
             [

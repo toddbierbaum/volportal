@@ -20,7 +20,7 @@ class SendSignupReminders extends Command
         $dryRun = (bool) $this->option('dry-run');
 
         $signups = Signup::query()
-            ->with(['user', 'position.event'])
+            ->with(['user', 'position.event.template.schedules'])
             ->whereIn('status', ['confirmed', 'waitlisted'])
             ->whereHas('position.event', fn ($q) => $q->where('starts_at', '>=', now()))
             ->get();
@@ -35,19 +35,35 @@ class SendSignupReminders extends Command
         $skipped = 0;
 
         foreach ($signups as $signup) {
-            $eventId = $signup->position->event_id;
-            $eventSchedules = NotificationSchedule::where('event_id', $eventId)->get();
-            $schedules = $globalSchedules->concat($eventSchedules);
+            $event = $signup->position->event;
+            $eventSchedules = NotificationSchedule::where('event_id', $event->id)->get();
+            $templateSchedules = $event->template?->schedules ?? collect();
 
-            foreach ($schedules as $schedule) {
+            // Merge all three sources, deduped by offset_minutes. Preference
+            // order when the same offset appears in multiple sources
+            // (doesn't really matter for sending, but the canonical
+            // schedule's label is what the email displays):
+            //   per-event > template > global
+            $byOffset = [];
+            foreach ($globalSchedules as $s) {
+                $byOffset[$s->offset_minutes] = ['source' => 'global', 'schedule' => $s];
+            }
+            foreach ($templateSchedules as $s) {
+                $byOffset[$s->offset_minutes] = ['source' => 'template', 'schedule' => $s];
+            }
+            foreach ($eventSchedules as $s) {
+                $byOffset[$s->offset_minutes] = ['source' => 'event', 'schedule' => $s];
+            }
+
+            foreach ($byOffset as $offsetMinutes => $entry) {
                 $minutesUntilPosition = now()->diffInMinutes($signup->position->starts_at, false);
 
-                if ($minutesUntilPosition > $schedule->offset_minutes || $minutesUntilPosition < 0) {
+                if ($minutesUntilPosition > $offsetMinutes || $minutesUntilPosition < 0) {
                     continue;
                 }
 
                 $alreadySent = NotificationLog::where('signup_id', $signup->id)
-                    ->where('notification_schedule_id', $schedule->id)
+                    ->where('offset_minutes', $offsetMinutes)
                     ->exists();
 
                 if ($alreadySent) {
@@ -55,20 +71,26 @@ class SendSignupReminders extends Command
                     continue;
                 }
 
+                $schedule = $entry['schedule'];
+
                 $this->line(sprintf(
-                    '%s Reminder (%s) to %s for %s @ %s',
+                    '%s Reminder (%s, %s) to %s for %s @ %s',
                     $dryRun ? '[dry]' : '→',
                     $schedule->label,
+                    $entry['source'],
                     $signup->user->email,
                     $signup->position->title,
-                    $signup->position->event->title,
+                    $event->title,
                 ));
 
                 if (! $dryRun) {
                     Mail::to($signup->user->email)->send(new SignupReminderMail($signup, $schedule));
                     NotificationLog::create([
                         'signup_id' => $signup->id,
-                        'notification_schedule_id' => $schedule->id,
+                        'notification_schedule_id' => $entry['source'] === 'global' || $entry['source'] === 'event'
+                            ? $schedule->id
+                            : null,
+                        'offset_minutes' => $offsetMinutes,
                         'type' => 'reminder',
                         'sent_at' => now(),
                     ]);

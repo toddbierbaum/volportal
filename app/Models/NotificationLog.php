@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class NotificationLog extends Model
 {
-    protected $fillable = ['signup_id', 'notification_schedule_id', 'type', 'sent_at'];
+    protected $fillable = ['signup_id', 'notification_schedule_id', 'offset_minutes', 'type', 'sent_at'];
 
     protected function casts(): array
     {

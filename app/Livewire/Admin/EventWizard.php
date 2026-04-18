@@ -5,7 +5,6 @@ namespace App\Livewire\Admin;
 use App\Models\Category;
 use App\Models\Event;
 use App\Models\EventTemplate;
-use App\Models\NotificationSchedule;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -213,12 +212,11 @@ class EventWizard extends Component
                 ]);
             }
 
-            foreach ($this->draftSchedules as $draft) {
-                NotificationSchedule::create([
-                    'event_id' => $event->id,
-                    'offset_minutes' => $draft['offsetMinutes'],
-                ]);
-            }
+            // Intentionally NOT copying $this->draftSchedules into
+            // notification_schedules — the reminder command reads the
+            // template's schedules live via $event->template->schedules,
+            // so copying would duplicate. Per-event overrides can still
+            // be added from the event edit page.
 
             return $event;
         });

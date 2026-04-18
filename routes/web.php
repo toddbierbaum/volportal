@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController as AdminAdminController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\EventTemplateController as AdminEventTemplateController;
@@ -41,6 +42,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
 
     Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);
+
+    Route::get('/admins', [AdminAdminController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [AdminAdminController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
+    Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
+    Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy');
+    Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password');
 
     Route::view('/categories', 'admin.categories')->name('categories');
     Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');

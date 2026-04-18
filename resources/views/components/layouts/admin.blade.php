@@ -24,6 +24,7 @@
             </a>
             <nav class="flex items-center gap-4 text-sm">
                 <a href="{{ route('calendar') }}" class="text-fct-cyan-light hover:text-white transition">Public site</a>
+                <a href="{{ route('profile') }}" class="text-fct-cyan-light hover:text-white transition">{{ auth()->user()?->name ? explode(' ', auth()->user()->name)[0] : 'Profile' }}</a>
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
                     <button type="submit" class="text-fct-cyan-light hover:text-white transition">Log out</button>
@@ -39,6 +40,8 @@
                         ['admin.event-templates.index', 'Event templates'],
                         ['admin.volunteers.index', 'Volunteers'],
                         ['admin.categories', 'Categories'],
+                        ['admin.notification-schedules', 'Reminders'],
+                        ['admin.admins.index', 'Admins'],
                     ];
                 @endphp
                 @foreach ($tabs as [$routeName, $label])

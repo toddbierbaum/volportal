@@ -104,10 +104,10 @@ return new class extends Migration
             }
         }
 
-        // With templates now carrying default reminders, the global
-        // notification_schedules are redundant and would cause
-        // duplicate emails for events cloned from templates.
-        DB::table('notification_schedules')->whereNull('event_id')->delete();
+        // Global notification_schedules are kept as site-wide defaults.
+        // The reminder command dedupes by offset_minutes per signup so
+        // a global + event-level schedule at the same offset only fires
+        // one email.
     }
 
     public function down(): void
