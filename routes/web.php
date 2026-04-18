@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\EventTemplateController as AdminEventTemplateController;
 use App\Http\Controllers\Admin\VolunteerController as AdminVolunteerController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
@@ -38,6 +39,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
     Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
     Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
+
+    Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);
 
     Route::view('/categories', 'admin.categories')->name('categories');
     Route::view('/position-templates', 'admin.position-templates')->name('position-templates');

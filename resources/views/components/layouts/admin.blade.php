@@ -36,10 +36,9 @@
                     $tabs = [
                         ['admin.dashboard', 'Dashboard'],
                         ['admin.events.index', 'Events'],
+                        ['admin.event-templates.index', 'Event templates'],
                         ['admin.volunteers.index', 'Volunteers'],
                         ['admin.categories', 'Categories'],
-                        ['admin.position-templates', 'Templates'],
-                        ['admin.event-types', 'Event types'],
                         ['admin.notification-schedules', 'Reminders'],
                     ];
                 @endphp
