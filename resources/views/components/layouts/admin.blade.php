@@ -15,7 +15,7 @@
     <header class="bg-fct-navy text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                <img src="/images/logo-white.png"
+                <img src="/images/logo-white.png?v={{ config('app.version') }}"
                      alt="Florida Chautauqua Theater &amp; Institute"
                      class="h-10 w-auto">
                 <span class="hidden md:inline text-xs text-fct-cyan-light tracking-widest uppercase border-l border-fct-navy-light pl-3">
