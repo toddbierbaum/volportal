@@ -21,20 +21,38 @@ echo "==> Deploy starting at $(date)"
 
 # --- 1. Back up the database before anything mutating ---
 mkdir -p storage/backups
-BACKUP_FILE="storage/backups/db-$(date +%Y%m%d-%H%M%S).sql.gz"
-echo "==> Dumping database to $BACKUP_FILE"
-DB_NAME=$(php -r "echo parse_url('mysql://'.getenv('DB_USERNAME').':'.getenv('DB_PASSWORD').'@'.getenv('DB_HOST').'/'.getenv('DB_DATABASE'), PHP_URL_PATH);" | tr -d /)
-if [ -z "${DB_NAME:-}" ]; then
-    DB_NAME=$(grep '^DB_DATABASE=' .env | cut -d= -f2 | tr -d '"')
-fi
-mysqldump \
-    --host="$(grep '^DB_HOST=' .env | cut -d= -f2 | tr -d '"')" \
-    --user="$(grep '^DB_USERNAME=' .env | cut -d= -f2 | tr -d '"')" \
-    --password="$(grep '^DB_PASSWORD=' .env | cut -d= -f2 | tr -d '"')" \
-    "$DB_NAME" 2>/dev/null | gzip > "$BACKUP_FILE"
+DB_CONNECTION="$(grep '^DB_CONNECTION=' .env | cut -d= -f2 | tr -d '"[:space:]')"
+TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 
-# Keep the last 20 backups
+if [ "$DB_CONNECTION" = "sqlite" ]; then
+    SQLITE_FILE="database/database.sqlite"
+    if [ -f "$SQLITE_FILE" ]; then
+        BACKUP_FILE="storage/backups/db-${TIMESTAMP}.sqlite"
+        echo "==> Copying SQLite DB to $BACKUP_FILE"
+        cp "$SQLITE_FILE" "$BACKUP_FILE"
+    else
+        echo "==> SQLite file $SQLITE_FILE not found — skipping backup"
+    fi
+elif [ "$DB_CONNECTION" = "mysql" ]; then
+    BACKUP_FILE="storage/backups/db-${TIMESTAMP}.sql.gz"
+    echo "==> Dumping MySQL database to $BACKUP_FILE"
+    DB_HOST="$(grep '^DB_HOST=' .env | cut -d= -f2 | tr -d '"')"
+    DB_USER="$(grep '^DB_USERNAME=' .env | cut -d= -f2 | tr -d '"')"
+    DB_PASS="$(grep '^DB_PASSWORD=' .env | cut -d= -f2 | tr -d '"')"
+    DB_NAME="$(grep '^DB_DATABASE=' .env | cut -d= -f2 | tr -d '"')"
+    if [ -n "$DB_NAME" ] && [ -n "$DB_USER" ]; then
+        mysqldump --host="$DB_HOST" --user="$DB_USER" --password="$DB_PASS" "$DB_NAME" 2>/dev/null \
+            | gzip > "$BACKUP_FILE" || echo "    warning: mysqldump failed, continuing without backup"
+    else
+        echo "    warning: DB credentials incomplete, skipping backup"
+    fi
+else
+    echo "==> Unknown DB_CONNECTION '$DB_CONNECTION' — skipping backup"
+fi
+
+# Keep the last 20 backups (both extensions)
 ls -1t storage/backups/db-*.sql.gz 2>/dev/null | tail -n +21 | xargs -r rm -f
+ls -1t storage/backups/db-*.sqlite 2>/dev/null | tail -n +21 | xargs -r rm -f
 
 # --- 2. Pull latest code ---
 echo "==> Pulling latest code"
