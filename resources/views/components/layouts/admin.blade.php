@@ -39,7 +39,6 @@
                         ['admin.event-templates.index', 'Event templates'],
                         ['admin.volunteers.index', 'Volunteers'],
                         ['admin.categories', 'Categories'],
-                        ['admin.notification-schedules', 'Reminders'],
                     ];
                 @endphp
                 @foreach ($tabs as [$routeName, $label])

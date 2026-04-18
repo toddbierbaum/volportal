@@ -103,6 +103,11 @@ return new class extends Migration
                 }
             }
         }
+
+        // With templates now carrying default reminders, the global
+        // notification_schedules are redundant and would cause
+        // duplicate emails for events cloned from templates.
+        DB::table('notification_schedules')->whereNull('event_id')->delete();
     }
 
     public function down(): void

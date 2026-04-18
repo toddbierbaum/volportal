@@ -6,8 +6,8 @@ use App\Models\Category;
 use App\Models\EventTemplate;
 use App\Models\EventTemplatePosition;
 use App\Models\EventTemplateSchedule;
-use App\Models\NotificationSchedule;
 use App\Models\User;
+use App\Support\DurationFormatter;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -46,12 +46,10 @@ class DatabaseSeeder extends Seeder
         $concessions  = Category::where('slug', 'concessions')->value('id');
         $boxOffice    = Category::where('slug', 'box-office')->value('id');
 
-        $defaultSchedules = [10080, 1440]; // 1 week, 1 day (in minutes)
-        foreach ($defaultSchedules as $offset) {
-            NotificationSchedule::firstOrCreate(
-                ['event_id' => null, 'offset_minutes' => $offset]
-            );
-        }
+        // Default reminder offsets (in minutes). Each template carries
+        // its own copy of these; no global notification_schedules, since
+        // those would duplicate the template-derived reminders.
+        $defaultSchedules = [10080, 1440]; // 1 week, 1 day
 
         $templates = [
             [
@@ -116,6 +114,7 @@ class DatabaseSeeder extends Seeder
                         'event_template_id' => $template->id,
                         'offset_minutes' => $offset,
                         'channel' => 'email',
+                        'label' => DurationFormatter::beforeEvent($offset),
                     ]);
                 }
             }
