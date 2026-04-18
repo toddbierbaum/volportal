@@ -15,7 +15,7 @@
     <header class="bg-fct-navy text-white shadow-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
             <a href="{{ route('calendar') }}" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo-white.png') }}"
+                <img src="/images/logo-white.png"
                      alt="Florida Chautauqua Theater &amp; Institute"
                      class="h-12 sm:h-14 w-auto">
                 <span class="hidden md:inline text-sm text-fct-cyan-light tracking-widest uppercase border-l border-fct-navy-light pl-3">

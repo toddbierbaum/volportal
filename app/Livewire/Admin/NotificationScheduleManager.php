@@ -8,7 +8,6 @@ use Livewire\Component;
 
 class NotificationScheduleManager extends Component
 {
-    public string $label = '';
     public int $offsetValue = 1;
     public string $offsetUnit = 'days';
 
@@ -18,14 +17,12 @@ class NotificationScheduleManager extends Component
     public function add(): void
     {
         $data = $this->validate([
-            'label' => 'required|string|max:255',
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
         ]);
 
         NotificationSchedule::create([
             'event_id' => null,
-            'label' => $data['label'],
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
         ]);
 
@@ -39,7 +36,6 @@ class NotificationScheduleManager extends Component
         if (! $s || $s->event_id !== null) return;
 
         $this->editingId = $id;
-        $this->label = $s->label;
         [$value, $unit] = $this->fromMinutes($s->offset_minutes);
         $this->offsetValue = $value;
         $this->offsetUnit = $unit;
@@ -49,7 +45,6 @@ class NotificationScheduleManager extends Component
     public function saveEdit(): void
     {
         $data = $this->validate([
-            'label' => 'required|string|max:255',
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
         ]);
@@ -58,7 +53,6 @@ class NotificationScheduleManager extends Component
         if (! $s) return;
 
         $s->update([
-            'label' => $data['label'],
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
         ]);
 
@@ -89,7 +83,7 @@ class NotificationScheduleManager extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['label', 'editingId']);
+        $this->reset(['editingId']);
         $this->offsetValue = 1;
         $this->offsetUnit = 'days';
         $this->resetValidation();

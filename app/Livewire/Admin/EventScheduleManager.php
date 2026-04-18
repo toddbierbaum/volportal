@@ -11,7 +11,6 @@ class EventScheduleManager extends Component
 {
     public Event $event;
 
-    public string $label = '';
     public int $offsetValue = 2;
     public string $offsetUnit = 'hours';
 
@@ -23,18 +22,15 @@ class EventScheduleManager extends Component
     public function add(): void
     {
         $data = $this->validate([
-            'label' => 'required|string|max:255',
             'offsetValue' => 'required|integer|min:1|max:52',
             'offsetUnit' => 'required|in:minutes,hours,days,weeks',
         ]);
 
         NotificationSchedule::create([
             'event_id' => $this->event->id,
-            'label' => $data['label'],
             'offset_minutes' => $this->toMinutes($data['offsetValue'], $data['offsetUnit']),
         ]);
 
-        $this->reset(['label']);
         $this->offsetValue = 2;
         $this->offsetUnit = 'hours';
         $this->resetValidation();

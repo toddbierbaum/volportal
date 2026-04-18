@@ -65,14 +65,22 @@ fi
 echo "==> Running migrations"
 php artisan migrate --force
 
-# --- 6. Stamp the version ---
-VERSION="$(git rev-parse --short HEAD)-$(date +%Y%m%d)"
+# --- 6. Compute and stamp the version ---
+# VERSION file holds MAJOR.MINOR (e.g. "0.1"). PATCH is the git commit
+# count on main so it auto-bumps with every push, no file-writeback.
+# Major/minor bumps: edit VERSION in git, commit, deploy.
+if [ ! -f VERSION ]; then
+    echo "0.1" > VERSION
+fi
+MAJOR_MINOR="$(cat VERSION | tr -d '[:space:]')"
+PATCH="$(git rev-list --count HEAD)"
+VERSION="${MAJOR_MINOR}.${PATCH}"
 if grep -q '^APP_VERSION=' .env; then
     php -r "\$e=file_get_contents('.env'); file_put_contents('.env', preg_replace('/^APP_VERSION=.*/m', 'APP_VERSION=$VERSION', \$e));"
 else
     echo "APP_VERSION=$VERSION" >> .env
 fi
-echo "    Version set to $VERSION"
+echo "    Version stamped: $VERSION"
 
 # --- 7. Rebuild Laravel caches ---
 echo "==> Refreshing caches"

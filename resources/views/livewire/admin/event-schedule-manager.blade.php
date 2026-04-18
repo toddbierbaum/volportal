@@ -12,7 +12,7 @@
             @else
                 <ul class="text-sm text-gray-700 space-y-0.5">
                     @foreach ($globalSchedules as $s)
-                        <li>&middot; {{ $s->label }} ({{ $s->offset_minutes }} min before)</li>
+                        <li>&middot; {{ $s->label }}</li>
                     @endforeach
                 </ul>
             @endif
@@ -22,10 +22,7 @@
             <ul class="divide-y divide-gray-200">
                 @foreach ($eventSchedules as $s)
                     <li class="p-4 flex items-center justify-between gap-3">
-                        <div>
-                            <div class="font-medium text-gray-900">{{ $s->label }}</div>
-                            <div class="text-sm text-gray-500 mt-0.5">{{ $s->offset_minutes }} minutes before event</div>
-                        </div>
+                        <div class="font-medium text-gray-900">{{ $s->label }}</div>
                         <button type="button" wire:click="delete({{ $s->id }})"
                                 wire:confirm="Delete this event-specific reminder?"
                                 class="text-sm text-red-600 hover:underline">Remove</button>
@@ -37,12 +34,6 @@
         <div class="p-5 border-t border-gray-200 bg-gray-50">
             <h3 class="text-sm font-semibold text-fct-navy mb-3">Add event-specific reminder</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="sm:col-span-3">
-                    <label class="block text-sm font-medium text-gray-700">Label</label>
-                    <input type="text" wire:model="label" placeholder="e.g. 2 hours before"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Value</label>
                     <input type="number" min="1" max="52" wire:model="offsetValue"

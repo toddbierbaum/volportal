@@ -17,9 +17,6 @@
                     <li class="p-4 flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <div class="font-medium text-gray-900">{{ $item->label }}</div>
-                            <div class="text-sm text-gray-500 mt-0.5">
-                                {{ $item->offset_minutes }} minutes before event start
-                            </div>
                         </div>
                         <div class="flex items-center gap-2 shrink-0 text-sm">
                             <button type="button" wire:click="startEdit({{ $item->id }})" class="text-fct-navy hover:underline">Edit</button>
@@ -37,12 +34,6 @@
                 {{ $editingId ? 'Edit schedule' : 'Add schedule' }}
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="sm:col-span-3">
-                    <label class="block text-sm font-medium text-gray-700">Label (shown in the email)</label>
-                    <input type="text" wire:model="label" placeholder="e.g. 1 week before"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
-                    @error('label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Send this many</label>
                     <input type="number" min="1" max="52" wire:model="offsetValue"
