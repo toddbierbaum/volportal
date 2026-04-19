@@ -116,7 +116,7 @@
                 </a>
                 <div class="mt-2 flex items-center justify-between gap-1 text-xs">
                     <a href="{{ route('calendar') }}" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Public site</a>
-                    <button type="button" @click="toggleTheme"
+                    <button type="button" @click="toggleTheme()"
                             class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                             :title="dark ? 'Switch to light mode' : 'Switch to dark mode'">
                         <svg x-show="!dark" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
