@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Dark-theme form inputs.
+
+   @tailwindcss/forms gives every input/textarea/select a white bg
+   + near-black text. Those defaults don't react to our dark class,
+   so in dark mode inputs become white-on-white (illegible). Set
+   sensible dark values globally so we don't have to retrofit every
+   <input> in the app.
+   ------------------------------------------------------------------ */
+@layer base {
+    .dark input[type='text'],
+    .dark input[type='email'],
+    .dark input[type='tel'],
+    .dark input[type='url'],
+    .dark input[type='password'],
+    .dark input[type='number'],
+    .dark input[type='search'],
+    .dark input[type='date'],
+    .dark input[type='datetime-local'],
+    .dark input[type='month'],
+    .dark input[type='time'],
+    .dark input[type='week'],
+    .dark textarea,
+    .dark select {
+        background-color: #111827;           /* gray-900 */
+        border-color: #4b5563;               /* gray-600 */
+        color: #f3f4f6;                      /* gray-100 */
+    }
+
+    .dark input::placeholder,
+    .dark textarea::placeholder {
+        color: #6b7280;                      /* gray-500 */
+    }
+
+    /* Checkbox/radio fills look better a touch lighter in dark. */
+    .dark input[type='checkbox'],
+    .dark input[type='radio'] {
+        background-color: #1f2937;           /* gray-800 */
+        border-color: #4b5563;               /* gray-600 */
+    }
+
+    /* color pickers: native widget is hard to style; just give it a
+       dark outline so it doesn't look like a bright white hole. */
+    .dark input[type='color'] {
+        background-color: #1f2937;
+        border-color: #4b5563;
+    }
+}
