@@ -54,6 +54,12 @@ class CalendarController extends Controller
             ];
         });
 
-        return response()->json($payload);
+        return response()->json($payload)
+            // Cloudflare was happily caching this endpoint's JSON for
+            // hours after content changed. no-store both at the edge
+            // and in-browser so admins see fresh data immediately after
+            // editing events or running seeders.
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 }
