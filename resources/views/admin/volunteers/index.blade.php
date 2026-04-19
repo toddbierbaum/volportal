@@ -48,7 +48,7 @@
         </div>
     </form>
 
-    <div class="mb-6 bg-gradient-to-r from-fct-cyan/10 to-fct-cyan/5 border border-fct-cyan/30 rounded-lg p-5 flex items-center justify-between gap-4 flex-wrap">
+    <div class="mb-6 bg-linear-to-r from-fct-cyan/10 to-fct-cyan/5 border border-fct-cyan/30 rounded-lg p-5 flex items-center justify-between gap-4 flex-wrap">
         <div>
             <div class="text-xs text-fct-navy dark:text-fct-cyan uppercase tracking-wider font-semibold">
                 Total hours {{ $from || $to ? '(filtered)' : '(lifetime)' }}

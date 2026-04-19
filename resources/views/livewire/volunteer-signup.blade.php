@@ -7,7 +7,7 @@
         @endphp
         @foreach ($labels as $i => $label)
             @php $n = $i + 1; @endphp
-            <li class="flex items-center {{ $step >= $n ? 'text-fct-navy dark:text-fct-cyan' : '' }} {{ $n < count($labels) ? "flex-1 after:content-[''] after:w-full after:h-0.5 after:border-b after:border-1 after:inline-block after:mx-4 " . ($step > $n ? 'after:border-fct-navy' : 'after:border-gray-200 dark:border-gray-700') : '' }}">
+            <li class="flex items-center {{ $step >= $n ? 'text-fct-navy dark:text-fct-cyan' : '' }} {{ $n < count($labels) ? "flex-1 after:content-[''] after:w-full after:h-0.5 after:border-b after:border after:inline-block after:mx-4 " . ($step > $n ? 'after:border-fct-navy' : 'after:border-gray-200 dark:border-gray-700') : '' }}">
                 <span class="flex items-center justify-center w-7 h-7 shrink-0 rounded-full text-xs font-semibold
                     {{ $step > $n ? 'bg-fct-navy text-white'
                      : ($step === $n ? 'bg-fct-navy text-white'
@@ -19,7 +19,7 @@
         @endforeach
     </ol>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
 
         {{-- Step 1: contact info --}}
         @if ($step === 1)
@@ -56,7 +56,7 @@
                 <div class="pt-2">
                     <label class="inline-flex items-start gap-2 text-sm">
                         <input type="checkbox" wire:model="smsOptIn"
-                               class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                               class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <span>
                             <span class="text-gray-700 dark:text-gray-300 font-medium">Also send me text reminders</span>
                             <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Standard message rates apply. Reply STOP to opt back out any time.</span>
@@ -67,7 +67,7 @@
 
             <div class="mt-8 flex justify-end">
                 <button type="button" wire:click="proceedToCategories"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
                     Continue
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -87,7 +87,7 @@
                     <label class="relative flex items-start p-4 border-2 rounded-lg cursor-pointer transition
                         {{ in_array($category->id, $selectedCategoryIds) ? 'border-fct-navy bg-fct-cyan/5' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600' }}">
                         <input type="checkbox" value="{{ $category->id }}" wire:model.live="selectedCategoryIds"
-                               class="mt-0.5 mr-3 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                               class="mt-0.5 mr-3 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
                                 <span class="inline-block h-2 w-2 rounded-full shrink-0" style="background-color: {{ $color }}"></span>
@@ -111,7 +111,7 @@
                     Back
                 </button>
                 <button type="button" wire:click="proceedToMatches"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
                     See my matches
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -181,7 +181,7 @@
 
             <div class="mt-8 flex justify-end">
                 <button type="button" wire:click="finish"
-                        class="inline-flex items-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                        class="inline-flex items-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
                     {{ count($createdSignupIds) ? "I'm done" : "Finish without signing up" }}
                 </button>
             </div>

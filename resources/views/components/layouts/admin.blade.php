@@ -112,9 +112,9 @@
                     </div>
                 </a>
                 <div class="mt-2 flex items-center justify-between gap-1 text-xs">
-                    <a href="{{ route('calendar') }}" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Public site</a>
+                    <a href="{{ route('calendar') }}" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700">Public site</a>
                     <button type="button" onclick="toggleTheme()"
-                            class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                            class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan p-1.5 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700"
                             title="Toggle theme">
                         {{-- Moon: shown in light mode, click to go dark --}}
                         <svg class="h-4 w-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,7 +127,7 @@
                     </button>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Log out</button>
+                        <button type="submit" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700">Log out</button>
                     </form>
                 </div>
             </div>

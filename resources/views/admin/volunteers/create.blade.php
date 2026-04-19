@@ -38,7 +38,7 @@
                         <label class="inline-flex items-center text-sm px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:bg-gray-800/50 cursor-pointer transition">
                             <input type="checkbox" name="categories[]" value="{{ $cat->id }}"
                                    @checked(in_array($cat->id, old('categories', [])))
-                                   class="rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                                   class="rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                             <span class="ml-2 flex items-center gap-2">
                                 <span class="inline-block h-2 w-2 rounded-full" style="background-color: {{ $cat->color ?? '#9CA3AF' }}"></span>
                                 {{ $cat->name }}

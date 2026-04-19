@@ -4,14 +4,14 @@
             &larr; Back to calendar
         </a>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white rounded-lg shadow-xs border border-gray-200 overflow-hidden">
             @if ($event->template)
                 <div class="h-2" style="background-color: {{ $event->template->color }}"></div>
             @endif
 
             <div class="p-6 sm:p-8">
                 @if ($event->template)
-                    <span class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded"
+                    <span class="inline-block text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded-sm"
                           style="background-color: {{ $event->template->color }}20; color: {{ $event->template->color }}">
                         {{ $event->template->name }}
                     </span>
@@ -57,7 +57,7 @@
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <span class="font-medium text-gray-900">{{ $position->title }}</span>
                                             @if ($position->category)
-                                                <span class="text-xs px-2 py-0.5 rounded"
+                                                <span class="text-xs px-2 py-0.5 rounded-sm"
                                                       style="background-color: {{ $position->category->color }}20; color: {{ $position->category->color }}">
                                                     {{ $position->category->name }}
                                                 </span>
@@ -71,9 +71,9 @@
                                     </div>
                                     <div>
                                         @if ($isFull)
-                                            <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">Full &mdash; Join waitlist</span>
+                                            <span class="text-xs px-2 py-1 rounded-sm bg-gray-100 text-gray-600">Full &mdash; Join waitlist</span>
                                         @else
-                                            <span class="text-xs px-2 py-1 rounded bg-fct-cyan-light text-fct-navy font-medium">
+                                            <span class="text-xs px-2 py-1 rounded-sm bg-fct-cyan-light text-fct-navy font-medium">
                                                 {{ $remaining }} open
                                             </span>
                                         @endif
@@ -84,7 +84,7 @@
 
                         <div class="mt-6">
                             <a href="{{ route('signup') }}"
-                               class="inline-flex items-center px-5 py-2.5 bg-fct-navy border border-transparent rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                               class="inline-flex items-center px-5 py-2.5 bg-fct-navy border border-transparent rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
                                 Sign up to volunteer
                             </a>
                         </div>

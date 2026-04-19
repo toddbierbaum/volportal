@@ -76,7 +76,7 @@
                 <div class="flex items-end">
                     <label class="inline-flex items-start gap-2 text-sm pb-2">
                         <input type="checkbox" wire:model="isPublic"
-                               class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                               class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <span>
                             <span class="text-gray-700 dark:text-gray-300 font-medium">Show on public portal</span>
                             <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Uncheck to fill via admin only.</span>

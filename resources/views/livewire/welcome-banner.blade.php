@@ -7,7 +7,7 @@
                 </p>
                 <div class="flex items-center gap-3 text-sm">
                     <button type="button" wire:click="sendLink" wire:loading.attr="disabled"
-                            class="inline-flex items-center px-3 py-1.5 bg-fct-navy rounded font-medium text-white hover:bg-fct-navy-light transition disabled:opacity-60">
+                            class="inline-flex items-center px-3 py-1.5 bg-fct-navy rounded-sm font-medium text-white hover:bg-fct-navy-light transition disabled:opacity-60">
                         <span wire:loading.remove wire:target="sendLink">Send me a login link</span>
                         <span wire:loading wire:target="sendLink">Sending…</span>
                     </button>

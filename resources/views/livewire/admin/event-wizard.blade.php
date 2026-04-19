@@ -53,7 +53,7 @@
             <div class="sm:col-span-2">
                 <label class="inline-flex items-center">
                     <input type="checkbox" wire:model="isPublished"
-                           class="rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                           class="rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Published (visible to volunteers)</span>
                 </label>
             </div>
@@ -151,7 +151,7 @@
                 <div class="flex items-end">
                     <label class="inline-flex items-start gap-2 text-sm pb-2">
                         <input type="checkbox" wire:model="positionIsPublic"
-                               class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                               class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <span>
                             <span class="text-gray-700 dark:text-gray-300 font-medium">Show on public portal</span>
                             <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Uncheck to fill via admin only.</span>
@@ -214,7 +214,7 @@
     <div class="flex items-center justify-end gap-3">
         <a href="{{ route('admin.events.index') }}" class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:text-gray-100">Cancel</a>
         <button type="button" wire:click="save" wire:loading.attr="disabled"
-                class="px-6 py-2.5 bg-fct-navy text-white rounded-md text-sm font-semibold hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-60">
+                class="px-6 py-2.5 bg-fct-navy text-white rounded-md text-sm font-semibold hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-60">
             <span wire:loading.remove wire:target="save">Create event</span>
             <span wire:loading wire:target="save">Creating…</span>
         </button>

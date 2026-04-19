@@ -18,12 +18,12 @@
         </div>
 
         @if (session('status'))
-            <div class="mb-4 px-4 py-3 rounded bg-green-50 border border-green-200 text-sm text-green-900">
+            <div class="mb-4 px-4 py-3 rounded-sm bg-green-50 border border-green-200 text-sm text-green-900">
                 {{ session('status') }}
             </div>
         @endif
 
-        <details class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <details class="bg-white rounded-lg shadow-xs border border-gray-200 mb-6">
             <summary class="p-6 sm:p-8 cursor-pointer list-none flex items-center justify-between">
                 <div>
                     <h2 class="text-lg font-semibold text-fct-navy">Reminder preferences</h2>
@@ -41,14 +41,14 @@
                 <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700">Phone (for text reminders)</label>
                     <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" autocomplete="tel"
-                           class="mt-1 block w-full sm:max-w-sm border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                           class="mt-1 block w-full sm:max-w-sm border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-xs">
                     @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="inline-flex items-start gap-2 text-sm">
                         <input type="hidden" name="sms_opt_in" value="0">
                         <input type="checkbox" name="sms_opt_in" value="1" @checked(old('sms_opt_in', $user->sms_opt_in))
-                               class="mt-0.5 rounded border-gray-300 text-fct-navy focus:ring-fct-cyan">
+                               class="mt-0.5 rounded-sm border-gray-300 text-fct-navy focus:ring-fct-cyan">
                         <span>
                             <span class="text-gray-700 font-medium">Send me text reminders</span>
                             <span class="block text-xs text-gray-500">Standard message rates apply. Reply STOP to any text to opt back out.</span>
@@ -61,7 +61,7 @@
             </form>
         </details>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 mb-6">
+        <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 sm:p-8 mb-6">
             <h2 class="text-lg font-semibold text-fct-navy mb-4">Your upcoming signups</h2>
 
             @if ($upcomingSignups->isEmpty())
@@ -86,9 +86,9 @@
                                     </div>
                                 </div>
                                 @if ($signup->status === 'waitlisted')
-                                    <span class="text-xs px-2 py-1 rounded bg-yellow-50 text-yellow-800 font-medium">Waitlist</span>
+                                    <span class="text-xs px-2 py-1 rounded-sm bg-yellow-50 text-yellow-800 font-medium">Waitlist</span>
                                 @else
-                                    <span class="text-xs px-2 py-1 rounded bg-green-50 text-green-700 font-medium">Confirmed</span>
+                                    <span class="text-xs px-2 py-1 rounded-sm bg-green-50 text-green-700 font-medium">Confirmed</span>
                                 @endif
                             </div>
                         </li>
@@ -98,7 +98,7 @@
         </div>
 
         @if ($pastSignups->isNotEmpty())
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+            <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 sm:p-8">
                 <h2 class="text-lg font-semibold text-fct-navy mb-4">Past events</h2>
                 <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg">
                     @foreach ($pastSignups as $signup)
@@ -114,7 +114,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">{{ ucfirst($signup->status) }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-sm bg-gray-100 text-gray-700">{{ ucfirst($signup->status) }}</span>
                             </div>
                         </li>
                     @endforeach

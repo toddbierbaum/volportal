@@ -1,5 +1,5 @@
 <div class="max-w-md mx-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xs border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
         @if (! $sent)
             <h2 class="text-xl font-semibold text-fct-navy dark:text-fct-cyan mb-1">Volunteer login</h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">Enter your email and we'll send you a link to log in.</p>
@@ -8,7 +8,7 @@
                 <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                 <input type="email" id="login-email" wire:model="email" autocomplete="email"
                        wire:keydown.enter="send"
-                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-xs">
                 @error('email') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             </div>
 
@@ -20,7 +20,7 @@
 
             <div class="mt-6">
                 <button type="button" wire:click="send" wire:loading.attr="disabled"
-                        class="w-full inline-flex items-center justify-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-60">
+                        class="w-full inline-flex items-center justify-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-60">
                     <span wire:loading.remove wire:target="send">Send me a login link</span>
                     <span wire:loading wire:target="send">Sending…</span>
                 </button>
