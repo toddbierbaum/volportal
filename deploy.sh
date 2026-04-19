@@ -25,13 +25,20 @@ DB_CONNECTION="$(grep '^DB_CONNECTION=' .env | cut -d= -f2 | tr -d '"[:space:]')
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 
 if [ "$DB_CONNECTION" = "sqlite" ]; then
-    SQLITE_FILE="database/database.sqlite"
-    if [ -f "$SQLITE_FILE" ]; then
-        BACKUP_FILE="storage/backups/db-${TIMESTAMP}.sqlite"
-        echo "==> Copying SQLite DB to $BACKUP_FILE"
+    # Ask Laravel where the active sqlite file actually is instead of
+    # assuming database/database.sqlite — a mis-set DB_DATABASE in .env
+    # once pointed Laravel at a different path, and this script kept
+    # happily copying the empty stub on disk for days. Now we resolve
+    # the real path via Laravel's config and only back up if it has data.
+    SQLITE_FILE="$(php -r 'require "vendor/autoload.php"; $a = require "bootstrap/app.php"; $a->make("Illuminate\\Contracts\\Console\\Kernel")->bootstrap(); echo config("database.connections.sqlite.database");' 2>/dev/null)"
+    BACKUP_FILE="storage/backups/db-${TIMESTAMP}.sqlite"
+    if [ -f "$SQLITE_FILE" ] && [ -s "$SQLITE_FILE" ]; then
+        echo "==> Backing up SQLite ($SQLITE_FILE, $(stat -c%s "$SQLITE_FILE" 2>/dev/null || stat -f%z "$SQLITE_FILE") bytes) -> $BACKUP_FILE"
         cp "$SQLITE_FILE" "$BACKUP_FILE"
+    elif [ -f "$SQLITE_FILE" ]; then
+        echo "==> WARNING: SQLite file $SQLITE_FILE exists but is empty — skipping backup"
     else
-        echo "==> SQLite file $SQLITE_FILE not found — skipping backup"
+        echo "==> WARNING: SQLite file not found at '$SQLITE_FILE' — skipping backup"
     fi
 elif [ "$DB_CONNECTION" = "mysql" ]; then
     BACKUP_FILE="storage/backups/db-${TIMESTAMP}.sql.gz"
