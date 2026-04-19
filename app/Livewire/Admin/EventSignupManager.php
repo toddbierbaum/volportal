@@ -43,16 +43,34 @@ class EventSignupManager extends Component
             ->where('position_id', $position->id)
             ->first();
 
+        // Backfill flow: if the event already happened, default the new
+        // signup straight to 'attended' and auto-fill hours from the
+        // position's scheduled duration. Admin can adjust hours after.
+        $isPast = $this->event->starts_at->isPast();
+        $defaultStatus = $isPast ? 'attended' : ($position->isFull() ? 'waitlisted' : 'confirmed');
+
         if ($existing) {
-            if ($existing->status === 'cancelled') {
-                $existing->update(['status' => $position->isFull() ? 'waitlisted' : 'confirmed']);
+            if ($existing->status === 'cancelled' || ($isPast && $existing->status !== 'attended')) {
+                $updates = ['status' => $defaultStatus];
+                if ($defaultStatus === 'attended' && ! $existing->hours_worked) {
+                    $duration = $position->starts_at->diffInMinutes($position->ends_at);
+                    $updates['hours_worked'] = round($duration / 60, 2);
+                    $updates['checked_in_at'] = now();
+                }
+                $existing->update($updates);
             }
         } else {
-            Signup::create([
+            $data = [
                 'user_id' => $this->selectedVolunteerId,
                 'position_id' => $position->id,
-                'status' => $position->isFull() ? 'waitlisted' : 'confirmed',
-            ]);
+                'status' => $defaultStatus,
+            ];
+            if ($defaultStatus === 'attended') {
+                $duration = $position->starts_at->diffInMinutes($position->ends_at);
+                $data['hours_worked'] = round($duration / 60, 2);
+                $data['checked_in_at'] = now();
+            }
+            Signup::create($data);
         }
 
         $this->cancelAssigning();

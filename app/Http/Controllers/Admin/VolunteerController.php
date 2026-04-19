@@ -15,8 +15,53 @@ class VolunteerController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->input('q', ''));
+        $from = $request->input('from') ?: null; // date string or null
+        $to = $request->input('to') ?: null;
 
-        $volunteers = User::query()
+        $volunteers = $this->buildVolunteerQuery($q, $from, $to)
+            ->orderBy('name')
+            ->paginate(30)
+            ->withQueryString();
+
+        // Grand total across the filtered range (not paginated — everybody's hours).
+        $totalHours = $this->hoursSumQuery($from, $to)->value('total') ?? 0;
+
+        return view('admin.volunteers.index', compact('volunteers', 'q', 'from', 'to', 'totalHours'));
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $q = trim((string) $request->input('q', ''));
+        $from = $request->input('from') ?: null;
+        $to = $request->input('to') ?: null;
+
+        $volunteers = $this->buildVolunteerQuery($q, $from, $to)->orderBy('name')->get();
+        $label = trim(($from ? 'from ' . $from : '') . ' ' . ($to ? 'through ' . $to : ''));
+        $filename = 'volunteer-hours-' . ($from ?: 'all') . '-' . ($to ?: now()->toDateString()) . '.csv';
+
+        $callback = function () use ($volunteers, $label) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Name', 'Email', 'Phone', 'Hours' . ($label ? " ($label)" : ' (lifetime)'), 'Attended events']);
+            foreach ($volunteers as $v) {
+                fputcsv($out, [
+                    $v->name,
+                    $v->email,
+                    $v->phone,
+                    number_format((float) ($v->hours_in_range ?? 0), 2),
+                    $v->attended_count ?? 0,
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    private function buildVolunteerQuery(string $q, ?string $from, ?string $to)
+    {
+        return User::query()
             ->where('role', 'volunteer')
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
@@ -29,12 +74,26 @@ class VolunteerController extends Controller
                 $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '>=', now()))
                   ->whereIn('status', ['confirmed', 'waitlisted']);
             }])
-            ->with('categories')
-            ->orderBy('name')
-            ->paginate(30)
-            ->withQueryString();
+            ->withCount(['signups as attended_count' => function ($q) use ($from, $to) {
+                $q->where('status', 'attended');
+                if ($from) $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '>=', $from));
+                if ($to)   $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '<=', $to . ' 23:59:59'));
+            }])
+            ->withSum(['signups as hours_in_range' => function ($q) use ($from, $to) {
+                $q->where('status', 'attended');
+                if ($from) $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '>=', $from));
+                if ($to)   $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '<=', $to . ' 23:59:59'));
+            }], 'hours_worked')
+            ->with('categories');
+    }
 
-        return view('admin.volunteers.index', compact('volunteers', 'q'));
+    private function hoursSumQuery(?string $from, ?string $to)
+    {
+        return Signup::query()
+            ->where('status', 'attended')
+            ->selectRaw('SUM(hours_worked) as total')
+            ->when($from, fn ($q) => $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '>=', $from)))
+            ->when($to, fn ($q) => $q->whereHas('position.event', fn ($e) => $e->where('starts_at', '<=', $to . ' 23:59:59')));
     }
 
     public function show(User $volunteer)

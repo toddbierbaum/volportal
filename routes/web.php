@@ -37,6 +37,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
 
     Route::get('/volunteers', [AdminVolunteerController::class, 'index'])->name('volunteers.index');
+    Route::get('/volunteers/export', [AdminVolunteerController::class, 'exportCsv'])->name('volunteers.export');
     Route::get('/volunteers/create', [AdminVolunteerController::class, 'create'])->name('volunteers.create');
     Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
     Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
