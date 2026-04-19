@@ -80,6 +80,13 @@ else
 fi
 
 # --- 5. Apply migrations ---
+# Clear any cached config from a previous deploy first — otherwise
+# migrate reads stale DB settings and can fail before the end-of-deploy
+# config:cache step has a chance to rebuild.
+echo "==> Clearing stale caches"
+php artisan config:clear
+php artisan route:clear 2>/dev/null || true
+php artisan view:clear 2>/dev/null || true
 echo "==> Running migrations"
 php artisan migrate --force
 
