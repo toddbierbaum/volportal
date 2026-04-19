@@ -107,11 +107,10 @@ fi
 MAJOR_MINOR="$(cat VERSION | tr -d '[:space:]')"
 PATCH="$(git rev-list --count HEAD)"
 VERSION="${MAJOR_MINOR}.${PATCH}"
-if grep -q '^APP_VERSION=' .env; then
-    php -r "\$e=file_get_contents('.env'); file_put_contents('.env', preg_replace('/^APP_VERSION=.*/m', 'APP_VERSION=$VERSION', \$e));"
-else
-    echo "APP_VERSION=$VERSION" >> .env
-fi
+# Drop any existing APP_VERSION line(s) first — past edits left duplicates
+# in some .env files, and the preg_replace branch would keep them in sync
+# but never consolidate. Rewriting unconditionally keeps it to exactly one.
+php -r "\$e=file_get_contents('.env'); \$e=preg_replace('/^APP_VERSION=.*\\n?/m', '', \$e); file_put_contents('.env', rtrim(\$e, \"\\n\") . \"\\nAPP_VERSION=$VERSION\\n\");"
 echo "    Version stamped: $VERSION"
 
 # --- 7. Rebuild Laravel caches ---
