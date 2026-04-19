@@ -1,9 +1,9 @@
 <div>
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
-        <h2 class="text-lg font-semibold text-fct-navy mb-1">Start from a template</h2>
-        <p class="text-sm text-gray-600 mb-4">Pick a template to auto-populate default positions and reminders. You can tweak everything before saving.</p>
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h2 class="text-base font-semibold text-gray-900 mb-1">Start from a template</h2>
+        <p class="text-sm text-gray-500 mb-4">Pick a template to auto-populate default positions and reminders. You can tweak everything before saving.</p>
         <select wire:model.live="eventTemplateId"
-                class="block w-full sm:max-w-md border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                class="block w-full sm:max-w-md border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
             <option value="">— None (blank event) —</option>
             @foreach ($templates as $template)
                 <option value="{{ $template->id }}">{{ $template->name }}</option>
@@ -11,43 +11,43 @@
         </select>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
-        <h2 class="text-lg font-semibold text-fct-navy mb-4">Event details</h2>
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Event details</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700">Title</label>
+                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Title</label>
                 <input type="text" wire:model="title"
-                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('title') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Location</label>
+                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Location</label>
                 <input type="text" wire:model="location"
-                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
             </div>
 
             <div></div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Starts at</label>
+                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Starts at</label>
                 <input type="datetime-local" wire:model.live="startsAt"
-                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('startsAt') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700">Ends at</label>
+                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Ends at</label>
                 <input type="datetime-local" wire:model.live="endsAt"
-                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('endsAt') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div class="sm:col-span-2">
-                <label class="block text-sm font-medium text-gray-700">Description</label>
+                <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Description</label>
                 <textarea wire:model="description" rows="3"
-                          class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm"></textarea>
+                          class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md"></textarea>
             </div>
 
             <div class="sm:col-span-2">
@@ -60,9 +60,9 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
-        <div class="p-5 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-fct-navy">Positions</h2>
+    <div class="bg-white rounded-lg border border-gray-200 mb-6">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h2 class="text-base font-semibold text-gray-900">Positions</h2>
             <p class="text-sm text-gray-500 mt-0.5">
                 @if ($eventTemplateId)
                     Pre-filled from the template. Tweak or add more below.
@@ -73,58 +73,62 @@
         </div>
 
         @if (empty($draftPositions))
-            <div class="p-6 text-sm text-gray-500">No positions yet — add one below.</div>
+            <div class="p-8 text-center text-sm text-gray-500">No positions yet — add one below.</div>
         @else
-            <ul class="divide-y divide-gray-200">
+            <ul class="divide-y divide-gray-100">
                 @foreach ($draftPositions as $i => $pos)
                     @php
                         $category = $categories->firstWhere('id', $pos['categoryId']);
+                        $color = $category?->color ?? '#9CA3AF';
                     @endphp
-                    <li class="p-4 flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-medium text-gray-900">{{ $pos['title'] }}</span>
-                                @if ($category)
-                                    <span class="text-xs px-2 py-0.5 rounded"
-                                          style="background-color: {{ $category->color }}20; color: {{ $category->color }}">
-                                        {{ $category->name }}
-                                    </span>
-                                @endif
-                                @if (! ($pos['isPublic'] ?? true))
-                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">Admin-only</span>
-                                @endif
-                            </div>
-                            <div class="text-sm text-gray-600 mt-0.5">
-                                Call {{ $pos['callOffsetMinutes'] ?? 60 }} min before event
-                                &middot; {{ $pos['durationMinutes'] ?? 180 }} min duration
-                                &middot; {{ $pos['slotsNeeded'] }} slot{{ $pos['slotsNeeded'] === 1 ? '' : 's' }}
+                    <li class="px-5 py-4 flex items-center justify-between gap-3 hover:bg-gray-50 transition">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0" style="background-color: {{ $color }}"></span>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-medium text-gray-900">{{ $pos['title'] }}</span>
+                                    @if ($category)
+                                        <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                                              style="background-color: {{ $color }}1A; color: {{ $color }}">
+                                            {{ $category->name }}
+                                        </span>
+                                    @endif
+                                    @if (! ($pos['isPublic'] ?? true))
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">Admin-only</span>
+                                    @endif
+                                </div>
+                                <div class="text-sm text-gray-500 mt-0.5">
+                                    Call {{ $pos['callOffsetMinutes'] ?? 60 }} min before event
+                                    &middot; {{ $pos['durationMinutes'] ?? 180 }} min duration
+                                    &middot; {{ $pos['slotsNeeded'] }} slot{{ $pos['slotsNeeded'] === 1 ? '' : 's' }}
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button type="button" wire:click="editDraftPosition({{ $i }})" class="text-sm text-fct-navy hover:underline">Edit</button>
-                            <button type="button" wire:click="removeDraftPosition({{ $i }})" class="text-sm text-red-600 hover:underline">Remove</button>
+                        <div class="flex items-center gap-3 shrink-0 text-sm">
+                            <button type="button" wire:click="editDraftPosition({{ $i }})" class="text-fct-navy hover:underline">Edit</button>
+                            <button type="button" wire:click="removeDraftPosition({{ $i }})" class="text-red-600 hover:underline">Remove</button>
                         </div>
                     </li>
                 @endforeach
             </ul>
         @endif
 
-        <div class="p-5 border-t border-gray-200 bg-gray-50">
-            <h3 class="text-sm font-semibold text-fct-navy mb-3">
+        <div class="px-5 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">
                 {{ $editingIndex !== null ? 'Edit position' : 'Add a position' }}
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Title</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Title</label>
                     <input type="text" wire:model="positionTitle"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
                     @error('positionTitle') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Category</label>
                     <select wire:model="categoryId"
-                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
                         <option value="">— Pick one —</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -133,15 +137,15 @@
                     @error('categoryId') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700">Description / what the volunteer does</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Description / what the volunteer does</label>
                     <textarea wire:model="positionDescription" rows="2"
                               placeholder="e.g. Greet guests at the door, check tickets, direct them to their seats."
-                              class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm"></textarea>
+                              class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Slots</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Slots</label>
                     <input type="number" min="1" max="50" wire:model="positionSlots"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
                     @error('positionSlots') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div class="flex items-end">
@@ -155,15 +159,15 @@
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Call time (min before event)</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Call time (min before event)</label>
                     <input type="number" min="0" max="1440" step="15" wire:model="positionCallOffsetMinutes"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
                     @error('positionCallOffsetMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Duration (min)</label>
+                    <label class="block text-xs font-medium text-gray-600 uppercase tracking-wider">Duration (min)</label>
                     <input type="number" min="15" max="1440" step="15" wire:model="positionDurationMinutes"
-                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm text-sm">
+                           class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
                     @error('positionDurationMinutes') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -171,27 +175,33 @@
             <div class="mt-4 flex justify-end gap-2">
                 @if ($editingIndex !== null)
                     <button type="button" wire:click="cancelEditDraftPosition"
-                            class="px-4 py-2 text-sm rounded border border-gray-300 bg-white hover:bg-gray-50">Cancel</button>
+                            class="px-4 py-2 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700">Cancel</button>
                     <button type="button" wire:click="saveEditedPosition"
-                            class="px-4 py-2 text-sm rounded bg-fct-navy text-white hover:bg-fct-navy-light">Save changes</button>
+                            class="px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">Save changes</button>
                 @else
                     <button type="button" wire:click="addDraftPosition"
-                            class="px-4 py-2 text-sm rounded bg-fct-navy text-white hover:bg-fct-navy-light">+ Add position</button>
+                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add position
+                    </button>
                 @endif
             </div>
         </div>
     </div>
 
     @if (! empty($draftSchedules))
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
-            <div class="p-5 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-fct-navy">Reminders (from template)</h2>
+        <div class="bg-white rounded-lg border border-gray-200 mb-6">
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h2 class="text-base font-semibold text-gray-900">Reminders (from template)</h2>
                 <p class="text-sm text-gray-500 mt-0.5">These will be set up on the event. You can add or remove reminders after saving.</p>
             </div>
-            <ul class="divide-y divide-gray-200">
+            <ul class="divide-y divide-gray-100">
                 @foreach ($draftSchedules as $s)
-                    <li class="p-4 text-sm text-gray-700">
-                        &middot; {{ $s['label'] }}
+                    <li class="px-5 py-3 flex items-center gap-2 text-sm text-gray-700">
+                        <span class="inline-block h-1.5 w-1.5 rounded-full bg-fct-cyan"></span>
+                        {{ $s['label'] }}
                         @if ($s['channel'] !== 'email')
                             <span class="text-xs text-gray-500 ml-2">via {{ $s['channel'] }}</span>
                         @endif
