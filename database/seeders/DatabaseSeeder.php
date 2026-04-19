@@ -19,7 +19,10 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::updateOrCreate(
+        // firstOrCreate — never overwrites. updateOrCreate would reset
+        // the password on every seed run, which silently rotated Todd's
+        // credentials the first time someone re-ran seed in prod.
+        User::firstOrCreate(
             ['email' => 'todd.bierbaum@gmail.com'],
             [
                 'name' => 'Todd Bierbaum',
