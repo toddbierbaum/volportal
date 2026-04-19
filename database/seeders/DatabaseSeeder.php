@@ -61,15 +61,19 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // Call-time convention: HM 2 hr before showtime (120 min), everyone
+        // else 1 hr (60 min). Shift ends 30 min after the 2-hour show ends
+        // — so HM shift = 2h before + 2h show + 30min = 270 min, others =
+        // 1h before + 2h show + 30min = 210 min.
         $templates = [
             [
                 'slug' => 'standing-show',
                 'name' => 'Standing Show',
                 'color' => '#4F46E5',
                 'positions' => [
-                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 30, 'duration' => 180, 'order' => 10],
-                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' => 30, 'duration' => 180, 'order' => 20],
-                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' => 30, 'duration' => 150, 'order' => 30],
+                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 120, 'duration' => 270, 'order' => 10],
+                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' =>  60, 'duration' => 210, 'order' => 20],
+                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' =>  60, 'duration' => 210, 'order' => 30],
                 ],
             ],
             [
@@ -77,10 +81,10 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Kids Production',
                 'color' => '#10B981',
                 'positions' => [
-                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 45, 'duration' => 210, 'order' => 10],
-                    ['title' => 'Box Office',    'category_id' => $boxOffice,    'slots' => 1, 'is_public' => true,  'call_offset' => 60, 'duration' => 180, 'order' => 20],
-                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' => 30, 'duration' => 180, 'order' => 30],
-                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' => 30, 'duration' => 150, 'order' => 40],
+                    ['title' => 'House Manager', 'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => false, 'call_offset' => 120, 'duration' => 270, 'order' => 10],
+                    ['title' => 'Box Office',    'category_id' => $boxOffice,    'slots' => 1, 'is_public' => true,  'call_offset' =>  60, 'duration' => 210, 'order' => 20],
+                    ['title' => 'Concessions',   'category_id' => $concessions,  'slots' => 2, 'is_public' => true,  'call_offset' =>  60, 'duration' => 210, 'order' => 30],
+                    ['title' => 'Door',          'category_id' => $frontOfHouse, 'slots' => 1, 'is_public' => true,  'call_offset' =>  60, 'duration' => 210, 'order' => 40],
                 ],
             ],
             [
