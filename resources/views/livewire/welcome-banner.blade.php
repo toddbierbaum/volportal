@@ -2,7 +2,7 @@
     @if ($userId && ! $sent)
         <div class="bg-fct-cyan-light/40 border-b border-fct-cyan/30">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 flex-wrap">
-                <p class="text-sm text-fct-navy">
+                <p class="text-sm text-fct-navy dark:text-fct-cyan">
                     Welcome back, <strong>{{ $firstName }}</strong>.
                 </p>
                 <div class="flex items-center gap-3 text-sm">
@@ -12,7 +12,7 @@
                         <span wire:loading wire:target="sendLink">Sending…</span>
                     </button>
                     <button type="button" wire:click="dismiss"
-                            class="text-fct-navy/70 hover:text-fct-navy underline">
+                            class="text-fct-navy dark:text-fct-cyan/70 hover:text-fct-navy dark:text-fct-cyan underline">
                         Not you?
                     </button>
                 </div>

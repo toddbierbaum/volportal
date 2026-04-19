@@ -1,15 +1,15 @@
 <div class="max-w-md mx-auto">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
         @if (! $sent)
-            <h2 class="text-xl font-semibold text-fct-navy mb-1">Volunteer login</h2>
-            <p class="text-sm text-gray-600 mb-6">Enter your email and we'll send you a link to log in.</p>
+            <h2 class="text-xl font-semibold text-fct-navy dark:text-fct-cyan mb-1">Volunteer login</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 mb-6">Enter your email and we'll send you a link to log in.</p>
 
             <div>
-                <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+                <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                 <input type="email" id="login-email" wire:model="email" autocomplete="email"
                        wire:keydown.enter="send"
-                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
-                @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
+                @error('email') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             </div>
 
             {{-- Honeypot: hidden from humans, irresistible to bots. --}}
@@ -26,18 +26,18 @@
                 </button>
             </div>
 
-            <p class="mt-4 text-xs text-gray-500 text-center">
-                Not a volunteer yet? <a href="{{ route('signup') }}" class="text-fct-navy underline">Sign up here</a>.
+            <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 text-center">
+                Not a volunteer yet? <a href="{{ route('signup') }}" class="text-fct-navy dark:text-fct-cyan underline">Sign up here</a>.
             </p>
         @else
             <div class="text-center py-4">
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-fct-cyan-light">
-                    <svg class="h-6 w-6 text-fct-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-6 w-6 text-fct-navy dark:text-fct-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h2 class="mt-4 text-xl font-semibold text-fct-navy">Check your email</h2>
-                <p class="mt-2 text-sm text-gray-600">If that email matches a volunteer account, we just sent a login link. It will be valid for 30 minutes.</p>
+                <h2 class="mt-4 text-xl font-semibold text-fct-navy dark:text-fct-cyan">Check your email</h2>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">If that email matches a volunteer account, we just sent a login link. It will be valid for 30 minutes.</p>
             </div>
         @endif
     </div>

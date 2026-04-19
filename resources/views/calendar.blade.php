@@ -2,8 +2,8 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="mb-8 flex items-end justify-between gap-4 flex-wrap">
             <div>
-                <h1 class="text-3xl sm:text-4xl font-bold text-fct-navy tracking-tight">Upcoming Events</h1>
-                <p class="mt-2 text-gray-700 max-w-xl">
+                <h1 class="text-3xl sm:text-4xl font-bold text-fct-navy dark:text-fct-cyan tracking-tight">Upcoming Events</h1>
+                <p class="mt-2 text-gray-700 dark:text-gray-300 max-w-xl">
                     Click any event for details and to see what volunteer positions are open. New here? We'd love your help.
                 </p>
             </div>
@@ -16,12 +16,12 @@
             </a>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
             <div id="calendar" wire:ignore></div>
         </div>
 
-        <p class="mt-4 text-xs text-gray-500 text-center">
-            Already a volunteer? <a href="{{ route('login-link') }}" class="text-fct-navy underline hover:text-fct-navy-light">Log in</a> to see your upcoming signups.
+        <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 text-center">
+            Already a volunteer? <a href="{{ route('login-link') }}" class="text-fct-navy dark:text-fct-cyan underline hover:text-fct-navy dark:text-fct-cyan-light">Log in</a> to see your upcoming signups.
         </p>
     </div>
 </x-layouts.public>

@@ -11,7 +11,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-fct-cream text-gray-900 min-h-screen flex flex-col">
+<body class="font-sans antialiased bg-fct-cream dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
     <header class="bg-fct-navy text-white shadow-md">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
             <a href="{{ route('calendar') }}" class="flex items-center gap-3 group">

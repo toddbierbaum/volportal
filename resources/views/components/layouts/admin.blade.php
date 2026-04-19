@@ -9,10 +9,29 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
+    {{-- Apply theme before paint so there's no flash. --}}
+    <script>
+        (function () {
+            const stored = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (stored === 'dark' || (!stored && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body x-data="{ sidebarOpen: false }"
-      class="font-sans antialiased bg-gray-50 text-gray-900 min-h-screen">
+<body x-data="{
+        sidebarOpen: false,
+        dark: document.documentElement.classList.contains('dark'),
+        toggleTheme() {
+            this.dark = !this.dark;
+            document.documentElement.classList.toggle('dark', this.dark);
+            localStorage.setItem('theme', this.dark ? 'dark' : 'light');
+        }
+      }"
+      class="font-sans antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
 
     @php
         $tabs = [
@@ -27,13 +46,15 @@
     @endphp
 
     {{-- Mobile header with hamburger --}}
-    <header class="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-20">
+    <header class="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
         <div class="flex items-center justify-between px-4 py-3">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
-                <img src="/images/logo-dark.png?v={{ config('app.version') }}" alt="FCT" class="h-8 w-auto">
-                <span class="text-sm font-semibold text-fct-navy">Admin</span>
+                <img src="/images/logo-dark.png?v={{ config('app.version') }}"
+                     alt="FCT"
+                     class="h-8 w-auto dark:brightness-0 dark:invert">
+                <span class="text-sm font-semibold text-fct-navy dark:text-fct-cyan">Admin</span>
             </a>
-            <button type="button" @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <button type="button" @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -49,16 +70,16 @@
 
     <div class="flex min-h-screen">
         {{-- Sidebar --}}
-        <aside class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col
+        <aside class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
                       transform transition-transform lg:translate-x-0"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
             {{-- Logo --}}
-            <div class="h-16 flex items-center gap-3 px-5 border-b border-gray-200">
+            <div class="h-16 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 min-w-0">
                     <img src="/images/logo-dark.png?v={{ config('app.version') }}"
                          alt="Florida Chautauqua Theater &amp; Institute"
-                         class="h-9 w-auto">
-                    <span class="text-xs tracking-[0.2em] uppercase text-gray-500 truncate">Admin</span>
+                         class="h-9 w-auto dark:brightness-0 dark:invert">
+                    <span class="text-xs tracking-[0.2em] uppercase text-gray-500 dark:text-gray-400 truncate">Admin</span>
                 </a>
             </div>
 
@@ -69,9 +90,9 @@
                     <a href="{{ route($routeName) }}"
                        class="group flex items-center gap-3 px-3 py-2 rounded-md text-sm transition
                               {{ $active
-                                    ? 'bg-fct-cyan/10 text-fct-navy font-semibold'
-                                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                        <svg class="h-5 w-5 shrink-0 {{ $active ? 'text-fct-navy' : 'text-gray-400 group-hover:text-gray-600' }}"
+                                    ? 'bg-fct-cyan/10 dark:bg-fct-cyan/20 text-fct-navy dark:text-fct-cyan font-semibold'
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100' }}">
+                        <svg class="h-5 w-5 shrink-0 {{ $active ? 'text-fct-navy dark:text-fct-cyan' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300' }}"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="{{ $iconPath }}" />
                         </svg>
@@ -81,23 +102,33 @@
             </nav>
 
             {{-- User footer --}}
-            <div class="border-t border-gray-200 p-3">
+            <div class="border-t border-gray-200 dark:border-gray-700 p-3">
                 <a href="{{ route('profile') }}"
-                   class="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-100 transition"
+                   class="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                    title="Edit your profile">
-                    <div class="h-9 w-9 rounded-full bg-fct-cyan/20 text-fct-navy flex items-center justify-center font-semibold text-sm shrink-0">
+                    <div class="h-9 w-9 rounded-full bg-fct-cyan/20 text-fct-navy dark:text-fct-cyan flex items-center justify-center font-semibold text-sm shrink-0">
                         {{ strtoupper(substr(auth()->user()?->name ?? '?', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm font-medium text-gray-900 truncate">{{ auth()->user()?->name }}</div>
-                        <div class="text-xs text-gray-500 truncate">{{ auth()->user()?->email }}</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ auth()->user()?->name }}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ auth()->user()?->email }}</div>
                     </div>
                 </a>
-                <div class="mt-2 flex items-center justify-between gap-2 text-xs">
-                    <a href="{{ route('calendar') }}" class="text-gray-600 hover:text-fct-navy px-2 py-1 rounded hover:bg-gray-100">Public site</a>
+                <div class="mt-2 flex items-center justify-between gap-1 text-xs">
+                    <a href="{{ route('calendar') }}" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Public site</a>
+                    <button type="button" @click="toggleTheme"
+                            class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                            :title="dark ? 'Switch to light mode' : 'Switch to dark mode'">
+                        <svg x-show="!dark" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg x-show="dark" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-gray-600 hover:text-fct-navy px-2 py-1 rounded hover:bg-gray-100">Log out</button>
+                        <button type="submit" class="text-gray-600 dark:text-gray-400 hover:text-fct-navy dark:hover:text-fct-cyan px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">Log out</button>
                     </form>
                 </div>
             </div>
@@ -106,8 +137,8 @@
         {{-- Main content --}}
         <div class="flex-1 flex flex-col min-w-0">
             @if (session('status'))
-                <div class="bg-green-50 border-b border-green-200">
-                    <div class="px-4 sm:px-6 lg:px-8 py-3 text-sm text-green-900">
+                <div class="bg-emerald-50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 text-sm text-emerald-900 dark:text-emerald-200">
                         {{ session('status') }}
                     </div>
                 </div>
@@ -119,7 +150,7 @@
                 </div>
             </main>
 
-            <footer class="text-xs text-gray-400 text-center py-4 px-4">
+            <footer class="text-xs text-gray-400 dark:text-gray-600 text-center py-4 px-4">
                 v{{ config('app.version') }}
             </footer>
         </div>
