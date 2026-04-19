@@ -22,11 +22,18 @@
                        class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
-            <div class="sm:col-span-2">
+            <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" required
                        class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                       placeholder="(850) 555-1234"
+                       class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
+                @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
             <div class="sm:col-span-2">
                 <label for="password" class="block text-sm font-medium text-gray-700">Initial password</label>

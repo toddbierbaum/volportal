@@ -49,6 +49,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/admins/create', [AdminAdminController::class, 'create'])->name('admins.create');
     Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
     Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
+    Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update');
     Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy');
     Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password');
 

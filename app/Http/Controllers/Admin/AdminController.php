@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\SmsSender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -27,12 +28,20 @@ class AdminController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'phone' => 'nullable|string|max:30',
             'password' => 'required|string|min:8',
         ]);
+
+        $rawPhone = $data['phone'] ?? null;
+        $e164 = $rawPhone ? SmsSender::toE164($rawPhone) : null;
+        if ($rawPhone && ! $e164) {
+            return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
+        }
 
         $admin = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $e164 ?: $rawPhone,
             'password' => Hash::make($data['password']),
             'role' => 'admin',
             'email_verified_at' => now(),
@@ -46,6 +55,32 @@ class AdminController extends Controller
     {
         abort_unless($admin->role === 'admin', 404);
         return view('admin.admins.show', ['admin' => $admin]);
+    }
+
+    public function update(User $admin, Request $request)
+    {
+        abort_unless($admin->role === 'admin', 404);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($admin->id)],
+            'phone' => 'nullable|string|max:30',
+        ]);
+
+        $rawPhone = $data['phone'] ?? null;
+        $e164 = $rawPhone ? SmsSender::toE164($rawPhone) : null;
+        if ($rawPhone && ! $e164) {
+            return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
+        }
+
+        $admin->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $e164 ?: $rawPhone,
+        ]);
+
+        return redirect()->route('admin.admins.show', $admin)
+            ->with('status', "Saved {$admin->name}.");
     }
 
     public function destroy(User $admin, Request $request)

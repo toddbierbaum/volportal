@@ -82,18 +82,19 @@
 
             {{-- User footer --}}
             <div class="border-t border-gray-200 p-3">
-                <div class="flex items-center gap-3 px-2 py-2">
-                    <div class="h-9 w-9 rounded-full bg-fct-cyan/20 text-fct-navy flex items-center justify-center font-semibold text-sm">
+                <a href="{{ route('profile') }}"
+                   class="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-gray-100 transition"
+                   title="Edit your profile">
+                    <div class="h-9 w-9 rounded-full bg-fct-cyan/20 text-fct-navy flex items-center justify-center font-semibold text-sm shrink-0">
                         {{ strtoupper(substr(auth()->user()?->name ?? '?', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-medium text-gray-900 truncate">{{ auth()->user()?->name }}</div>
                         <div class="text-xs text-gray-500 truncate">{{ auth()->user()?->email }}</div>
                     </div>
-                </div>
+                </a>
                 <div class="mt-2 flex items-center justify-between gap-2 text-xs">
                     <a href="{{ route('calendar') }}" class="text-gray-600 hover:text-fct-navy px-2 py-1 rounded hover:bg-gray-100">Public site</a>
-                    <a href="{{ route('profile') }}" class="text-gray-600 hover:text-fct-navy px-2 py-1 rounded hover:bg-gray-100">Profile</a>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="text-gray-600 hover:text-fct-navy px-2 py-1 rounded hover:bg-gray-100">Log out</button>
