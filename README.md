@@ -1,58 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# VolPortal
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Volunteer portal for the [Florida Chautauqua Theater & Institute](https://floridachautauqua.com) in DeFuniak Springs, FL.
 
-## About Laravel
+Live at **https://volunteer.floridachautauqua.com**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Board members publish events, volunteers sign up from a public calendar, reminders go out by email (SMS coming), and hours get tracked for reporting.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Stack
 
-## Learning Laravel
+- **Laravel 13** (PHP 8.4) + **Livewire 3** + **Volt** + **Breeze** (auth scaffolding)
+- **SQLite** database — single-file, lives at `database/database.sqlite`
+- **Tailwind CSS** (v3)
+- **SendGrid** for transactional email (SMTP)
+- **Twilio** for SMS (pending toll-free verification)
+- Hosted on **DreamHost shared hosting**, deployed by SSH + git pull
+- Timezone: `America/Chicago` (theater is in the Central Time half of the FL panhandle)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Local development
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Requires PHP 8.4, Composer, Node 22, and SQLite.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone git@github.com:toddbierbaum/volportal.git
+cd volportal
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm run dev        # in one terminal
+php artisan serve  # in another
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Then open http://localhost:8000.
 
-## Contributing
+Fresh seed creates:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- One admin (`todd.bierbaum@gmail.com`, password in [`DatabaseSeeder.php`](database/seeders/DatabaseSeeder.php))
+- The 2026 calendar of events ([`Fct2026CalendarSeeder`](database/seeders/Fct2026CalendarSeeder.php))
+- Optionally, board members + back-filled attendance: `php artisan db:seed --class=Fct2026BoardAndRosterSeeder`
 
-## Code of Conduct
+## Production deploy
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Deploys happen by SSH'ing into DreamHost and running [`deploy.sh`](deploy.sh):
 
-## Security Vulnerabilities
+```bash
+ssh <user>@<host>
+cd ~/volunteer.floridachautauqua.com
+./deploy.sh
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The script backs up the SQLite DB, pulls from GitHub, runs migrations, builds assets, and bumps the patch version (the `VERSION` file holds `MAJOR.MINOR`; the patch comes from `git rev-list --count HEAD`).
+
+The reminder job is wired to cron via `schedule:run`.
+
+## Domain model
+
+- **EventTemplate** — reusable event type with default positions + notification schedules (e.g. "Standing Show", "Kids Production")
+- **Event** — a specific show on a specific date; has many Positions
+- **Position** — a role at an event (House Manager, Concessions, Door, Box Office…), with call time and shift duration
+- **Signup** — a user claiming a position slot; statuses: `confirmed`, `waitlisted`, `attended`, `canceled`, `no_show`
+- **Category** — tags on Positions used by the volunteer-interest matching flow
+- **NotificationSchedule** — per-template or per-event reminder offsets ("2 days before", "1 hour before")
+- **User** — `volunteer` or `admin` role; volunteers auth via magic link, admins via password
+
+## Auth model
+
+- **Volunteers** log in by requesting a magic link by email. No password.
+- **Admins** log in with email + password. Magic-link login is blocked for admin accounts.
+- `auth` middleware protects `/my/*`; `auth + admin` gates `/admin/*`.
+
+## Conventions
+
+See [CLAUDE.md](CLAUDE.md) for coding guidelines (simplicity, surgical changes, goal-driven execution). These apply to both human and AI contributors.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary — all rights reserved to the Florida Chautauqua Theater & Institute.
