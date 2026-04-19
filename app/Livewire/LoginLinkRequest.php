@@ -4,8 +4,8 @@ namespace App\Livewire;
 
 use App\Mail\MagicLinkMail;
 use App\Models\User;
+use App\Support\EmailSendThrottle;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -13,6 +13,10 @@ class LoginLinkRequest extends Component
 {
     #[Validate('required|email')]
     public string $email = '';
+
+    // Honeypot — hidden in the DOM, legit users never touch it. Bots fill
+    // every input. Non-empty value means "silently drop this request".
+    public string $website = '';
 
     public bool $sent = false;
 
@@ -29,16 +33,19 @@ class LoginLinkRequest extends Component
 
     public function send(): void
     {
-        $this->validate();
-
-        // Rate limit per IP so an attacker can't flood SendGrid or
-        // a volunteer's inbox by hammering this form.
-        $key = 'magic-link:'.request()->ip();
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $this->addError('email', 'Too many requests. Please try again in a minute.');
+        // Honeypot trip: pretend the request succeeded so scrapers don't
+        // learn they were detected. No email, no rate-limiter credit spent.
+        if ($this->website !== '') {
+            $this->sent = true;
             return;
         }
-        RateLimiter::hit($key, 60);
+
+        $this->validate();
+
+        if (! EmailSendThrottle::allow($this->email, request()->ip())) {
+            $this->addError('email', 'Too many requests. Please wait an hour before trying again.');
+            return;
+        }
 
         $user = User::where('email', $this->email)->first();
         if ($user && ! $user->isAdmin()) {

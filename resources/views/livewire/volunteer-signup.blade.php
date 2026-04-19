@@ -45,6 +45,13 @@
                            class="mt-1 block w-full border-gray-300 focus:border-fct-cyan focus:ring-fct-cyan rounded-md shadow-sm">
                     @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
+
+                {{-- Honeypot: hidden from humans, irresistible to bots. --}}
+                <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;" tabindex="-1">
+                    <label for="signup-website">Website</label>
+                    <input type="text" id="signup-website" name="website" wire:model="website" autocomplete="off" tabindex="-1">
+                </div>
+
                 <div>
                     <label class="inline-flex items-start gap-2 text-sm">
                         <input type="checkbox" wire:model="smsOptIn"

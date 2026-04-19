@@ -8,11 +8,11 @@ use App\Models\Category;
 use App\Models\Position;
 use App\Models\Signup;
 use App\Models\User;
+use App\Support\EmailSendThrottle;
 use App\Support\SmsSender;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -29,6 +29,9 @@ class VolunteerSignup extends Component
     #[Validate('required|string|max:30')]
     public string $phone = '';
 
+    // Honeypot — hidden field, legit users never fill it.
+    public string $website = '';
+
     public bool $smsOptIn = false;
 
     /** @var array<int> */
@@ -41,6 +44,13 @@ class VolunteerSignup extends Component
 
     public function proceedToCategories(): void
     {
+        // Honeypot trip — pretend it worked so scrapers can't tell they
+        // were detected. Same branch as a successful existing-user send.
+        if ($this->website !== '') {
+            $this->step = 5;
+            return;
+        }
+
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -52,14 +62,10 @@ class VolunteerSignup extends Component
             return;
         }
 
-        // Rate limit per IP so this form can't be used to enumerate
-        // accounts or flood inboxes with magic-link emails.
-        $key = 'signup:'.request()->ip();
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            $this->addError('email', 'Too many requests. Please try again in a minute.');
+        if (! EmailSendThrottle::allow($this->email, request()->ip())) {
+            $this->addError('email', 'Too many requests. Please wait an hour before trying again.');
             return;
         }
-        RateLimiter::hit($key, 60);
 
         // Don't reveal whether an email belongs to an admin — just send
         // the magic link silently for any existing account. MagicLinkController

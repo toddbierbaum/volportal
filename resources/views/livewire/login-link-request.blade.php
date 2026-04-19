@@ -12,6 +12,12 @@
                 @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
+            {{-- Honeypot: hidden from humans, irresistible to bots. --}}
+            <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;" tabindex="-1">
+                <label for="website">Website</label>
+                <input type="text" id="website" name="website" wire:model="website" autocomplete="off" tabindex="-1">
+            </div>
+
             <div class="mt-6">
                 <button type="button" wire:click="send" wire:loading.attr="disabled"
                         class="w-full inline-flex items-center justify-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-none focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-60">
