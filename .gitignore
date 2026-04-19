@@ -5,9 +5,12 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
-/.claude/*
-!/.claude/settings.json
+/.claude/
 /.cursor/
+CLAUDE.md
+*.sqlite
+*.sqlite3
+*.sqlite-journal
 /.idea
 /.nova
 /.phpunit.cache

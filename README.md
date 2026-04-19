@@ -73,10 +73,6 @@ The reminder job is wired to cron via `schedule:run`.
 - **Admins** log in with email + password. Magic-link login is blocked for admin accounts.
 - `auth` middleware protects `/my/*`; `auth + admin` gates `/admin/*`.
 
-## Conventions
-
-See [CLAUDE.md](CLAUDE.md) for coding guidelines (simplicity, surgical changes, goal-driven execution). These apply to both human and AI contributors.
-
 ## License
 
 Proprietary — all rights reserved to the Florida Chautauqua Theater & Institute.
