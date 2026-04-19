@@ -134,7 +134,7 @@ class EventSignupManager extends Component
             ->whereIn('status', ['confirmed', 'waitlisted', 'attended'])
             ->pluck('user_id');
 
-        return User::where('role', 'volunteer')
+        return User::whereIn('role', ['volunteer', 'admin'])
             ->whereNotIn('id', $alreadyAssigned)
             ->orderBy('name')
             ->get();

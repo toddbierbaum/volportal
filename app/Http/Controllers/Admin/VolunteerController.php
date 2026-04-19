@@ -62,7 +62,14 @@ class VolunteerController extends Controller
     private function buildVolunteerQuery(string $q, ?string $from, ?string $to)
     {
         return User::query()
-            ->where('role', 'volunteer')
+            // Include admins who also volunteer — otherwise their hours
+            // are invisible on reports. Pure admins (no signups ever) are
+            // still excluded to keep the list focused on the people the
+            // hours report is about.
+            ->where(function ($scope) {
+                $scope->where('role', 'volunteer')
+                    ->orWhereHas('signups');
+            })
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('name', 'like', "%{$q}%")
@@ -98,7 +105,10 @@ class VolunteerController extends Controller
 
     public function show(User $volunteer)
     {
-        abort_unless($volunteer->role === 'volunteer', 404);
+        abort_unless(
+            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
+            404
+        );
 
         $upcomingSignups = Signup::with(['position.event.template', 'position.category'])
             ->where('user_id', $volunteer->id)
