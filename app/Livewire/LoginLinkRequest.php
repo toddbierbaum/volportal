@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Mail\MagicLinkMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -29,6 +30,15 @@ class LoginLinkRequest extends Component
     public function send(): void
     {
         $this->validate();
+
+        // Rate limit per IP so an attacker can't flood SendGrid or
+        // a volunteer's inbox by hammering this form.
+        $key = 'magic-link:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $this->addError('email', 'Too many requests. Please try again in a minute.');
+            return;
+        }
+        RateLimiter::hit($key, 60);
 
         $user = User::where('email', $this->email)->first();
         if ($user && ! $user->isAdmin()) {

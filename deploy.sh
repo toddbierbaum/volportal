@@ -19,6 +19,13 @@ cd "$SITE_DIR"
 
 echo "==> Deploy starting at $(date)"
 
+# --- 0. Lock down file permissions so shared-hosting neighbors can't
+#        read .env secrets or the SQLite DB, and so the app can still
+#        write storage/bootstrap/cache.
+chmod 600 .env 2>/dev/null || true
+chmod 640 database/database.sqlite 2>/dev/null || true
+chmod -R u+rwX,g+rX,o-rwx storage bootstrap/cache 2>/dev/null || true
+
 # --- 1. Back up the database before anything mutating ---
 mkdir -p storage/backups
 DB_CONNECTION="$(grep '^DB_CONNECTION=' .env | cut -d= -f2 | tr -d '"[:space:]')"

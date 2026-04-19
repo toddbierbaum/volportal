@@ -12,6 +12,7 @@ use App\Support\SmsSender;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -51,14 +52,23 @@ class VolunteerSignup extends Component
             return;
         }
 
-        $existing = User::where('email', $this->email)->first();
-        if ($existing && $existing->isAdmin()) {
-            $this->addError('email', 'This email belongs to an admin account. Please log in instead.');
+        // Rate limit per IP so this form can't be used to enumerate
+        // accounts or flood inboxes with magic-link emails.
+        $key = 'signup:'.request()->ip();
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $this->addError('email', 'Too many requests. Please try again in a minute.');
             return;
         }
+        RateLimiter::hit($key, 60);
 
+        // Don't reveal whether an email belongs to an admin — just send
+        // the magic link silently for any existing account. MagicLinkController
+        // will block admins on redeem.
+        $existing = User::where('email', $this->email)->first();
         if ($existing) {
-            Mail::to($existing->email)->send(new MagicLinkMail($existing));
+            if (! $existing->isAdmin()) {
+                Mail::to($existing->email)->send(new MagicLinkMail($existing));
+            }
             $this->userId = $existing->id;
             $this->step = 5;
             return;
