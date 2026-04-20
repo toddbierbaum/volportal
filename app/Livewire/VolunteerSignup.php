@@ -163,12 +163,20 @@ class VolunteerSignup extends Component
 
     public function needsBackgroundCheck(): bool
     {
-        // BG check is tied to the event type (e.g. Kids Production) —
-        // ANY position on that kind of event requires it, regardless of
-        // which role the volunteer picks. Trigger if ANY upcoming event
-        // whose template requires BG check has a public position that
-        // matches one of the volunteer's selected categories.
+        // BG check is tied to the event template. Trigger if either:
+        // (1) any upcoming event on a BG-template has a public position
+        //     matching the user's category interests (indirect — they'd
+        //     probably pick up that shift), or
+        // (2) any picked category is directly linked to a BG-template
+        //     (direct — their interest in that event type implies it).
         if (empty($this->selectedCategoryIds)) return false;
+
+        $templateLinkedTrigger = Category::whereIn('id', $this->selectedCategoryIds)
+            ->whereHas('eventTemplate', fn ($q) => $q->where('requires_background_check', true))
+            ->exists();
+
+        if ($templateLinkedTrigger) return true;
+
         return Event::query()
             ->where('is_published', true)
             ->where('starts_at', '>=', now())
@@ -252,14 +260,29 @@ class VolunteerSignup extends Component
             return collect();
         }
 
+        // Collect event-template IDs for any selected categories that are
+        // linked to a template. Picking such a category means "I want to
+        // work events of this type" — we match every public position on
+        // those events, regardless of the position's own category_id.
+        $templateIds = Category::whereIn('id', $this->selectedCategoryIds)
+            ->whereNotNull('event_template_id')
+            ->pluck('event_template_id')
+            ->all();
+
         return Position::query()
             ->with(['event.template', 'category', 'signups'])
             ->where('is_public', true)
-            ->whereIn('category_id', $this->selectedCategoryIds)
+            ->where(function ($q) use ($templateIds) {
+                $q->whereIn('category_id', $this->selectedCategoryIds);
+                if (! empty($templateIds)) {
+                    $q->orWhereHas('event', fn ($e) => $e->whereIn('event_template_id', $templateIds));
+                }
+            })
             ->whereHas('event', fn ($q) => $q
                 ->where('is_published', true)
                 ->where('starts_at', '>=', now()))
             ->get()
+            ->unique('id')
             ->sortBy(fn ($p) => $p->event->starts_at)
             ->values();
     }

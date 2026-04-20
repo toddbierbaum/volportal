@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Category;
+use App\Models\EventTemplate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -13,6 +14,7 @@ class CategoryManager extends Component
     public string $description = '';
     public string $color = '#4F46E5';
     public bool $requiresAgeCertification = false;
+    public ?int $eventTemplateId = null;
 
     public ?int $editingId = null;
     public string $flash = '';
@@ -35,6 +37,7 @@ class CategoryManager extends Component
         $this->description = (string) $c->description;
         $this->color = $c->color ?? '#4F46E5';
         $this->requiresAgeCertification = (bool) $c->requires_age_certification;
+        $this->eventTemplateId = $c->event_template_id;
         $this->resetValidation();
     }
 
@@ -84,19 +87,26 @@ class CategoryManager extends Component
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+            'eventTemplateId' => 'nullable|integer|exists:event_templates,id',
         ]);
 
         return [
             'name' => $this->name,
             'description' => $this->description,
             'color' => $this->color,
+            'event_template_id' => $this->eventTemplateId ?: null,
             'requires_age_certification' => $this->requiresAgeCertification,
         ];
     }
 
+    public function getEventTemplatesProperty(): Collection
+    {
+        return EventTemplate::orderBy('name')->get();
+    }
+
     private function resetForm(): void
     {
-        $this->reset(['name', 'description', 'editingId', 'requiresAgeCertification']);
+        $this->reset(['name', 'description', 'editingId', 'requiresAgeCertification', 'eventTemplateId']);
         $this->color = '#4F46E5';
         $this->resetValidation();
     }
@@ -114,6 +124,9 @@ class CategoryManager extends Component
 
     public function render()
     {
-        return view('livewire.admin.category-manager', ['items' => $this->items]);
+        return view('livewire.admin.category-manager', [
+            'items' => $this->items,
+            'eventTemplates' => $this->eventTemplates,
+        ]);
     }
 }

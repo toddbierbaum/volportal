@@ -45,9 +45,22 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Backstage',      'slug' => 'backstage',      'color' => '#8B5CF6',
              'description' => 'Behind-the-scenes support — stage crew, set, props.',
              'requires_age_certification' => false],
+            // Linked to the Kids Production event template: picking this
+            // interest surfaces all positions on kids events + triggers
+            // the BG-check screen at signup.
+            ['name' => 'Kids Productions', 'slug' => 'kids-productions', 'color' => '#EC4899',
+             'description' => 'Working any role at our youth productions — background check required.',
+             'requires_age_certification' => false,
+             '_link_template_slug' => 'kids-production'],
         ];
         foreach ($categories as $c) {
-            Category::updateOrCreate(['slug' => $c['slug']], $c);
+            $linkSlug = $c['_link_template_slug'] ?? null;
+            unset($c['_link_template_slug']);
+            $cat = Category::updateOrCreate(['slug' => $c['slug']], $c);
+            if ($linkSlug) {
+                $templateId = EventTemplate::where('slug', $linkSlug)->value('id');
+                if ($templateId) $cat->update(['event_template_id' => $templateId]);
+            }
         }
 
         $frontOfHouse = Category::where('slug', 'front-of-house')->value('id');
@@ -113,6 +126,11 @@ class DatabaseSeeder extends Seeder
                 ['slug' => $tpl['slug']],
                 ['name' => $tpl['name'], 'color' => $tpl['color']]
             );
+
+            // Kids Production template requires BG check by default.
+            if ($tpl['slug'] === 'kids-production' && ! $template->requires_background_check) {
+                $template->update(['requires_background_check' => true]);
+            }
 
             if ($template->positions()->count() === 0) {
                 foreach ($tpl['positions'] as $p) {

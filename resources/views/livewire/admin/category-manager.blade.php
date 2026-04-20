@@ -21,6 +21,11 @@
                                     @if ($item->requires_age_certification)
                                         <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium" title="Volunteers must certify they are 18+">18+</span>
                                     @endif
+                                    @if ($item->event_template_id)
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-fct-cyan/15 text-fct-navy dark:text-fct-cyan font-medium" title="Picking this interest matches all positions on events of this template">
+                                            → {{ $eventTemplates->firstWhere('id', $item->event_template_id)?->name ?? 'template' }}
+                                        </span>
+                                    @endif
                                 </div>
                                 @if ($item->description)
                                     <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">{{ $item->description }}</div>
@@ -63,6 +68,19 @@
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description (optional)</label>
                     <input type="text" wire:model="description"
                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Link to event template (optional)</label>
+                    <select wire:model="eventTemplateId"
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
+                        <option value="">— Not linked (regular interest category) —</option>
+                        @foreach ($eventTemplates as $t)
+                            <option value="{{ $t->id }}">{{ $t->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        When linked, picking this category at signup matches all positions on events of that template (regardless of role), and triggers the BG-check screen if the template requires it.
+                    </p>
                 </div>
                 <div class="sm:col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
                     <div class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Signup requirement</div>
