@@ -179,18 +179,23 @@
             </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-between gap-3 flex-wrap">
-            <form method="POST" action="{{ route('admin.volunteers.destroy', $volunteer) }}"
-                  onsubmit="return confirm('Delete this volunteer and all their signups? This cannot be undone.');"
-                  class="inline">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">Delete volunteer</button>
-            </form>
+        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-end gap-3">
             <button type="submit" class="px-5 py-2 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">
                 Save changes
             </button>
         </div>
+    </form>
+
+    {{-- Delete form lives outside the edit form. HTML forbids nested
+         forms; browsers flatten them and any hidden inputs (like
+         _method=DELETE) from an inner form can piggyback on the outer
+         submit — which once caused Save to delete the user. --}}
+    <form method="POST" action="{{ route('admin.volunteers.destroy', $volunteer) }}"
+          onsubmit="return confirm('Delete this volunteer and all their signups? This cannot be undone.');"
+          class="mb-6">
+        @csrf
+        @method('DELETE')
+        <button type="submit" class="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">Delete volunteer</button>
     </form>
 
     <section class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
