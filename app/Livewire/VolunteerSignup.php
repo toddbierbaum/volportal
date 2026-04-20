@@ -42,6 +42,11 @@ class VolunteerSignup extends Component
     /** @var array<int> signup IDs created during this session */
     public array $createdSignupIds = [];
 
+    // Certification acknowledgments within the wizard session.
+    // Persisted to User timestamps when we create/update the user record.
+    public bool $backgroundCheckAcknowledged = false;
+    public bool $ageCertified = false;
+
     public function proceedToCategories(): void
     {
         // Honeypot trip — pretend it worked so scrapers can't tell they
@@ -98,6 +103,45 @@ class VolunteerSignup extends Component
             'selectedCategoryIds.min' => 'Pick at least one category you are interested in.',
         ]);
 
+        // Route through certification screens first if any picked category
+        // requires them. User record isn't created until all acknowledgments
+        // are collected, so there's no half-complete row if they bail.
+        if ($this->needsBackgroundCheck() && ! $this->backgroundCheckAcknowledged) {
+            $this->step = 6;
+            return;
+        }
+        if ($this->needsAgeCertification() && ! $this->ageCertified) {
+            $this->step = 7;
+            return;
+        }
+
+        $this->persistUser();
+        $this->step = 3;
+    }
+
+    public function acknowledgeBackgroundCheck(): void
+    {
+        $this->backgroundCheckAcknowledged = true;
+        // Still need age cert? Go there next. Otherwise create user + matches.
+        if ($this->needsAgeCertification() && ! $this->ageCertified) {
+            $this->step = 7;
+            return;
+        }
+        $this->persistUser();
+        $this->step = 3;
+    }
+
+    public function certifyAge(): void
+    {
+        $this->ageCertified = true;
+        $this->persistUser();
+        $this->step = 3;
+    }
+
+    private function persistUser(): void
+    {
+        $requiresReview = $this->backgroundCheckAcknowledged || $this->ageCertified;
+
         $user = User::updateOrCreate(
             ['email' => $this->email],
             [
@@ -105,13 +149,31 @@ class VolunteerSignup extends Component
                 'phone' => SmsSender::toE164($this->phone) ?? $this->phone,
                 'role' => 'volunteer',
                 'sms_opt_in' => $this->smsOptIn,
+                'background_check_acknowledged_at' => $this->backgroundCheckAcknowledged ? now() : null,
+                'age_certified_at' => $this->ageCertified ? now() : null,
+                'approved_at' => $requiresReview ? null : now(),
             ]
         );
 
         $user->categories()->syncWithoutDetaching($this->selectedCategoryIds);
 
         $this->userId = $user->id;
-        $this->step = 3;
+    }
+
+    public function needsBackgroundCheck(): bool
+    {
+        if (empty($this->selectedCategoryIds)) return false;
+        return Category::whereIn('id', $this->selectedCategoryIds)
+            ->where('requires_background_check', true)
+            ->exists();
+    }
+
+    public function needsAgeCertification(): bool
+    {
+        if (empty($this->selectedCategoryIds)) return false;
+        return Category::whereIn('id', $this->selectedCategoryIds)
+            ->where('requires_age_certification', true)
+            ->exists();
     }
 
     public function signUp(int $positionId): void

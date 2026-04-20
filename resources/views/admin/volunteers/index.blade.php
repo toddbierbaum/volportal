@@ -13,7 +13,33 @@
         </a>
     </div>
 
+    @if ($pendingCount > 0 || $status === 'pending')
+        <div class="mb-4 flex items-center gap-2 text-sm">
+            <a href="{{ route('admin.volunteers.index') }}"
+               class="px-3 py-1.5 rounded-full border font-medium transition
+                      {{ $status !== 'pending'
+                            ? 'bg-fct-navy text-white border-fct-navy'
+                            : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                All
+            </a>
+            <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-medium transition
+                      {{ $status === 'pending'
+                            ? 'bg-amber-500 text-white border-amber-500'
+                            : 'bg-white dark:bg-gray-800 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800/60 hover:bg-amber-50 dark:hover:bg-amber-900/30' }}">
+                Pending review
+                <span class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-xs font-semibold
+                             {{ $status === 'pending' ? 'bg-white/25 text-white' : 'bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-200' }}">
+                    {{ $pendingCount }}
+                </span>
+            </a>
+        </div>
+    @endif
+
     <form method="GET" class="mb-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+        @if ($status === 'pending')
+            <input type="hidden" name="status" value="pending">
+        @endif
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div class="sm:col-span-2">
                 <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Search</label>
@@ -76,8 +102,13 @@
                                 {{ strtoupper(substr($volunteer->name, 0, 1)) }}
                             </div>
                             <div class="min-w-0">
-                                <a href="{{ route('admin.volunteers.show', $volunteer) }}"
-                                   class="font-medium text-gray-900 dark:text-gray-100 hover:text-fct-navy dark:text-fct-cyan">{{ $volunteer->name }}</a>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <a href="{{ route('admin.volunteers.show', $volunteer) }}"
+                                       class="font-medium text-gray-900 dark:text-gray-100 hover:text-fct-navy dark:text-fct-cyan">{{ $volunteer->name }}</a>
+                                    @if ($volunteer->approved_at === null && $volunteer->role === 'volunteer')
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Pending review</span>
+                                    @endif
+                                </div>
                                 <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5 truncate">
                                     {{ $volunteer->email }}
                                     @if ($volunteer->phone) &middot; {{ $volunteer->phone }} @endif

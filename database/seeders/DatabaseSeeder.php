@@ -34,13 +34,20 @@ class DatabaseSeeder extends Seeder
 
         $categories = [
             ['name' => 'Front of House', 'slug' => 'front-of-house', 'color' => '#4F46E5',
-             'description' => 'Welcoming and managing patrons — House Manager, Door, seating.'],
+             'description' => 'Welcoming and managing patrons — House Manager, Door, seating.',
+             'requires_background_check' => false, 'requires_age_certification' => false],
             ['name' => 'Concessions',    'slug' => 'concessions',    'color' => '#F59E0B',
-             'description' => 'Selling snacks and drinks during intermission.'],
+             'description' => 'Selling snacks and drinks during intermission.',
+             'requires_background_check' => false, 'requires_age_certification' => true],
             ['name' => 'Box Office',     'slug' => 'box-office',     'color' => '#10B981',
-             'description' => 'Ticket sales and will-call at the door.'],
+             'description' => 'Ticket sales and will-call at the door.',
+             'requires_background_check' => false, 'requires_age_certification' => false],
             ['name' => 'Backstage',      'slug' => 'backstage',      'color' => '#8B5CF6',
-             'description' => 'Behind-the-scenes support — stage crew, set, props.'],
+             'description' => 'Behind-the-scenes support — stage crew, set, props.',
+             'requires_background_check' => false, 'requires_age_certification' => false],
+            ['name' => 'Kids Productions', 'slug' => 'kids-productions', 'color' => '#EC4899',
+             'description' => 'Volunteering at our youth performances and workshops.',
+             'requires_background_check' => true, 'requires_age_certification' => false],
         ];
         foreach ($categories as $c) {
             Category::updateOrCreate(['slug' => $c['slug']], $c);

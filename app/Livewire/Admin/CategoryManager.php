@@ -12,17 +12,15 @@ class CategoryManager extends Component
     public string $name = '';
     public string $description = '';
     public string $color = '#4F46E5';
+    public bool $requiresBackgroundCheck = false;
+    public bool $requiresAgeCertification = false;
 
     public ?int $editingId = null;
     public string $flash = '';
 
     public function add(): void
     {
-        $data = $this->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
-        ]);
+        $data = $this->validatedPayload();
 
         Category::create($data + ['slug' => $this->uniqueSlug($data['name'])]);
         $this->resetForm();
@@ -37,16 +35,14 @@ class CategoryManager extends Component
         $this->name = $c->name;
         $this->description = (string) $c->description;
         $this->color = $c->color ?? '#4F46E5';
+        $this->requiresBackgroundCheck = (bool) $c->requires_background_check;
+        $this->requiresAgeCertification = (bool) $c->requires_age_certification;
         $this->resetValidation();
     }
 
     public function saveEdit(): void
     {
-        $data = $this->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
-        ]);
+        $data = $this->validatedPayload();
 
         $c = Category::find($this->editingId);
         if (! $c) return;
@@ -84,9 +80,26 @@ class CategoryManager extends Component
         return Category::orderBy('name')->withCount(['eventTemplatePositions', 'positions'])->get();
     }
 
+    private function validatedPayload(): array
+    {
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+        ]);
+
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'color' => $this->color,
+            'requires_background_check' => $this->requiresBackgroundCheck,
+            'requires_age_certification' => $this->requiresAgeCertification,
+        ];
+    }
+
     private function resetForm(): void
     {
-        $this->reset(['name', 'description', 'editingId']);
+        $this->reset(['name', 'description', 'editingId', 'requiresBackgroundCheck', 'requiresAgeCertification']);
         $this->color = '#4F46E5';
         $this->resetValidation();
     }

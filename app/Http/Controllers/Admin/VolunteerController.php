@@ -17,16 +17,18 @@ class VolunteerController extends Controller
         $q = trim((string) $request->input('q', ''));
         $from = $request->input('from') ?: null; // date string or null
         $to = $request->input('to') ?: null;
+        $status = $request->input('status') ?: null; // 'pending' | null
 
-        $volunteers = $this->buildVolunteerQuery($q, $from, $to)
+        $volunteers = $this->buildVolunteerQuery($q, $from, $to, $status)
             ->orderBy('name')
             ->paginate(30)
             ->withQueryString();
 
         // Grand total across the filtered range (not paginated — everybody's hours).
         $totalHours = $this->hoursSumQuery($from, $to)->value('total') ?? 0;
+        $pendingCount = User::where('role', 'volunteer')->whereNull('approved_at')->count();
 
-        return view('admin.volunteers.index', compact('volunteers', 'q', 'from', 'to', 'totalHours'));
+        return view('admin.volunteers.index', compact('volunteers', 'q', 'from', 'to', 'status', 'totalHours', 'pendingCount'));
     }
 
     public function exportCsv(Request $request)
@@ -59,7 +61,7 @@ class VolunteerController extends Controller
         ]);
     }
 
-    private function buildVolunteerQuery(string $q, ?string $from, ?string $to)
+    private function buildVolunteerQuery(string $q, ?string $from, ?string $to, ?string $status = null)
     {
         return User::query()
             // Include admins who also volunteer — otherwise their hours
@@ -70,6 +72,7 @@ class VolunteerController extends Controller
                 $scope->where('role', 'volunteer')
                     ->orWhereHas('signups');
             })
+            ->when($status === 'pending', fn ($query) => $query->whereNull('approved_at')->where('role', 'volunteer'))
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('name', 'like', "%{$q}%")
@@ -131,7 +134,65 @@ class VolunteerController extends Controller
             'upcomingSignups' => $upcomingSignups,
             'pastSignups' => $pastSignups,
             'totalHours' => $totalHours,
+            'categories' => Category::orderBy('name')->get(),
         ]);
+    }
+
+    public function update(User $volunteer, Request $request)
+    {
+        abort_unless(
+            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
+            404
+        );
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($volunteer->id)],
+            'phone' => 'nullable|string|max:30',
+            'sms_opt_in' => 'nullable|boolean',
+            'categories' => 'nullable|array',
+            'categories.*' => 'integer|exists:categories,id',
+        ]);
+
+        $rawPhone = $data['phone'] ?? null;
+        $e164 = $rawPhone ? SmsSender::toE164($rawPhone) : null;
+        if ($rawPhone && ! $e164) {
+            return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
+        }
+
+        $volunteer->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $e164 ?: $rawPhone,
+            'sms_opt_in' => (bool) ($data['sms_opt_in'] ?? false),
+        ]);
+
+        $volunteer->categories()->sync($data['categories'] ?? []);
+
+        return redirect()->route('admin.volunteers.show', $volunteer)
+            ->with('status', "Saved {$volunteer->name}.");
+    }
+
+    public function approve(User $volunteer)
+    {
+        abort_unless(
+            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
+            404
+        );
+        $volunteer->update(['approved_at' => now()]);
+
+        return back()->with('status', "Approved {$volunteer->name}.");
+    }
+
+    public function unapprove(User $volunteer)
+    {
+        abort_unless(
+            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
+            404
+        );
+        $volunteer->update(['approved_at' => null]);
+
+        return back()->with('status', "{$volunteer->name} marked pending review.");
     }
 
     public function create()

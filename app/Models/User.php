@@ -12,7 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'role', 'password', 'sms_opt_in'])]
+#[Fillable(['name', 'email', 'phone', 'role', 'password', 'sms_opt_in',
+    'background_check_acknowledged_at', 'age_certified_at', 'approved_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -24,6 +25,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
+            'background_check_acknowledged_at' => 'datetime',
+            'age_certified_at' => 'datetime',
+            'approved_at' => 'datetime',
             'password' => 'hashed',
             'sms_opt_in' => 'boolean',
         ];
@@ -32,6 +36,16 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approved_at !== null;
+    }
+
+    public function isPendingReview(): bool
+    {
+        return $this->approved_at === null;
     }
 
     public function categories(): BelongsToMany

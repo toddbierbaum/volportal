@@ -187,6 +187,91 @@
             </div>
         @endif
 
+        {{-- Step 6: background check acknowledgment (Kids Productions etc.) --}}
+        @if ($step === 6)
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="h-12 w-12 shrink-0 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-fct-navy dark:text-fct-cyan">Background check required</h2>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">One or more interests you selected involves working with youth.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-5 text-sm text-gray-700 dark:text-gray-300 space-y-3">
+                    <p>To keep our young performers safe, <strong>all volunteers for Kids Productions must complete a background check</strong> before they can be placed on a shift.</p>
+                    <p>By acknowledging below, you agree to complete the background-check process the theater will coordinate with you. Your account will be marked <strong>pending review</strong> until an admin confirms your check is on file.</p>
+                    <p class="text-gray-500 dark:text-gray-400">You can still finish signing up today — we'll follow up by email with the next steps.</p>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <button type="button" wire:click="$set('step', 2)"
+                            class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back
+                    </button>
+                    <button type="button" wire:click="acknowledgeBackgroundCheck"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition">
+                        I understand and acknowledge
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        {{-- Step 7: age certification (Concessions serving alcohol) --}}
+        @if ($step === 7)
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="h-12 w-12 shrink-0 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <svg class="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-semibold text-fct-navy dark:text-fct-cyan">Age certification</h2>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Concessions may involve serving alcoholic beverages.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-5 text-sm text-gray-700 dark:text-gray-300 space-y-3">
+                    <p>Florida law requires that anyone serving alcohol be <strong>at least 18 years of age</strong>. Because you selected Concessions, we need your certification before scheduling you.</p>
+                    <p>Your account will be marked <strong>pending review</strong> until an admin has a chance to verify your eligibility.</p>
+                </div>
+
+                <label class="flex items-start gap-3 text-sm cursor-pointer">
+                    <input type="checkbox" wire:model.live="ageCertified"
+                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span class="text-gray-700 dark:text-gray-300">I certify that I am <strong>18 years of age or older</strong>.</span>
+                </label>
+
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <button type="button" wire:click="$set('step', 2)"
+                            class="inline-flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back
+                    </button>
+                    <button type="button" wire:click="certifyAge" @disabled(! $ageCertified)
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light focus:outline-hidden focus:ring-2 focus:ring-fct-cyan focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        Continue
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        @endif
+
         {{-- Step 5: existing account detected, login link sent --}}
         @if ($step === 5)
             <div class="text-center py-4">
@@ -215,6 +300,21 @@
                     </svg>
                 </div>
                 <h2 class="mt-4 text-2xl font-semibold text-fct-navy dark:text-fct-cyan">Thanks, {{ explode(' ', $name)[0] ?: 'volunteer' }}!</h2>
+
+                @if ($backgroundCheckAcknowledged || $ageCertified)
+                    <div class="mt-4 max-w-md mx-auto bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm text-amber-900 dark:text-amber-200 text-left">
+                        <div class="font-semibold">Your account is pending review.</div>
+                        <p class="mt-1">
+                            @if ($backgroundCheckAcknowledged && $ageCertified)
+                                We'll be in touch about the background check and age verification. You can still sign up for shifts today — we'll coordinate the rest by email.
+                            @elseif ($backgroundCheckAcknowledged)
+                                An admin will reach out about the background check for Kids Productions. You can still sign up for shifts today.
+                            @else
+                                An admin will verify your age certification shortly. You can still sign up for shifts today.
+                            @endif
+                        </p>
+                    </div>
+                @endif
 
                 @if ($createdSignups->isNotEmpty())
                     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500">You signed up for:</p>

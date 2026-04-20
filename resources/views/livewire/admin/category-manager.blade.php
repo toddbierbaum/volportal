@@ -16,7 +16,15 @@
                         <div class="flex items-center gap-3 min-w-0">
                             <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0" style="background-color: {{ $color }}"></span>
                             <div class="min-w-0">
-                                <div class="font-medium text-gray-900 dark:text-gray-100">{{ $item->name }}</div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">{{ $item->name }}</div>
+                                    @if ($item->requires_background_check)
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium" title="Volunteers must acknowledge a background check is required">BG check</span>
+                                    @endif
+                                    @if ($item->requires_age_certification)
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium" title="Volunteers must certify they are 18+">18+</span>
+                                    @endif
+                                </div>
                                 @if ($item->description)
                                     <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">{{ $item->description }}</div>
                                 @endif
@@ -58,6 +66,25 @@
                     <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description (optional)</label>
                     <input type="text" wire:model="description"
                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
+                </div>
+                <div class="sm:col-span-2 pt-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                    <div class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Signup requirements</div>
+                    <label class="flex items-start gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" wire:model="requiresBackgroundCheck"
+                               class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">Requires background check</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">Picking this category during signup triggers an acknowledgment screen and puts the user in pending status until an admin verifies.</span>
+                        </span>
+                    </label>
+                    <label class="flex items-start gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" wire:model="requiresAgeCertification"
+                               class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">Requires 18+ certification (alcohol service)</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400">User must certify they are 18+ and the account lands in pending status for admin review.</span>
+                        </span>
+                    </label>
                 </div>
             </div>
             <div class="mt-4 flex justify-end gap-2">
