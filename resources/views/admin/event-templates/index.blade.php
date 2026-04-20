@@ -24,8 +24,13 @@
                         <div class="flex items-center gap-3 min-w-0">
                             <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0" style="background-color: {{ $color }}"></span>
                             <div class="min-w-0">
-                                <a href="{{ route('admin.event-templates.edit', $template) }}"
-                                   class="font-medium text-gray-900 dark:text-gray-100 hover:text-fct-navy dark:text-fct-cyan">{{ $template->name }}</a>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <a href="{{ route('admin.event-templates.edit', $template) }}"
+                                       class="font-medium text-gray-900 dark:text-gray-100 hover:text-fct-navy dark:text-fct-cyan">{{ $template->name }}</a>
+                                    @if ($template->requires_background_check)
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium" title="Events from this template require a volunteer background check">BG check</span>
+                                    @endif
+                                </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">
                                     {{ $template->positions_count }} default position{{ $template->positions_count === 1 ? '' : 's' }}
                                     &middot; {{ $template->schedules_count }} reminder{{ $template->schedules_count === 1 ? '' : 's' }}

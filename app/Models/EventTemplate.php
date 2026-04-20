@@ -7,7 +7,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class EventTemplate extends Model
 {
-    protected $fillable = ['name', 'slug', 'color', 'description'];
+    protected $fillable = ['name', 'slug', 'color', 'description', 'requires_background_check'];
+
+    protected function casts(): array
+    {
+        return [
+            'requires_background_check' => 'boolean',
+        ];
+    }
 
     public function positions(): HasMany
     {

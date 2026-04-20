@@ -31,9 +31,11 @@ class EventTemplateController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
             'description' => 'nullable|string',
+            'requires_background_check' => 'nullable|boolean',
         ]);
 
         $data['slug'] = $this->uniqueSlug($data['name']);
+        $data['requires_background_check'] = (bool) ($data['requires_background_check'] ?? false);
         $template = EventTemplate::create($data);
 
         return redirect()->route('admin.event-templates.edit', $template)
@@ -51,11 +53,13 @@ class EventTemplateController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
             'description' => 'nullable|string',
+            'requires_background_check' => 'nullable|boolean',
         ]);
 
         if ($data['name'] !== $eventTemplate->name) {
             $data['slug'] = $this->uniqueSlug($data['name'], $eventTemplate->id);
         }
+        $data['requires_background_check'] = (bool) ($data['requires_background_check'] ?? false);
         $eventTemplate->update($data);
 
         return redirect()->route('admin.event-templates.edit', $eventTemplate)

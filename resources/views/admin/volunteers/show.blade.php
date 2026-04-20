@@ -166,9 +166,6 @@
                             <span class="ml-2 flex items-center gap-2">
                                 <span class="inline-block h-2 w-2 rounded-full" style="background-color: {{ $cat->color ?? '#9CA3AF' }}"></span>
                                 {{ $cat->name }}
-                                @if ($cat->requires_background_check)
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 font-medium">BG</span>
-                                @endif
                                 @if ($cat->requires_age_certification)
                                     <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium">18+</span>
                                 @endif

@@ -12,7 +12,6 @@ class CategoryManager extends Component
     public string $name = '';
     public string $description = '';
     public string $color = '#4F46E5';
-    public bool $requiresBackgroundCheck = false;
     public bool $requiresAgeCertification = false;
 
     public ?int $editingId = null;
@@ -35,7 +34,6 @@ class CategoryManager extends Component
         $this->name = $c->name;
         $this->description = (string) $c->description;
         $this->color = $c->color ?? '#4F46E5';
-        $this->requiresBackgroundCheck = (bool) $c->requires_background_check;
         $this->requiresAgeCertification = (bool) $c->requires_age_certification;
         $this->resetValidation();
     }
@@ -92,14 +90,13 @@ class CategoryManager extends Component
             'name' => $this->name,
             'description' => $this->description,
             'color' => $this->color,
-            'requires_background_check' => $this->requiresBackgroundCheck,
             'requires_age_certification' => $this->requiresAgeCertification,
         ];
     }
 
     private function resetForm(): void
     {
-        $this->reset(['name', 'description', 'editingId', 'requiresBackgroundCheck', 'requiresAgeCertification']);
+        $this->reset(['name', 'description', 'editingId', 'requiresAgeCertification']);
         $this->color = '#4F46E5';
         $this->resetValidation();
     }

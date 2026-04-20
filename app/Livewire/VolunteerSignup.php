@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Mail\MagicLinkMail;
 use App\Mail\SignupConfirmationMail;
 use App\Models\Category;
+use App\Models\Event;
 use App\Models\Position;
 use App\Models\Signup;
 use App\Models\User;
@@ -162,9 +163,19 @@ class VolunteerSignup extends Component
 
     public function needsBackgroundCheck(): bool
     {
+        // BG check is tied to the event type (e.g. Kids Production) —
+        // ANY position on that kind of event requires it, regardless of
+        // which role the volunteer picks. Trigger if ANY upcoming event
+        // whose template requires BG check has a public position that
+        // matches one of the volunteer's selected categories.
         if (empty($this->selectedCategoryIds)) return false;
-        return Category::whereIn('id', $this->selectedCategoryIds)
-            ->where('requires_background_check', true)
+        return Event::query()
+            ->where('is_published', true)
+            ->where('starts_at', '>=', now())
+            ->whereHas('template', fn ($q) => $q->where('requires_background_check', true))
+            ->whereHas('positions', fn ($q) => $q
+                ->where('is_public', true)
+                ->whereIn('category_id', $this->selectedCategoryIds))
             ->exists();
     }
 
