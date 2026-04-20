@@ -51,6 +51,17 @@
         @endif
 
         <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
+            @if (! $editingPositionId && ! $showAddForm)
+                <div class="flex justify-center">
+                    <button type="button" wire:click="startAdd"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add position
+                    </button>
+                </div>
+            @else
             <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
                 {{ $editingPositionId ? 'Edit position' : 'Add position' }}
             </h3>
@@ -112,9 +123,9 @@
             </div>
 
             <div class="mt-4 flex justify-end gap-2">
+                <button type="button" wire:click="cancelEdit"
+                        class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">Cancel</button>
                 @if ($editingPositionId)
-                    <button type="button" wire:click="cancelEdit"
-                            class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">Cancel</button>
                     <button type="button" wire:click="saveEdit"
                             class="px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">Save changes</button>
                 @else
@@ -127,6 +138,7 @@
                     </button>
                 @endif
             </div>
+            @endif
         </div>
     </div>
 </div>

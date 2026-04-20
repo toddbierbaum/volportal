@@ -20,10 +20,17 @@ class EventTemplatePositionEditor extends Component
     public int $durationMinutes = 180;
 
     public ?int $editingId = null;
+    public bool $showAddForm = false;
 
     public function mount(EventTemplate $template): void
     {
         $this->template = $template;
+    }
+
+    public function startAdd(): void
+    {
+        $this->resetForm();
+        $this->showAddForm = true;
     }
 
     public function add(): void
@@ -115,7 +122,7 @@ class EventTemplatePositionEditor extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['categoryId', 'title', 'editingId']);
+        $this->reset(['categoryId', 'title', 'editingId', 'showAddForm']);
         $this->slotsNeeded = 1;
         $this->isPublic = true;
         $this->callOffsetMinutes = 60;

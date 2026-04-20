@@ -42,6 +42,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
     Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
     Route::patch('/volunteers/{volunteer}', [AdminVolunteerController::class, 'update'])->name('volunteers.update');
+    Route::post('/volunteers/{volunteer}/status', [AdminVolunteerController::class, 'setStatus'])->name('volunteers.status');
     Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
 
     Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);

@@ -191,19 +191,71 @@ class VolunteerController extends Controller
 
         $volunteer->categories()->sync($data['categories'] ?? []);
 
-        // If the save flipped them from pending -> approved, re-resolve any
-        // queued pending signups to confirmed / waitlisted.
+        // Refresh to pick up signup-based verification checks — they read
+        // relations that might have changed via a category resync.
+        $volunteer->refresh();
+        $volunteer->approved_at = $volunteer->hasAllRequiredVerifications()
+            ? ($volunteer->approved_at ?? now())
+            : null;
+        $volunteer->save();
+
         $resolved = 0;
+        $demoted = 0;
         if ($wasPending && $volunteer->isApproved()) {
+            // pending -> approved: promote queued signups.
             $resolved = $this->resolvePendingSignups($volunteer);
+        } elseif (! $wasPending && $volunteer->isPendingReview()) {
+            // approved -> pending: demote committed signups so they hold
+            // the slot but don't count as confirmed until re-verified.
+            $demoted = $this->demoteActiveSignups($volunteer);
         }
 
         $message = "Saved {$volunteer->name}.";
         if ($resolved > 0) {
-            $message .= " Re-evaluated {$resolved} queued signup" . ($resolved === 1 ? '' : 's') . '.';
+            $message .= " Promoted {$resolved} queued signup" . ($resolved === 1 ? '' : 's') . '.';
+        }
+        if ($demoted > 0) {
+            $message .= " Demoted {$demoted} active signup" . ($demoted === 1 ? '' : 's') . ' to pending.';
         }
 
         return redirect()->route('admin.volunteers.show', $volunteer)->with('status', $message);
+    }
+
+    /**
+     * Quick status toggle — bypasses the full edit form so admins can
+     * flip a volunteer between approved and pending in one click.
+     */
+    public function setStatus(User $volunteer, Request $request)
+    {
+        abort_unless(
+            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
+            404
+        );
+
+        $data = $request->validate([
+            'status' => 'required|in:approved,pending',
+        ]);
+
+        $wasPending = $volunteer->isPendingReview();
+
+        if ($data['status'] === 'approved') {
+            $volunteer->approved_at = $volunteer->approved_at ?? now();
+        } else {
+            $volunteer->approved_at = null;
+        }
+        $volunteer->save();
+
+        $note = '';
+        if ($wasPending && $volunteer->isApproved()) {
+            $n = $this->resolvePendingSignups($volunteer);
+            if ($n > 0) $note = " Promoted {$n} queued signup" . ($n === 1 ? '' : 's') . '.';
+        } elseif (! $wasPending && $volunteer->isPendingReview()) {
+            $n = $this->demoteActiveSignups($volunteer);
+            if ($n > 0) $note = " Demoted {$n} active signup" . ($n === 1 ? '' : 's') . ' to pending.';
+        }
+
+        $statusLabel = $volunteer->isApproved() ? 'Approved' : 'Pending review';
+        return back()->with('status', "{$volunteer->name}: {$statusLabel}.{$note}");
     }
 
     private function resolvePendingSignups(User $volunteer): int
@@ -224,6 +276,18 @@ class VolunteerController extends Controller
         }
 
         return $pending->count();
+    }
+
+    /**
+     * Demote confirmed/waitlisted signups back to 'pending' when the
+     * volunteer flips approved -> pending. Leaves attended, cancelled,
+     * and no_show alone since those are historical/explicit states.
+     */
+    private function demoteActiveSignups(User $volunteer): int
+    {
+        return Signup::where('user_id', $volunteer->id)
+            ->whereIn('status', ['confirmed', 'waitlisted'])
+            ->update(['status' => 'pending']);
     }
 
     public function create()

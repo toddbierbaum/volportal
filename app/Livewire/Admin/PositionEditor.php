@@ -21,10 +21,17 @@ class PositionEditor extends Component
     public int $durationMinutes = 180;
 
     public ?int $editingPositionId = null;
+    public bool $showAddForm = false;
 
     public function mount(Event $event): void
     {
         $this->event = $event;
+    }
+
+    public function startAdd(): void
+    {
+        $this->resetForm();
+        $this->showAddForm = true;
     }
 
     public function addPosition(): void
@@ -129,7 +136,7 @@ class PositionEditor extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['categoryId', 'title', 'description', 'editingPositionId']);
+        $this->reset(['categoryId', 'title', 'description', 'editingPositionId', 'showAddForm']);
         $this->slotsNeeded = 1;
         $this->isPublic = true;
         $this->callOffsetMinutes = 60;

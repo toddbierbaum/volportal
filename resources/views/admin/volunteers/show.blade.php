@@ -28,9 +28,26 @@
                     </div>
                 </div>
             </div>
-            <div class="text-right">
-                <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Lifetime hours</div>
-                <div class="text-3xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{{ number_format($totalHours, 1) }}</div>
+            <div class="flex items-start gap-6 flex-wrap">
+                <div class="text-right">
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Lifetime hours</div>
+                    <div class="text-3xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{{ number_format($totalHours, 1) }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium mb-1">Status</div>
+                    <form method="POST" action="{{ route('admin.volunteers.status', $volunteer) }}"
+                          onchange="this.submit()" class="inline">
+                        @csrf
+                        <select name="status"
+                                class="border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm font-medium
+                                       {{ $volunteer->isApproved()
+                                            ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30'
+                                            : 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30' }}">
+                            <option value="approved" @selected($volunteer->isApproved())>Approved</option>
+                            <option value="pending" @selected($volunteer->isPendingReview())>Pending review</option>
+                        </select>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -177,22 +194,26 @@
         </div>
 
         <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-end gap-3">
+            {{-- Delete button lives inside the update form visually but
+                 submits the destroy form via the HTML5 form= attribute.
+                 This avoids nested forms (where _method=DELETE would
+                 piggyback onto Save and accidentally delete the user). --}}
+            <button type="submit" form="destroy-volunteer-form"
+                    onclick="return confirm('Delete this volunteer and all their signups? This cannot be undone.');"
+                    class="px-5 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
+                Delete volunteer
+            </button>
             <button type="submit" class="px-5 py-2 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">
                 Save changes
             </button>
         </div>
     </form>
 
-    {{-- Delete form lives outside the edit form. HTML forbids nested
-         forms; browsers flatten them and any hidden inputs (like
-         _method=DELETE) from an inner form can piggyback on the outer
-         submit — which once caused Save to delete the user. --}}
-    <form method="POST" action="{{ route('admin.volunteers.destroy', $volunteer) }}"
-          onsubmit="return confirm('Delete this volunteer and all their signups? This cannot be undone.');"
-          class="mb-6">
+    {{-- Hidden sibling form just for DELETE. Target of the red button
+         above via its form= attribute. --}}
+    <form id="destroy-volunteer-form" method="POST" action="{{ route('admin.volunteers.destroy', $volunteer) }}" class="hidden">
         @csrf
         @method('DELETE')
-        <button type="submit" class="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">Delete volunteer</button>
     </form>
 
     <section class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">

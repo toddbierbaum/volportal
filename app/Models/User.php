@@ -52,19 +52,47 @@ class User extends Authenticatable
     }
 
     /**
-     * True when every certification the user triggered has a matching
-     * admin-verified timestamp. Users who triggered nothing are always
-     * "fully verified" from this method's perspective.
+     * True when every certification the user has triggered has a matching
+     * admin-verified timestamp. A certification is "triggered" by either:
+     *   - the user acknowledging it during signup, OR
+     *   - having an active signup that requires it (e.g. a Concessions
+     *     position requires 18+; any position on a Kids Production event
+     *     requires a background check).
+     *
+     * The signup-based check means revoking a verification on a volunteer
+     * with committed shifts correctly drops them back to pending.
      */
     public function hasAllRequiredVerifications(): bool
     {
-        if ($this->background_check_acknowledged_at && ! $this->background_check_verified_at) {
+        if ($this->requiresBackgroundCheckVerification() && ! $this->background_check_verified_at) {
             return false;
         }
-        if ($this->age_certified_at && ! $this->age_verified_at) {
+        if ($this->requiresAgeVerification() && ! $this->age_verified_at) {
             return false;
         }
         return true;
+    }
+
+    public function requiresBackgroundCheckVerification(): bool
+    {
+        if ($this->background_check_acknowledged_at) return true;
+
+        return $this->signups()
+            ->whereIn('status', ['confirmed', 'waitlisted', 'pending', 'attended'])
+            ->whereHas('position.event.template',
+                fn ($q) => $q->where('requires_background_check', true))
+            ->exists();
+    }
+
+    public function requiresAgeVerification(): bool
+    {
+        if ($this->age_certified_at) return true;
+
+        return $this->signups()
+            ->whereIn('status', ['confirmed', 'waitlisted', 'pending', 'attended'])
+            ->whereHas('position.category',
+                fn ($q) => $q->where('requires_age_certification', true))
+            ->exists();
     }
 
     public function categories(): BelongsToMany

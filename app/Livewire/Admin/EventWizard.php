@@ -36,11 +36,18 @@ class EventWizard extends Component
     public int $positionDurationMinutes = 180;
 
     public ?int $editingIndex = null;
+    public bool $showAddForm = false;
 
     public function mount(): void
     {
         $this->startsAt = now()->addWeek()->setTime(18, 0)->format('Y-m-d\TH:i');
         $this->endsAt = now()->addWeek()->setTime(20, 30)->format('Y-m-d\TH:i');
+    }
+
+    public function startAddDraft(): void
+    {
+        $this->resetPositionForm();
+        $this->showAddForm = true;
     }
 
     public function updatedEventTemplateId($value): void
@@ -218,7 +225,7 @@ class EventWizard extends Component
 
     private function resetPositionForm(): void
     {
-        $this->reset(['categoryId', 'positionTitle', 'positionDescription', 'editingIndex']);
+        $this->reset(['categoryId', 'positionTitle', 'positionDescription', 'editingIndex', 'showAddForm']);
         $this->positionSlots = 1;
         $this->positionIsPublic = true;
         $this->positionCallOffsetMinutes = 60;
