@@ -66,10 +66,12 @@
          style="display: none;"></div>
 
     <div class="flex min-h-screen">
-        {{-- Sidebar --}}
+        {{-- Sidebar — defaults to off-screen on mobile so content is
+             visible even before Alpine initializes. !translate-x-0 wins
+             over -translate-x-full when open. --}}
         <aside class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
-                      transform transition-transform lg:translate-x-0"
-               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+                      transform transition-transform -translate-x-full lg:translate-x-0"
+               :class="sidebarOpen && 'translate-x-0!'">
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 min-w-0">
@@ -85,6 +87,7 @@
                 @foreach ($tabs as [$routeName, $label, $iconPath])
                     @php $active = request()->routeIs($routeName) || request()->routeIs(str_replace('.index','.*',$routeName)); @endphp
                     <a href="{{ route($routeName) }}"
+                       @click="sidebarOpen = false"
                        class="group flex items-center gap-3 px-3 py-2 rounded-md text-sm transition
                               {{ $active
                                     ? 'bg-fct-cyan/10 dark:bg-fct-cyan/20 text-fct-navy dark:text-fct-cyan font-semibold'
