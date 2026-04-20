@@ -23,12 +23,24 @@
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         };
+        // Plain-JS sidebar toggle — works on admin index pages that
+        // don't have Livewire (and therefore don't load Alpine).
+        // Toggles the existing Tailwind -translate-x-full utility so
+        // no extra CSS is needed; lg:translate-x-0 still pins desktop.
+        window.toggleSidebar = function (force) {
+            const sb = document.getElementById('admin-sidebar');
+            const ov = document.getElementById('admin-sidebar-overlay');
+            if (!sb || !ov) return;
+            const isOpen = !sb.classList.contains('-translate-x-full');
+            const open = force === undefined ? !isOpen : force;
+            sb.classList.toggle('-translate-x-full', !open);
+            ov.classList.toggle('hidden', !open);
+        };
     </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body x-data="{ sidebarOpen: false }"
-      class="font-sans antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
+<body class="font-sans antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
 
     @php
         $tabs = [
@@ -51,7 +63,7 @@
                      class="h-8 w-auto dark:brightness-0 dark:invert">
                 <span class="text-sm font-semibold text-fct-navy dark:text-fct-cyan">Admin</span>
             </a>
-            <button type="button" @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+            <button type="button" onclick="toggleSidebar()" class="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -60,18 +72,17 @@
     </header>
 
     {{-- Mobile sidebar overlay --}}
-    <div x-show="sidebarOpen" x-transition.opacity
-         @click="sidebarOpen = false"
-         class="lg:hidden fixed inset-0 bg-gray-900/40 z-30"
-         style="display: none;"></div>
+    <div id="admin-sidebar-overlay"
+         onclick="toggleSidebar(false)"
+         class="lg:hidden fixed inset-0 bg-gray-900/40 z-30 hidden"></div>
 
     <div class="flex min-h-screen">
-        {{-- Sidebar — defaults to off-screen on mobile so content is
-             visible even before Alpine initializes. !translate-x-0 wins
-             over -translate-x-full when open. --}}
-        <aside class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
-                      transform transition-transform -translate-x-full lg:translate-x-0"
-               :class="sidebarOpen && 'translate-x-0!'">
+        {{-- Sidebar — off-screen on mobile by default; .is-open class
+             (applied by toggleSidebar()) slides it in. lg:translate-x-0
+             pins it for desktop. --}}
+        <aside id="admin-sidebar"
+               class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
+                      transform transition-transform -translate-x-full lg:translate-x-0">
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 min-w-0">
@@ -87,7 +98,7 @@
                 @foreach ($tabs as [$routeName, $label, $iconPath])
                     @php $active = request()->routeIs($routeName) || request()->routeIs(str_replace('.index','.*',$routeName)); @endphp
                     <a href="{{ route($routeName) }}"
-                       @click="sidebarOpen = false"
+                       onclick="toggleSidebar(false)"
                        class="group flex items-center gap-3 px-3 py-2 rounded-md text-sm transition
                               {{ $active
                                     ? 'bg-fct-cyan/10 dark:bg-fct-cyan/20 text-fct-navy dark:text-fct-cyan font-semibold'
