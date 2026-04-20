@@ -1,20 +1,23 @@
 <div class="max-w-2xl mx-auto">
 
-    {{-- Progress indicator --}}
-    <ol class="flex items-center w-full mb-8 text-sm font-medium text-center text-gray-500 dark:text-gray-400 dark:text-gray-500">
-        @php
-            $labels = ['Your info', 'Interests', 'Opportunities', 'Done'];
-        @endphp
-        @foreach ($labels as $i => $label)
-            @php $n = $i + 1; @endphp
-            <li class="flex items-center {{ $step >= $n ? 'text-fct-navy dark:text-fct-cyan' : '' }} {{ $n < count($labels) ? "flex-1 after:content-[''] after:w-full after:h-0.5 after:border-b after:border after:inline-block after:mx-4 " . ($step > $n ? 'after:border-fct-navy' : 'after:border-gray-200 dark:border-gray-700') : '' }}">
+    {{-- Progress indicator. Steps are computed dynamically on the
+         component so cert screens (BG check / 18+) are inserted between
+         Interests and Opportunities when they apply. --}}
+    <ol class="flex items-center w-full mb-8 text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+        @foreach ($progressSteps as $i => $s)
+            @php
+                $isDone = $i < $currentProgressIndex;
+                $isCurrent = $i === $currentProgressIndex;
+                $hasConnector = $i < count($progressSteps) - 1;
+            @endphp
+            <li class="flex items-center {{ $isDone || $isCurrent ? 'text-fct-navy dark:text-fct-cyan' : '' }} {{ $hasConnector ? "flex-1 after:content-[''] after:w-full after:h-0.5 after:border-b after:border after:inline-block after:mx-4 " . ($isDone ? 'after:border-fct-navy' : 'after:border-gray-200 dark:after:border-gray-700') : '' }}">
                 <span class="flex items-center justify-center w-7 h-7 shrink-0 rounded-full text-xs font-semibold
-                    {{ $step > $n ? 'bg-fct-navy text-white'
-                     : ($step === $n ? 'bg-fct-navy text-white'
-                     : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 dark:text-gray-500') }}">
-                    {{ $n }}
+                    {{ $isDone || $isCurrent
+                         ? 'bg-fct-navy text-white'
+                         : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400' }}">
+                    {{ $i + 1 }}
                 </span>
-                <span class="ml-2 hidden sm:inline">{{ $label }}</span>
+                <span class="ml-2 hidden sm:inline">{{ $s['label'] }}</span>
             </li>
         @endforeach
     </ol>

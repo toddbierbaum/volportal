@@ -161,6 +161,46 @@ class VolunteerSignup extends Component
         $this->userId = $user->id;
     }
 
+    /**
+     * Progress-bar steps. Dynamic because the cert screens only appear
+     * when a picked category triggers them; we include 'em in the indicator
+     * as soon as we know they apply OR have already been acknowledged.
+     *
+     * Each entry: ['label' => 'Your info', 'steps' => [1]] — 'steps' are
+     * the $this->step values that map to that progress position.
+     *
+     * @return array<int, array{label: string, steps: array<int>}>
+     */
+    public function getProgressStepsProperty(): array
+    {
+        $out = [
+            ['label' => 'Your info',   'steps' => [1]],
+            ['label' => 'Interests',   'steps' => [2]],
+        ];
+
+        if ($this->backgroundCheckAcknowledged || $this->needsBackgroundCheck()) {
+            $out[] = ['label' => 'Background check', 'steps' => [6]];
+        }
+        if ($this->ageCertified || $this->needsAgeCertification()) {
+            $out[] = ['label' => 'Age 18+', 'steps' => [7]];
+        }
+
+        $out[] = ['label' => 'Opportunities', 'steps' => [3]];
+        $out[] = ['label' => 'Done',          'steps' => [4, 5]];
+
+        return $out;
+    }
+
+    public function getCurrentProgressIndexProperty(): int
+    {
+        foreach ($this->progressSteps as $i => $s) {
+            if (in_array($this->step, $s['steps'], true)) {
+                return $i;
+            }
+        }
+        return 0;
+    }
+
     public function needsBackgroundCheck(): bool
     {
         // BG check is tied to the event template. Trigger if either:
@@ -304,6 +344,8 @@ class VolunteerSignup extends Component
             'categories' => $this->categories,
             'matchedPositions' => $this->matchedPositions,
             'createdSignups' => $this->createdSignups,
+            'progressSteps' => $this->progressSteps,
+            'currentProgressIndex' => $this->currentProgressIndex,
         ]);
     }
 }
