@@ -330,7 +330,9 @@
                                             <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $signup->position->title }} &middot; {{ $signup->position->event->starts_at->format('D, M j · g:i A') }}</div>
                                         </div>
                                     </div>
-                                    @if ($signup->status === 'waitlisted')
+                                    @if ($signup->status === 'pending')
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium shrink-0" title="Held until admin approves your account">Queued</span>
+                                    @elseif ($signup->status === 'waitlisted')
                                         <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium shrink-0">Waitlist</span>
                                     @else
                                         <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium shrink-0">Confirmed</span>

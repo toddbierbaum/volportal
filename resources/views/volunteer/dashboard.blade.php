@@ -85,10 +85,12 @@
                                         &middot; {{ $signup->position->event->starts_at->format('D, M j · g:i A') }}
                                     </div>
                                 </div>
-                                @if ($signup->status === 'waitlisted')
-                                    <span class="text-xs px-2 py-1 rounded-sm bg-yellow-50 text-yellow-800 font-medium">Waitlist</span>
+                                @if ($signup->status === 'pending')
+                                    <span class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-800 font-medium" title="We'll confirm your spot once you're approved">Queued</span>
+                                @elseif ($signup->status === 'waitlisted')
+                                    <span class="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-800 font-medium">Waitlist</span>
                                 @else
-                                    <span class="text-xs px-2 py-1 rounded-sm bg-green-50 text-green-700 font-medium">Confirmed</span>
+                                    <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium">Confirmed</span>
                                 @endif
                             </div>
                         </li>

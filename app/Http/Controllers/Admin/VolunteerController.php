@@ -150,6 +150,8 @@ class VolunteerController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($volunteer->id)],
             'phone' => 'nullable|string|max:30',
             'sms_opt_in' => 'nullable|boolean',
+            'age_verified' => 'nullable|boolean',
+            'background_check_verified' => 'nullable|boolean',
             'categories' => 'nullable|array',
             'categories.*' => 'integer|exists:categories,id',
         ]);
@@ -160,39 +162,68 @@ class VolunteerController extends Controller
             return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
         }
 
-        $volunteer->update([
+        $wasPending = $volunteer->isPendingReview();
+
+        $ageVerifiedAt = ($data['age_verified'] ?? false)
+            ? ($volunteer->age_verified_at ?? now())
+            : null;
+        $bgVerifiedAt = ($data['background_check_verified'] ?? false)
+            ? ($volunteer->background_check_verified_at ?? now())
+            : null;
+
+        $volunteer->fill([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $e164 ?: $rawPhone,
             'sms_opt_in' => (bool) ($data['sms_opt_in'] ?? false),
+            'age_verified_at' => $ageVerifiedAt,
+            'background_check_verified_at' => $bgVerifiedAt,
         ]);
+
+        // Auto-compute approved_at: user is approved if every cert they
+        // triggered has a matching admin verification. No pending path
+        // (user didn't trigger any cert) => they stay approved.
+        $volunteer->approved_at = $volunteer->hasAllRequiredVerifications()
+            ? ($volunteer->approved_at ?? now())
+            : null;
+
+        $volunteer->save();
 
         $volunteer->categories()->sync($data['categories'] ?? []);
 
-        return redirect()->route('admin.volunteers.show', $volunteer)
-            ->with('status', "Saved {$volunteer->name}.");
+        // If the save flipped them from pending -> approved, re-resolve any
+        // queued pending signups to confirmed / waitlisted.
+        $resolved = 0;
+        if ($wasPending && $volunteer->isApproved()) {
+            $resolved = $this->resolvePendingSignups($volunteer);
+        }
+
+        $message = "Saved {$volunteer->name}.";
+        if ($resolved > 0) {
+            $message .= " Re-evaluated {$resolved} queued signup" . ($resolved === 1 ? '' : 's') . '.';
+        }
+
+        return redirect()->route('admin.volunteers.show', $volunteer)->with('status', $message);
     }
 
-    public function approve(User $volunteer)
+    private function resolvePendingSignups(User $volunteer): int
     {
-        abort_unless(
-            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
-            404
-        );
-        $volunteer->update(['approved_at' => now()]);
+        $pending = Signup::with('position.signups')
+            ->where('user_id', $volunteer->id)
+            ->where('status', 'pending')
+            ->get();
 
-        return back()->with('status', "Approved {$volunteer->name}.");
-    }
+        foreach ($pending as $signup) {
+            $position = $signup->position;
+            $confirmedCount = $position->signups
+                ->where('status', 'confirmed')
+                ->where('id', '!=', $signup->id)
+                ->count();
+            $signup->status = $confirmedCount < $position->slots_needed ? 'confirmed' : 'waitlisted';
+            $signup->save();
+        }
 
-    public function unapprove(User $volunteer)
-    {
-        abort_unless(
-            $volunteer->role === 'volunteer' || $volunteer->signups()->exists(),
-            404
-        );
-        $volunteer->update(['approved_at' => null]);
-
-        return back()->with('status', "{$volunteer->name} marked pending review.");
+        return $pending->count();
     }
 
     public function create()

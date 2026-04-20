@@ -184,6 +184,7 @@ class VolunteerSignup extends Component
         }
 
         $position = Position::with('signups')->findOrFail($positionId);
+        $user = User::find($this->userId);
 
         $existing = Signup::where('user_id', $this->userId)
             ->where('position_id', $positionId)
@@ -193,7 +194,15 @@ class VolunteerSignup extends Component
             return;
         }
 
-        $status = $position->isFull() ? 'waitlisted' : 'confirmed';
+        // Pending users' signups are queued — they don't count against
+        // position capacity and won't be scheduled until an admin approves
+        // the user (which re-resolves pending signups to confirmed/waitlisted
+        // based on current capacity at that moment).
+        if ($user && $user->isPendingReview()) {
+            $status = 'pending';
+        } else {
+            $status = $position->isFull() ? 'waitlisted' : 'confirmed';
+        }
 
         $signup = Signup::create([
             'user_id' => $this->userId,

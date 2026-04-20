@@ -106,7 +106,11 @@
                                                     <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">hrs</span>
                                                 @endif
                                             @else
-                                                @if ($signup->status === 'waitlisted')
+                                                @if ($signup->status === 'pending')
+                                                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium" title="Held until volunteer is approved">Queued</span>
+                                                    <a href="{{ route('admin.volunteers.show', $signup->user_id) }}"
+                                                       class="text-xs text-fct-navy dark:text-fct-cyan hover:underline">Review</a>
+                                                @elseif ($signup->status === 'waitlisted')
                                                     <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Waitlist</span>
                                                     <button type="button" wire:click="setStatus({{ $signup->id }}, 'confirmed')"
                                                             class="text-xs px-2 py-1 rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">

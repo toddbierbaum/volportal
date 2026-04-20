@@ -35,73 +35,18 @@
         </div>
     </div>
 
-    {{-- Certification / approval status --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
-        <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">Certifications &amp; approval</h2>
+    @php
+        $pendingSignupsCount = $upcomingSignups->where('status', 'pending')->count();
+    @endphp
 
-        <dl class="text-sm space-y-2">
-            <div class="flex items-center justify-between gap-3">
-                <dt class="text-gray-600 dark:text-gray-400">Background check acknowledged</dt>
-                <dd>
-                    @if ($volunteer->background_check_acknowledged_at)
-                        <span class="text-gray-900 dark:text-gray-100">{{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}</span>
-                    @else
-                        <span class="text-gray-400 dark:text-gray-500">—</span>
-                    @endif
-                </dd>
-            </div>
-            <div class="flex items-center justify-between gap-3">
-                <dt class="text-gray-600 dark:text-gray-400">Age (18+) certified</dt>
-                <dd>
-                    @if ($volunteer->age_certified_at)
-                        <span class="text-gray-900 dark:text-gray-100">{{ $volunteer->age_certified_at->format('M j, Y') }}</span>
-                    @else
-                        <span class="text-gray-400 dark:text-gray-500">—</span>
-                    @endif
-                </dd>
-            </div>
-            <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-700/60">
-                <dt class="text-gray-600 dark:text-gray-400 font-medium">Approved by admin</dt>
-                <dd>
-                    @if ($volunteer->approved_at)
-                        <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 font-medium">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            {{ $volunteer->approved_at->format('M j, Y') }}
-                        </span>
-                    @else
-                        <span class="text-amber-700 dark:text-amber-400 font-medium">Pending</span>
-                    @endif
-                </dd>
-            </div>
-        </dl>
-
-        <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center gap-2 flex-wrap">
-            @if ($volunteer->isPendingReview())
-                <form method="POST" action="{{ route('admin.volunteers.approve', $volunteer) }}" class="inline">
-                    @csrf
-                    <button type="submit"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 text-sm rounded-md bg-emerald-600 text-white hover:bg-emerald-700 font-medium">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Approve volunteer
-                    </button>
-                </form>
-            @else
-                <form method="POST" action="{{ route('admin.volunteers.unapprove', $volunteer) }}"
-                      onsubmit="return confirm('Revoke approval? The volunteer will go back to pending status.');"
-                      class="inline">
-                    @csrf
-                    <button type="submit"
-                            class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300">
-                        Revoke approval
-                    </button>
-                </form>
-            @endif
+    @if ($volunteer->isPendingReview() && $pendingSignupsCount > 0)
+        <div class="mb-6 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-sm text-amber-900 dark:text-amber-200">
+            <div class="font-semibold">{{ $pendingSignupsCount }} queued signup{{ $pendingSignupsCount === 1 ? '' : 's' }} waiting on approval</div>
+            <p class="mt-1 text-amber-800 dark:text-amber-300">
+                They've claimed shifts that are held — no one else is blocked from those positions until this volunteer is approved. When you check the verification boxes below, queued signups get promoted to confirmed (or waitlisted if full).
+            </p>
         </div>
-    </div>
+    @endif
 
     {{-- Edit volunteer info --}}
     <form method="POST" action="{{ route('admin.volunteers.update', $volunteer) }}"
@@ -142,6 +87,73 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400">Standard message rates apply. Volunteers can also toggle this themselves.</span>
                     </span>
                 </label>
+            </div>
+
+            {{-- Admin verification checkboxes — separate from user's own
+                 acknowledgment timestamps. When all triggered certs are
+                 verified, approved_at auto-sets and queued signups get
+                 promoted. --}}
+            <div class="sm:col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                <div>
+                    <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">Admin verifications</div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Check each item once you've physically verified it. When every certification the volunteer triggered is verified, their account is automatically approved.
+                    </p>
+                </div>
+
+                <label class="flex items-start gap-3 text-sm cursor-pointer">
+                    <input type="hidden" name="age_verified" value="0">
+                    <input type="checkbox" name="age_verified" value="1"
+                           @checked(old('age_verified', (bool) $volunteer->age_verified_at))
+                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span class="flex-1">
+                        <span class="text-gray-900 dark:text-gray-100 font-medium">18+ verified</span>
+                        @if ($volunteer->age_certified_at)
+                            <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Required — user certified {{ $volunteer->age_certified_at->format('M j') }}</span>
+                        @endif
+                        <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            @if ($volunteer->age_verified_at)
+                                Verified by admin on {{ $volunteer->age_verified_at->format('M j, Y') }}.
+                            @else
+                                Volunteer is at least 18 years old (required for serving alcohol at Concessions).
+                            @endif
+                        </span>
+                    </span>
+                </label>
+
+                <label class="flex items-start gap-3 text-sm cursor-pointer">
+                    <input type="hidden" name="background_check_verified" value="0">
+                    <input type="checkbox" name="background_check_verified" value="1"
+                           @checked(old('background_check_verified', (bool) $volunteer->background_check_verified_at))
+                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span class="flex-1">
+                        <span class="text-gray-900 dark:text-gray-100 font-medium">Background check completed</span>
+                        @if ($volunteer->background_check_acknowledged_at)
+                            <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Required — user acknowledged {{ $volunteer->background_check_acknowledged_at->format('M j') }}</span>
+                        @endif
+                        <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            @if ($volunteer->background_check_verified_at)
+                                Verified by admin on {{ $volunteer->background_check_verified_at->format('M j, Y') }}.
+                            @else
+                                Background-check results received and on file (required for Kids Productions).
+                            @endif
+                        </span>
+                    </span>
+                </label>
+
+                <div class="pt-2 text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Current status: </span>
+                    @if ($volunteer->isApproved())
+                        <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 font-medium">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Approved ({{ $volunteer->approved_at->format('M j, Y') }})
+                        </span>
+                    @else
+                        <span class="text-amber-700 dark:text-amber-400 font-medium">Pending review</span>
+                    @endif
+                </div>
             </div>
             <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Interest categories</label>
@@ -204,7 +216,9 @@
                                 </div>
                             </div>
                         </div>
-                        @if ($signup->status === 'waitlisted')
+                        @if ($signup->status === 'pending')
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium shrink-0" title="Queued — will be assigned once volunteer is approved">Queued</span>
+                        @elseif ($signup->status === 'waitlisted')
                             <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium shrink-0">Waitlist</span>
                         @elseif ($signup->status === 'cancelled' || $signup->status === 'canceled')
                             <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 font-medium shrink-0">Cancelled</span>
