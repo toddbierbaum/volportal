@@ -59,7 +59,7 @@
     @if ($totalSlots > 0)
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
             <div class="flex items-center justify-between text-sm mb-2">
-                <span class="font-medium text-gray-700 dark:text-gray-300">Upcoming slot fill</span>
+                <span class="font-medium text-gray-700 dark:text-gray-300">Positions filled · next {{ $horizonDays }}d</span>
                 <span class="text-gray-500 dark:text-gray-400 dark:text-gray-500">{{ $filledSlots }} / {{ $totalSlots }} positions · {{ $fillPct }}%</span>
             </div>
             <div class="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
