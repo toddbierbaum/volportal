@@ -306,12 +306,6 @@
                 <p class="mt-3 text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
                     Your application is in. We'll review it and email you a link to pick your shifts once you're approved.
                 </p>
-                <div class="mt-6">
-                    <a href="{{ route('calendar') }}"
-                       class="inline-flex items-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light transition">
-                        View calendar
-                    </a>
-                </div>
             </div>
         @endif
 
