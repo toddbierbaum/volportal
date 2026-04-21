@@ -7,9 +7,11 @@ use App\Mail\SignupConfirmationMail;
 use App\Models\Category;
 use App\Models\Event;
 use App\Models\Position;
+use App\Models\Setting;
 use App\Models\Signup;
 use App\Models\User;
 use App\Support\EmailSendThrottle;
+use App\Support\OpportunityMatcher;
 use App\Support\SmsSender;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cookie;
@@ -117,7 +119,7 @@ class VolunteerSignup extends Component
         }
 
         $this->persistUser();
-        $this->step = 3;
+        $this->advanceAfterPersist();
     }
 
     public function acknowledgeBackgroundCheck(): void
@@ -129,19 +131,35 @@ class VolunteerSignup extends Component
             return;
         }
         $this->persistUser();
-        $this->step = 3;
+        $this->advanceAfterPersist();
     }
 
     public function certifyAge(): void
     {
         $this->ageCertified = true;
         $this->persistUser();
-        $this->step = 3;
+        $this->advanceAfterPersist();
+    }
+
+    private function advanceAfterPersist(): void
+    {
+        // Gate is ON → new volunteers wait for admin approval before seeing
+        // shifts. Show step 8 (pending-review confirmation) instead of step 3.
+        $this->step = $this->requiresApprovalGate() ? 8 : 3;
+    }
+
+    public function requiresApprovalGate(): bool
+    {
+        return (bool) Setting::get('require_approval_before_opportunities', false);
     }
 
     private function persistUser(): void
     {
-        $requiresReview = $this->backgroundCheckAcknowledged || $this->ageCertified;
+        // When the approval gate is on, everyone lands in pending — regardless
+        // of whether they triggered a cert screen.
+        $requiresReview = $this->backgroundCheckAcknowledged
+            || $this->ageCertified
+            || $this->requiresApprovalGate();
 
         $user = User::updateOrCreate(
             ['email' => $this->email],
@@ -185,8 +203,12 @@ class VolunteerSignup extends Component
             $out[] = ['label' => 'Age 18+', 'steps' => [7]];
         }
 
-        $out[] = ['label' => 'Opportunities', 'steps' => [3]];
-        $out[] = ['label' => 'Done',          'steps' => [4, 5]];
+        if ($this->requiresApprovalGate()) {
+            $out[] = ['label' => 'Pending review', 'steps' => [8]];
+        } else {
+            $out[] = ['label' => 'Opportunities', 'steps' => [3]];
+        }
+        $out[] = ['label' => 'Done', 'steps' => [4, 5]];
 
         return $out;
     }
@@ -296,35 +318,7 @@ class VolunteerSignup extends Component
 
     public function getMatchedPositionsProperty(): Collection
     {
-        if (empty($this->selectedCategoryIds)) {
-            return collect();
-        }
-
-        // Collect event-template IDs for any selected categories that are
-        // linked to a template. Picking such a category means "I want to
-        // work events of this type" — we match every public position on
-        // those events, regardless of the position's own category_id.
-        $templateIds = Category::whereIn('id', $this->selectedCategoryIds)
-            ->whereNotNull('event_template_id')
-            ->pluck('event_template_id')
-            ->all();
-
-        return Position::query()
-            ->with(['event.template', 'category', 'signups'])
-            ->where('is_public', true)
-            ->where(function ($q) use ($templateIds) {
-                $q->whereIn('category_id', $this->selectedCategoryIds);
-                if (! empty($templateIds)) {
-                    $q->orWhereHas('event', fn ($e) => $e->whereIn('event_template_id', $templateIds));
-                }
-            })
-            ->whereHas('event', fn ($q) => $q
-                ->where('is_published', true)
-                ->where('starts_at', '>=', now()))
-            ->get()
-            ->unique('id')
-            ->sortBy(fn ($p) => $p->event->starts_at)
-            ->values();
+        return OpportunityMatcher::forCategoryIds($this->selectedCategoryIds);
     }
 
     public function getCreatedSignupsProperty(): Collection

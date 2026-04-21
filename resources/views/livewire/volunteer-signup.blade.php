@@ -294,6 +294,27 @@
             </div>
         @endif
 
+        {{-- Step 8: pending review (approval-gate is on) --}}
+        @if ($step === 8)
+            <div class="text-center py-4">
+                <div class="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                    <svg class="h-7 w-7 text-amber-600 dark:text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 class="mt-4 text-2xl font-semibold text-fct-navy dark:text-fct-cyan">Thanks, {{ explode(' ', $name)[0] ?: 'volunteer' }}!</h2>
+                <p class="mt-3 text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Your application is in. We'll review it and email you a link to pick your shifts once you're approved.
+                </p>
+                <div class="mt-6">
+                    <a href="{{ route('calendar') }}"
+                       class="inline-flex items-center px-5 py-2.5 bg-fct-navy rounded-md font-semibold text-white text-sm hover:bg-fct-navy-light transition">
+                        View calendar
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- Step 4: confirmation --}}
         @if ($step === 4)
             <div class="text-center py-4">

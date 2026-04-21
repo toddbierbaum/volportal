@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\VolunteerApprovedMail;
 use App\Models\Category;
 use App\Models\Signup;
 use App\Models\User;
 use App\Support\SmsSender;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class VolunteerController extends Controller
@@ -202,8 +204,10 @@ class VolunteerController extends Controller
         $resolved = 0;
         $demoted = 0;
         if ($wasPending && $volunteer->isApproved()) {
-            // pending -> approved: promote queued signups.
+            // pending -> approved: promote queued signups + email the
+            // volunteer their magic link so they can pick shifts.
             $resolved = $this->resolvePendingSignups($volunteer);
+            Mail::to($volunteer->email)->send(new VolunteerApprovedMail($volunteer));
         } elseif (! $wasPending && $volunteer->isPendingReview()) {
             // approved -> pending: demote committed signups so they hold
             // the slot but don't count as confirmed until re-verified.
@@ -248,6 +252,7 @@ class VolunteerController extends Controller
         $note = '';
         if ($wasPending && $volunteer->isApproved()) {
             $n = $this->resolvePendingSignups($volunteer);
+            Mail::to($volunteer->email)->send(new VolunteerApprovedMail($volunteer));
             if ($n > 0) $note = " Promoted {$n} queued signup" . ($n === 1 ? '' : 's') . '.';
         } elseif (! $wasPending && $volunteer->isPendingReview()) {
             $n = $this->demoteActiveSignups($volunteer);
@@ -305,6 +310,7 @@ class VolunteerController extends Controller
             'phone' => 'nullable|string|max:30',
             'categories' => 'nullable|array',
             'categories.*' => 'integer|exists:categories,id',
+            'action' => 'nullable|in:pending,approve',
         ]);
 
         $rawPhone = $data['phone'] ?? null;
@@ -313,19 +319,29 @@ class VolunteerController extends Controller
             return back()->withErrors(['phone' => 'Phone must be a US number with 10 digits — e.g. (850) 555-1234.'])->withInput();
         }
 
+        $shouldApprove = ($data['action'] ?? 'pending') === 'approve';
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $e164 ?: $rawPhone,
             'role' => 'volunteer',
+            'approved_at' => $shouldApprove ? now() : null,
         ]);
 
         if (! empty($data['categories'])) {
             $user->categories()->sync($data['categories']);
         }
 
-        return redirect()->route('admin.volunteers.show', $user)
-            ->with('status', "Added {$user->name}.");
+        $statusMsg = "Added {$user->name}.";
+        if ($shouldApprove) {
+            Mail::to($user->email)->send(new VolunteerApprovedMail($user));
+            $statusMsg .= ' Approval email sent.';
+        } else {
+            $statusMsg .= ' Pending your review.';
+        }
+
+        return redirect()->route('admin.volunteers.show', $user)->with('status', $statusMsg);
     }
 
     public function destroy(User $volunteer)

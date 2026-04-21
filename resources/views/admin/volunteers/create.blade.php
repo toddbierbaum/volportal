@@ -49,10 +49,20 @@
             </div>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-end gap-3">
+        <div class="mt-6 rounded-md bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-4 text-xs text-gray-600 dark:text-gray-400">
+            <div class="font-medium text-gray-700 dark:text-gray-300 mb-1">Heads up</div>
+            Cert acknowledgments (background check, 18+) aren't captured here — those need to come from the volunteer directly. If an interest you pick requires a cert, flag it in the volunteer's detail page after creation or ask them to re-confirm when they log in.
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-end gap-3 flex-wrap">
             <a href="{{ route('admin.volunteers.index') }}" class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:text-gray-100">Cancel</a>
-            <button type="submit" class="px-5 py-2 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">
-                Add volunteer
+            <button type="submit" name="action" value="pending"
+                    class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-medium">
+                Save as pending
+            </button>
+            <button type="submit" name="action" value="approve"
+                    class="px-5 py-2 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">
+                Save & send approval email
             </button>
         </div>
     </form>

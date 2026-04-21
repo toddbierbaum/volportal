@@ -61,6 +61,51 @@
             </form>
         </details>
 
+        @if ($user->isPendingReview())
+            <div class="mb-6 rounded-lg bg-amber-50 border border-amber-200 p-5 text-sm text-amber-900">
+                <div class="font-semibold">Your application is pending review.</div>
+                <p class="mt-1">We'll email you a link to browse and pick shifts once an admin approves your account.</p>
+            </div>
+        @elseif ($opportunities->isNotEmpty())
+            <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 sm:p-8 mb-6">
+                <h2 class="text-lg font-semibold text-fct-navy mb-1">Opportunities for you</h2>
+                <p class="text-sm text-gray-500 mb-4">Matched to your interests: {{ $user->categories->pluck('name')->join(', ') }}.</p>
+                <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                    @foreach ($opportunities as $position)
+                        @php $color = $position->event->template?->color ?? '#9CA3AF'; @endphp
+                        <li class="p-4">
+                            <div class="flex items-center justify-between gap-4 flex-wrap">
+                                <div class="flex items-start gap-3 min-w-0">
+                                    <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0 mt-1.5" style="background-color: {{ $color }}"></span>
+                                    <div class="min-w-0">
+                                        <a href="{{ route('events.show', $position->event->slug) }}"
+                                           class="font-medium text-gray-900 hover:text-fct-navy">
+                                            {{ $position->event->title }}
+                                        </a>
+                                        <div class="text-sm text-gray-600 mt-0.5">
+                                            {{ $position->title }}
+                                            &middot; {{ $position->starts_at->format('D, M j · g:i A') }}
+                                            @if ($position->isFull())
+                                                <span class="text-amber-700">(full — waitlist)</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                <form method="POST" action="{{ route('volunteer.signup') }}" class="shrink-0">
+                                    @csrf
+                                    <input type="hidden" name="position_id" value="{{ $position->id }}">
+                                    <button type="submit"
+                                            class="inline-flex items-center px-3 py-1.5 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light">
+                                        @if ($position->isFull()) Join waitlist @else Sign up @endif
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white rounded-lg shadow-xs border border-gray-200 p-6 sm:p-8 mb-6">
             <h2 class="text-lg font-semibold text-fct-navy mb-4">Your upcoming signups</h2>
 

@@ -11,7 +11,13 @@ use App\Http\Controllers\MagicLinkController;
 use App\Http\Controllers\VolunteerDashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [CalendarController::class, 'index'])->name('calendar');
+Route::get('/', function () {
+    $user = auth()->user();
+    if (! $user) return redirect()->route('signup');
+    if ($user->isAdmin()) return redirect()->route('admin.dashboard');
+    return redirect()->route('calendar');
+});
+Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
 Route::get('/calendar-events', [CalendarController::class, 'events'])->name('calendar.events');
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::view('/signup', 'signup')->name('signup');
@@ -23,6 +29,7 @@ Route::get('/magic-link/{user}', [MagicLinkController::class, 'login'])
 
 Route::get('/my', [VolunteerDashboardController::class, 'index'])->name('volunteer.dashboard');
 Route::post('/my/preferences', [VolunteerDashboardController::class, 'updatePreferences'])->name('volunteer.preferences');
+Route::post('/my/signups', [VolunteerDashboardController::class, 'signUp'])->middleware('auth')->name('volunteer.signup');
 
 Route::post('/logout', function () {
     auth()->guard('web')->logout();
@@ -57,6 +64,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::view('/categories', 'admin.categories')->name('categories');
     Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');
+    Route::view('/settings', 'admin.settings')->name('settings');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
