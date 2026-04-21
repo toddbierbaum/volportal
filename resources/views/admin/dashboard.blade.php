@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="flex flex-wrap gap-4 mb-6">
+    <div class="grid gap-4 mb-6" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
         <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
            class="flex-1 min-w-0 block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Volunteers · pending</div>
