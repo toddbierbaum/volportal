@@ -28,27 +28,27 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-5 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+    <div class="flex flex-wrap gap-4 mb-6">
+        <div class="flex-1 min-w-0 bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Events · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['upcoming_events'] }}</div>
         </div>
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex-1 min-w-0 bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Volunteers</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['volunteers'] }}</div>
         </div>
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex-1 min-w-0 bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Signups · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['confirmed_signups'] }}</div>
         </div>
-        <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div class="flex-1 min-w-0 bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Open slots · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold {{ $stats['open_slots'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
                 {{ $stats['open_slots'] }}
             </div>
         </div>
         <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
-           class="block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+           class="flex-1 min-w-0 block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Pending review</div>
             <div class="mt-2 text-3xl font-semibold {{ $stats['pending_review'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
                 {{ $stats['pending_review'] }}
