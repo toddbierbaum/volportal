@@ -10,7 +10,7 @@
         @endunless
         <div class="mb-8">
             <h1 class="text-3xl sm:text-4xl font-bold text-fct-navy dark:text-fct-cyan tracking-tight">Become a volunteer</h1>
-            <p class="mt-2 text-gray-700 dark:text-gray-300 max-w-xl">Three quick steps and we'll match you with upcoming opportunities at the theater.</p>
+            <p class="mt-2 text-gray-700 dark:text-gray-300 max-w-xl">A few quick questions and we'll match you with upcoming opportunities at the theater.</p>
         </div>
 
         <livewire:volunteer-signup />
