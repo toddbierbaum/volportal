@@ -152,6 +152,8 @@ class VolunteerController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($volunteer->id)],
             'phone' => 'nullable|string|max:30',
             'sms_opt_in' => 'nullable|boolean',
+            'age_certified' => 'nullable|boolean',
+            'background_check_acknowledged' => 'nullable|boolean',
             'age_verified' => 'nullable|boolean',
             'background_check_verified' => 'nullable|boolean',
             'categories' => 'nullable|array',
@@ -172,12 +174,20 @@ class VolunteerController extends Controller
         $bgVerifiedAt = ($data['background_check_verified'] ?? false)
             ? ($volunteer->background_check_verified_at ?? now())
             : null;
+        $ageCertifiedAt = ($data['age_certified'] ?? false)
+            ? ($volunteer->age_certified_at ?? now())
+            : null;
+        $bgAckAt = ($data['background_check_acknowledged'] ?? false)
+            ? ($volunteer->background_check_acknowledged_at ?? now())
+            : null;
 
         $volunteer->fill([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $e164 ?: $rawPhone,
             'sms_opt_in' => (bool) ($data['sms_opt_in'] ?? false),
+            'age_certified_at' => $ageCertifiedAt,
+            'background_check_acknowledged_at' => $bgAckAt,
             'age_verified_at' => $ageVerifiedAt,
             'background_check_verified_at' => $bgVerifiedAt,
         ]);
