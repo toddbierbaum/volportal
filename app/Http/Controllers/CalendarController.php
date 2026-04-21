@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -10,11 +11,14 @@ class CalendarController extends Controller
 {
     public function index()
     {
+        if ($redirect = $this->enforceGate()) return $redirect;
         return view('calendar');
     }
 
-    public function events(Request $request): JsonResponse
+    public function events(Request $request): JsonResponse|\Illuminate\Http\RedirectResponse
     {
+        if ($redirect = $this->enforceGate()) return $redirect;
+
         $start = $request->input('start');
         $end = $request->input('end');
 
@@ -61,5 +65,18 @@ class CalendarController extends Controller
             // editing events or running seeders.
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache');
+    }
+
+    /**
+     * When the approval gate is on, the public calendar is hidden from
+     * anon visitors. Logged-in users (volunteer or admin) still see it.
+     * Returns a redirect response if the visitor should be bounced.
+     */
+    private function enforceGate(): ?\Illuminate\Http\RedirectResponse
+    {
+        $gateOn = (bool) Setting::get('require_approval_before_opportunities', false);
+        if (! $gateOn) return null;
+        if (auth()->check()) return null;
+        return redirect()->route('signup');
     }
 }
