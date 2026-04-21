@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\EventTemplateSchedule;
 use App\Models\NotificationSchedule;
 use App\Models\Signup;
 use Illuminate\Bus\Queueable;
@@ -16,7 +17,7 @@ class SignupReminderMail extends Mailable
 
     public function __construct(
         public Signup $signup,
-        public NotificationSchedule $schedule,
+        public NotificationSchedule|EventTemplateSchedule $schedule,
     ) {}
 
     public function envelope(): Envelope
