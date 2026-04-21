@@ -29,6 +29,13 @@
     </div>
 
     <div class="flex flex-wrap gap-4 mb-6">
+        <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
+           class="flex-1 min-w-0 block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Volunteers · pending</div>
+            <div class="mt-2 text-3xl font-semibold {{ $stats['pending_review'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
+                {{ $stats['pending_review'] }}
+            </div>
+        </a>
         <div class="flex-1 min-w-0 bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Events · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['upcoming_events'] }}</div>
@@ -47,13 +54,6 @@
                 {{ $stats['open_slots'] }}
             </div>
         </div>
-        <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
-           class="flex-1 min-w-0 block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Pending review</div>
-            <div class="mt-2 text-3xl font-semibold {{ $stats['pending_review'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
-                {{ $stats['pending_review'] }}
-            </div>
-        </a>
     </div>
 
     @if ($totalSlots > 0)

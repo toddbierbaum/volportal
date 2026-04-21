@@ -329,7 +329,9 @@ class VolunteerController extends Controller
             'phone' => $e164 ?: $rawPhone,
             'role' => 'volunteer',
             'age_certified_at' => ($data['age_certified'] ?? false) ? now() : null,
+            'age_certified_via' => ($data['age_certified'] ?? false) ? 'admin_intake' : null,
             'background_check_acknowledged_at' => ($data['background_check_acknowledged'] ?? false) ? now() : null,
+            'background_check_acknowledged_via' => ($data['background_check_acknowledged'] ?? false) ? 'admin_intake' : null,
             'approved_at' => $shouldApprove ? now() : null,
         ]);
 

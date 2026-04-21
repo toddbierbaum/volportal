@@ -119,12 +119,17 @@
                     </p>
                 </div>
 
+                @php
+                    $ageVia = \App\Models\User::attestationSourceLabel($volunteer->age_certified_via);
+                    $bgVia = \App\Models\User::attestationSourceLabel($volunteer->background_check_acknowledged_via);
+                @endphp
+
                 <div class="flex items-start gap-3 text-sm">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-gray-900 dark:text-gray-100 font-medium">Certified 18 or older:</span>
                             @if ($volunteer->age_certified_at)
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Certified {{ $volunteer->age_certified_at->format('M j, Y') }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Certified {{ $volunteer->age_certified_at->format('M j, Y') }}@if ($ageVia) via {{ $ageVia }}@endif</span>
                             @else
                                 <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium">No attestation on file</span>
                             @endif
@@ -137,7 +142,7 @@
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="text-gray-900 dark:text-gray-100 font-medium">Consented to background check:</span>
                             @if ($volunteer->background_check_acknowledged_at)
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Consented {{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Consented {{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}@if ($bgVia) via {{ $bgVia }}@endif</span>
                             @else
                                 <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium">No attestation on file</span>
                             @endif

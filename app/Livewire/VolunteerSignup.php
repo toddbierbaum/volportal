@@ -169,7 +169,9 @@ class VolunteerSignup extends Component
                 'role' => 'volunteer',
                 'sms_opt_in' => $this->smsOptIn,
                 'background_check_acknowledged_at' => $this->backgroundCheckAcknowledged ? now() : null,
+                'background_check_acknowledged_via' => $this->backgroundCheckAcknowledged ? 'signup_form' : null,
                 'age_certified_at' => $this->ageCertified ? now() : null,
+                'age_certified_via' => $this->ageCertified ? 'signup_form' : null,
                 'approved_at' => $requiresReview ? null : now(),
             ]
         );

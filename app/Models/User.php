@@ -13,7 +13,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'phone', 'role', 'password', 'sms_opt_in',
-    'background_check_acknowledged_at', 'age_certified_at', 'approved_at',
+    'background_check_acknowledged_at', 'background_check_acknowledged_via',
+    'age_certified_at', 'age_certified_via', 'approved_at',
     'background_check_verified_at', 'age_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -71,6 +72,15 @@ class User extends Authenticatable
             return false;
         }
         return true;
+    }
+
+    public static function attestationSourceLabel(?string $via): string
+    {
+        return match ($via) {
+            'signup_form' => 'signup form',
+            'admin_intake' => 'admin intake',
+            default => '',
+        };
     }
 
     public function requiresBackgroundCheckVerification(): bool
