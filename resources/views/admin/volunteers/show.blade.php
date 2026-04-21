@@ -122,7 +122,7 @@
                 <div class="flex items-start gap-3 text-sm">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-gray-900 dark:text-gray-100 font-medium">Certified 18 or older</span>
+                            <span class="text-gray-900 dark:text-gray-100 font-medium">Certified 18 or older:</span>
                             @if ($volunteer->age_certified_at)
                                 <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Certified {{ $volunteer->age_certified_at->format('M j, Y') }}</span>
                             @else
@@ -135,7 +135,7 @@
                 <div class="flex items-start gap-3 text-sm">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-gray-900 dark:text-gray-100 font-medium">Consented to background check</span>
+                            <span class="text-gray-900 dark:text-gray-100 font-medium">Consented to background check:</span>
                             @if ($volunteer->background_check_acknowledged_at)
                                 <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Consented {{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}</span>
                             @else

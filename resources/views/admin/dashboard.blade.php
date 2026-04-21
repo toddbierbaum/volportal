@@ -10,16 +10,25 @@
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Dashboard</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">Next {{ $horizonDays }} days at a glance. <a href="{{ route('admin.events.index') }}" class="text-fct-navy dark:text-fct-cyan hover:underline">View full schedule →</a></p>
         </div>
-        <a href="{{ route('admin.events.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 bg-fct-navy rounded-md font-medium text-white text-sm hover:bg-fct-navy-light transition">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            New event
-        </a>
+        <div class="flex items-center gap-3 flex-wrap">
+            <a href="{{ route('admin.volunteers.create') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-fct-navy rounded-md font-medium text-white text-sm hover:bg-fct-navy-light transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New volunteer
+            </a>
+            <a href="{{ route('admin.events.create') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-fct-navy rounded-md font-medium text-white text-sm hover:bg-fct-navy-light transition">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                New event
+            </a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Events · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['upcoming_events'] }}</div>
@@ -39,16 +48,9 @@
             </div>
         </div>
         <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
-           class="block p-5 rounded-lg border transition
-                  {{ $stats['pending_review'] > 0
-                        ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/60 hover:bg-amber-100 dark:hover:bg-amber-900/40'
-                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
-            <div class="text-xs font-medium uppercase tracking-wider
-                        {{ $stats['pending_review'] > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400' }}">
-                Pending review
-            </div>
-            <div class="mt-2 text-3xl font-semibold
-                        {{ $stats['pending_review'] > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-900 dark:text-gray-100' }}">
+           class="block bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Pending review</div>
+            <div class="mt-2 text-3xl font-semibold {{ $stats['pending_review'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
                 {{ $stats['pending_review'] }}
             </div>
         </a>
