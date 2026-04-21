@@ -106,51 +106,44 @@
                 </label>
             </div>
 
-            {{-- Volunteer self-attestations — set automatically when the
-                 volunteer completes the cert screens in the signup wizard,
-                 but admins can toggle here when entering a volunteer on
-                 their behalf (paper form, phone intake, etc.). --}}
+            {{-- Volunteer self-attestations — display-only. Set once
+                 (by the signup wizard or admin intake form) and then
+                 immutable so the audit trail holds up if we ever wire
+                 an automated background-check API that requires proof
+                 of consent. --}}
             <div class="sm:col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                 <div>
                     <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">Volunteer self-attestations</div>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        What the volunteer has acknowledged themselves (either via the signup wizard or, when you're entering them on their behalf, based on a paper form).
+                        What the volunteer has affirmed themselves — via the signup wizard or captured at intake. These are locked once recorded.
                     </p>
                 </div>
 
-                <label class="flex items-start gap-3 text-sm cursor-pointer">
-                    <input type="hidden" name="age_certified" value="0">
-                    <input type="checkbox" name="age_certified" value="1"
-                           @checked(old('age_certified', (bool) $volunteer->age_certified_at))
-                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
-                    <span class="flex-1">
-                        <span class="text-gray-900 dark:text-gray-100 font-medium">Certified 18 or older</span>
-                        <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <div class="flex items-start gap-3 text-sm">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-gray-900 dark:text-gray-100 font-medium">Certified 18 or older</span>
                             @if ($volunteer->age_certified_at)
-                                Certified on {{ $volunteer->age_certified_at->format('M j, Y') }}.
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Certified {{ $volunteer->age_certified_at->format('M j, Y') }}</span>
                             @else
-                                Volunteer has affirmed they are at least 18 years old.
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium">No attestation on file</span>
                             @endif
-                        </span>
-                    </span>
-                </label>
+                        </div>
+                    </div>
+                </div>
 
-                <label class="flex items-start gap-3 text-sm cursor-pointer">
-                    <input type="hidden" name="background_check_acknowledged" value="0">
-                    <input type="checkbox" name="background_check_acknowledged" value="1"
-                           @checked(old('background_check_acknowledged', (bool) $volunteer->background_check_acknowledged_at))
-                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
-                    <span class="flex-1">
-                        <span class="text-gray-900 dark:text-gray-100 font-medium">Consented to background check</span>
-                        <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <div class="flex items-start gap-3 text-sm">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-gray-900 dark:text-gray-100 font-medium">Consented to background check</span>
                             @if ($volunteer->background_check_acknowledged_at)
-                                Acknowledged on {{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}.
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Consented {{ $volunteer->background_check_acknowledged_at->format('M j, Y') }}</span>
                             @else
-                                Volunteer has agreed to undergo a background check for Kids Productions.
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-medium">No attestation on file</span>
                             @endif
-                        </span>
-                    </span>
-                </label>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{-- Admin verification checkboxes — separate from user's own
@@ -172,9 +165,6 @@
                            class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                     <span class="flex-1">
                         <span class="text-gray-900 dark:text-gray-100 font-medium">18+ verified</span>
-                        @if ($volunteer->age_certified_at)
-                            <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Required — user certified {{ $volunteer->age_certified_at->format('M j') }}</span>
-                        @endif
                         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             @if ($volunteer->age_verified_at)
                                 Verified by admin on {{ $volunteer->age_verified_at->format('M j, Y') }}.
@@ -192,9 +182,6 @@
                            class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                     <span class="flex-1">
                         <span class="text-gray-900 dark:text-gray-100 font-medium">Background check completed</span>
-                        @if ($volunteer->background_check_acknowledged_at)
-                            <span class="ml-2 text-xs px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-800 dark:text-rose-300 font-medium">Required — user acknowledged {{ $volunteer->background_check_acknowledged_at->format('M j') }}</span>
-                        @endif
                         <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             @if ($volunteer->background_check_verified_at)
                                 Verified by admin on {{ $volunteer->background_check_verified_at->format('M j, Y') }}.

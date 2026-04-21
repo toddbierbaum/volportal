@@ -47,11 +47,34 @@
                     @endforeach
                 </div>
             </div>
-        </div>
 
-        <div class="mt-6 rounded-md bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-4 text-xs text-gray-600 dark:text-gray-400">
-            <div class="font-medium text-gray-700 dark:text-gray-300 mb-1">Heads up</div>
-            Cert acknowledgments (background check, 18+) aren't captured here — those need to come from the volunteer directly. If an interest you pick requires a cert, flag it in the volunteer's detail page after creation or ask them to re-confirm when they log in.
+            {{-- Self-attestation capture. When ticked here, we stamp the
+                 timestamp on create — same effect as if the volunteer had
+                 completed the cert screens in the signup wizard. These are
+                 immutable after save (audit trail for an automated BG-check
+                 provider that needs proof of consent). --}}
+            <div class="sm:col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">Volunteer self-attestations</div>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-3">
+                    Tick these if the volunteer has affirmed either (e.g. on a paper form). They're locked once saved.
+                </p>
+
+                <label class="flex items-start gap-2 text-sm cursor-pointer mb-2">
+                    <input type="hidden" name="age_certified" value="0">
+                    <input type="checkbox" name="age_certified" value="1"
+                           @checked(old('age_certified'))
+                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span class="text-gray-700 dark:text-gray-300">Volunteer has certified they are 18 or older</span>
+                </label>
+
+                <label class="flex items-start gap-2 text-sm cursor-pointer">
+                    <input type="hidden" name="background_check_acknowledged" value="0">
+                    <input type="checkbox" name="background_check_acknowledged" value="1"
+                           @checked(old('background_check_acknowledged'))
+                           class="mt-0.5 rounded border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span class="text-gray-700 dark:text-gray-300">Volunteer has consented to a background check</span>
+                </label>
+            </div>
         </div>
 
         <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-center justify-end gap-3 flex-wrap">

@@ -25,6 +25,7 @@ class DashboardController extends Controller
                 ->whereHas('position.event', fn ($q) => $q->where('starts_at', '>=', now()))
                 ->count(),
             'open_slots' => $this->openSlotsAcrossUpcomingEvents(),
+            'pending_review' => User::where('role', 'volunteer')->whereNull('approved_at')->count(),
         ];
 
         return view('admin.dashboard', compact('upcomingEvents', 'stats'));

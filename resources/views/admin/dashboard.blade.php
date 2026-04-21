@@ -19,7 +19,7 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
             <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Upcoming events</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['upcoming_events'] }}</div>
@@ -38,6 +38,20 @@
                 {{ $stats['open_slots'] }}
             </div>
         </div>
+        <a href="{{ route('admin.volunteers.index', ['status' => 'pending']) }}"
+           class="block p-5 rounded-lg border transition
+                  {{ $stats['pending_review'] > 0
+                        ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/60 hover:bg-amber-100 dark:hover:bg-amber-900/40'
+                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+            <div class="text-xs font-medium uppercase tracking-wider
+                        {{ $stats['pending_review'] > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400' }}">
+                Pending review
+            </div>
+            <div class="mt-2 text-3xl font-semibold
+                        {{ $stats['pending_review'] > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-900 dark:text-gray-100' }}">
+                {{ $stats['pending_review'] }}
+            </div>
+        </a>
     </div>
 
     @if ($totalSlots > 0)
