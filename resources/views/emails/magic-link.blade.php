@@ -11,4 +11,8 @@ If you didn't request this, you can safely ignore the email — no action was ta
 
 Thanks,
 Florida Chautauqua Theater
+
+<x-slot:subcopy>
+You're getting this because someone (hopefully you) asked for a login link at {{ config('app.url') }}. [Manage your email preferences]({{ $preferencesUrl }}).
+</x-slot:subcopy>
 </x-mail::message>

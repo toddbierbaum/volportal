@@ -39,4 +39,8 @@ If you can't make it, please reply to this email so we can fill your spot.
 
 Thanks,
 Florida Chautauqua Theater
+
+<x-slot:subcopy>
+You're getting this reminder because you signed up for a shift at {{ config('app.url') }}. [Manage your email preferences]({{ $preferencesUrl }}).
+</x-slot:subcopy>
 </x-mail::message>

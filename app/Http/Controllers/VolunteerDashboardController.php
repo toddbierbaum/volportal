@@ -100,6 +100,7 @@ class VolunteerDashboardController extends Controller
         $data = $request->validate([
             'phone' => 'nullable|string|max:30',
             'sms_opt_in' => 'sometimes|boolean',
+            'opportunity_alerts_opt_in' => 'sometimes|boolean',
         ]);
 
         $smsOptIn = (bool) ($data['sms_opt_in'] ?? false);
@@ -116,6 +117,7 @@ class VolunteerDashboardController extends Controller
         $user->update([
             'phone' => $e164 ?: $rawPhone,
             'sms_opt_in' => $smsOptIn,
+            'opportunity_alerts_opt_in' => (bool) ($data['opportunity_alerts_opt_in'] ?? false),
         ]);
 
         return redirect()->route('volunteer.dashboard')

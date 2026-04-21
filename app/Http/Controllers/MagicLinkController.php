@@ -22,4 +22,19 @@ class MagicLinkController extends Controller
 
         return redirect()->route('volunteer.dashboard');
     }
+
+    public function preferences(Request $request, User $user)
+    {
+        if ($user->isAdmin()) {
+            abort(403);
+        }
+
+        Auth::login($user, remember: true);
+        $request->session()->regenerate();
+
+        Cookie::queue(cookie()->forever('volunteer_id', (string) $user->id));
+
+        return redirect(route('volunteer.dashboard') . '#preferences')
+            ->with('preferences_open', true);
+    }
 }

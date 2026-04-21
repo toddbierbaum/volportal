@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['name', 'email', 'phone', 'role', 'password', 'sms_opt_in',
+    'opportunity_alerts_opt_in',
     'background_check_acknowledged_at', 'background_check_acknowledged_via',
     'age_certified_at', 'age_certified_via', 'approved_at',
     'background_check_verified_at', 'age_verified_at'])]
@@ -34,6 +35,7 @@ class User extends Authenticatable
             'approved_at' => 'datetime',
             'password' => 'hashed',
             'sms_opt_in' => 'boolean',
+            'opportunity_alerts_opt_in' => 'boolean',
         ];
     }
 

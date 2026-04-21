@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\User;
+use App\Support\EmailPreferencesLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -16,6 +17,8 @@ class MagicLinkMail extends Mailable
 
     public string $loginUrl;
 
+    public string $preferencesUrl;
+
     public function __construct(public User $user)
     {
         $this->loginUrl = URL::temporarySignedRoute(
@@ -23,6 +26,7 @@ class MagicLinkMail extends Mailable
             now()->addMinutes(30),
             ['user' => $user->id]
         );
+        $this->preferencesUrl = EmailPreferencesLink::for($user);
     }
 
     public function envelope(): Envelope

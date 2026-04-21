@@ -32,6 +32,18 @@
                 @error('phone') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             </div>
             <div class="sm:col-span-2">
+                <label class="inline-flex items-start gap-2 text-sm">
+                    <input type="hidden" name="opportunity_alerts_opt_in" value="0">
+                    <input type="checkbox" name="opportunity_alerts_opt_in" value="1"
+                           @checked(old('opportunity_alerts_opt_in', '1') === '1' || old('opportunity_alerts_opt_in') === true)
+                           class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
+                    <span>
+                        <span class="text-gray-700 dark:text-gray-300 font-medium">Send monthly opportunity alerts</span>
+                        <span class="block text-xs text-gray-500 dark:text-gray-400">A monthly digest of open positions matching their interests. Uncheck only if the volunteer has specifically asked not to receive these.</span>
+                    </span>
+                </label>
+            </div>
+            <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Interest categories</label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     @foreach ($categories as $cat)

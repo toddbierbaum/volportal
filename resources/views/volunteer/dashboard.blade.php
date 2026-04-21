@@ -23,15 +23,20 @@
             </div>
         @endif
 
-        <details class="bg-white rounded-lg shadow-xs border border-gray-200 mb-6">
+        <details id="preferences" class="bg-white rounded-lg shadow-xs border border-gray-200 mb-6" @if(session('preferences_open')) open @endif>
             <summary class="p-6 sm:p-8 cursor-pointer list-none flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-semibold text-fct-navy">Reminder preferences</h2>
+                    <h2 class="text-lg font-semibold text-fct-navy">Email &amp; text preferences</h2>
                     <p class="text-sm text-gray-600 mt-0.5">
                         You currently receive reminders via <strong>email</strong>
                         @if ($user->sms_opt_in && $user->phone)
                             and <strong>text</strong> to {{ $user->phone }}
                         @endif.
+                        @if ($user->opportunity_alerts_opt_in)
+                            Monthly opportunity alerts are <strong>on</strong>.
+                        @else
+                            Monthly opportunity alerts are <strong>off</strong>.
+                        @endif
                     </p>
                 </div>
                 <span class="text-fct-navy text-sm">Edit &rsaquo;</span>
@@ -52,6 +57,17 @@
                         <span>
                             <span class="text-gray-700 font-medium">Send me text reminders</span>
                             <span class="block text-xs text-gray-500">Standard message rates apply. Reply STOP to any text to opt back out.</span>
+                        </span>
+                    </label>
+                </div>
+                <div>
+                    <label class="inline-flex items-start gap-2 text-sm">
+                        <input type="hidden" name="opportunity_alerts_opt_in" value="0">
+                        <input type="checkbox" name="opportunity_alerts_opt_in" value="1" @checked(old('opportunity_alerts_opt_in', $user->opportunity_alerts_opt_in))
+                               class="mt-0.5 rounded-sm border-gray-300 text-fct-navy focus:ring-fct-cyan">
+                        <span>
+                            <span class="text-gray-700 font-medium">Get monthly opportunity alerts (optional)</span>
+                            <span class="block text-xs text-gray-500">A monthly email highlighting open positions that match your interests.</span>
                         </span>
                     </label>
                 </div>

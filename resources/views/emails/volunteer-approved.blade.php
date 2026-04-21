@@ -11,4 +11,8 @@ This link is good for 7 days. If it expires, you can always request a new login 
 
 Thanks for volunteering with us,
 Florida Chautauqua Theater
+
+<x-slot:subcopy>
+You're getting this because you applied to volunteer at {{ config('app.url') }}. [Manage your email preferences]({{ $preferencesUrl }}).
+</x-slot:subcopy>
 </x-mail::message>

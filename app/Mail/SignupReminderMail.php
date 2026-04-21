@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\EventTemplateSchedule;
 use App\Models\NotificationSchedule;
 use App\Models\Signup;
+use App\Support\EmailPreferencesLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -15,10 +16,14 @@ class SignupReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $preferencesUrl;
+
     public function __construct(
         public Signup $signup,
         public NotificationSchedule|EventTemplateSchedule $schedule,
-    ) {}
+    ) {
+        $this->preferencesUrl = EmailPreferencesLink::for($signup->user);
+    }
 
     public function envelope(): Envelope
     {

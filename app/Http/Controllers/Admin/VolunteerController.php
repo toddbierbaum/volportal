@@ -312,6 +312,7 @@ class VolunteerController extends Controller
             'categories.*' => 'integer|exists:categories,id',
             'age_certified' => 'nullable|boolean',
             'background_check_acknowledged' => 'nullable|boolean',
+            'opportunity_alerts_opt_in' => 'nullable|boolean',
             'action' => 'nullable|in:pending,approve',
         ]);
 
@@ -328,6 +329,7 @@ class VolunteerController extends Controller
             'email' => $data['email'],
             'phone' => $e164 ?: $rawPhone,
             'role' => 'volunteer',
+            'opportunity_alerts_opt_in' => (bool) ($data['opportunity_alerts_opt_in'] ?? true),
             'age_certified_at' => ($data['age_certified'] ?? false) ? now() : null,
             'age_certified_via' => ($data['age_certified'] ?? false) ? 'admin_intake' : null,
             'background_check_acknowledged_at' => ($data['background_check_acknowledged'] ?? false) ? now() : null,

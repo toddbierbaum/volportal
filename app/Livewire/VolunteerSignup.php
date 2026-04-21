@@ -37,6 +37,8 @@ class VolunteerSignup extends Component
 
     public bool $smsOptIn = false;
 
+    public bool $opportunityAlertsOptIn = true;
+
     /** @var array<int> */
     public array $selectedCategoryIds = [];
 
@@ -168,6 +170,7 @@ class VolunteerSignup extends Component
                 'phone' => SmsSender::toE164($this->phone) ?? $this->phone,
                 'role' => 'volunteer',
                 'sms_opt_in' => $this->smsOptIn,
+                'opportunity_alerts_opt_in' => $this->opportunityAlertsOptIn,
                 'background_check_acknowledged_at' => $this->backgroundCheckAcknowledged ? now() : null,
                 'background_check_acknowledged_via' => $this->backgroundCheckAcknowledged ? 'signup_form' : null,
                 'age_certified_at' => $this->ageCertified ? now() : null,

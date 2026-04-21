@@ -27,6 +27,10 @@ Route::get('/magic-link/{user}', [MagicLinkController::class, 'login'])
     ->middleware('signed')
     ->name('magic-link.login');
 
+Route::get('/email-preferences/{user}', [MagicLinkController::class, 'preferences'])
+    ->middleware('signed')
+    ->name('email-preferences');
+
 Route::get('/my', [VolunteerDashboardController::class, 'index'])->name('volunteer.dashboard');
 Route::post('/my/preferences', [VolunteerDashboardController::class, 'updatePreferences'])->name('volunteer.preferences');
 Route::post('/my/signups', [VolunteerDashboardController::class, 'signUp'])->middleware('auth')->name('volunteer.signup');

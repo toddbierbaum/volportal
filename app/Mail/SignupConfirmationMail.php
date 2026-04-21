@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\User;
+use App\Support\EmailPreferencesLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -14,13 +15,17 @@ class SignupConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $preferencesUrl;
+
     /**
      * @param  Collection<int, \App\Models\Signup>  $signups
      */
     public function __construct(
         public User $user,
         public Collection $signups,
-    ) {}
+    ) {
+        $this->preferencesUrl = EmailPreferencesLink::for($user);
+    }
 
     public function envelope(): Envelope
     {

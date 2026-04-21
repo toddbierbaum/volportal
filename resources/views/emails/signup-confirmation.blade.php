@@ -42,4 +42,8 @@ View my signups
 
 Thanks,
 Florida Chautauqua Theater
+
+<x-slot:subcopy>
+You're getting this because you signed up as a volunteer at {{ config('app.url') }}. [Manage your email preferences]({{ $preferencesUrl }}).
+</x-slot:subcopy>
 </x-mail::message>
