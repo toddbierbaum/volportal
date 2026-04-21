@@ -8,7 +8,7 @@
     <div class="flex items-start justify-between gap-4 flex-wrap mb-8">
         <div>
             <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Dashboard</h1>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">Theater volunteer program at a glance.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">Next {{ $horizonDays }} days at a glance. <a href="{{ route('admin.events.index') }}" class="text-fct-navy dark:text-fct-cyan hover:underline">View full schedule →</a></p>
         </div>
         <a href="{{ route('admin.events.create') }}"
            class="inline-flex items-center gap-2 px-4 py-2 bg-fct-navy rounded-md font-medium text-white text-sm hover:bg-fct-navy-light transition">
@@ -21,7 +21,7 @@
 
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Upcoming events</div>
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Events · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['upcoming_events'] }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -29,11 +29,11 @@
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['volunteers'] }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Confirmed signups</div>
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Signups · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{{ $stats['confirmed_signups'] }}</div>
         </div>
         <div class="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Open slots</div>
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase tracking-wider">Open slots · next {{ $horizonDays }}d</div>
             <div class="mt-2 text-3xl font-semibold {{ $stats['open_slots'] > 0 ? 'text-amber-600' : 'text-emerald-600' }}">
                 {{ $stats['open_slots'] }}
             </div>
@@ -68,13 +68,13 @@
 
     <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
         <div class="p-5 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-4">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">Upcoming events</h2>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">Next {{ $horizonDays }} days</h2>
             <a href="{{ route('admin.events.index') }}" class="text-sm text-fct-navy dark:text-fct-cyan hover:underline">View all →</a>
         </div>
 
         @if ($upcomingEvents->isEmpty())
             <div class="p-8 text-center text-gray-500 dark:text-gray-400 dark:text-gray-500 text-sm">
-                No upcoming events. <a href="{{ route('admin.events.create') }}" class="text-fct-navy dark:text-fct-cyan underline">Create one</a>.
+                No events in the next {{ $horizonDays }} days. <a href="{{ route('admin.events.index') }}" class="text-fct-navy dark:text-fct-cyan underline">View full schedule</a>.
             </div>
         @else
             <ul class="divide-y divide-gray-100 dark:divide-gray-700/60">
