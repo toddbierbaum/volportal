@@ -5,7 +5,8 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
-/.claude/
+/.claude/*
+!/.claude/skills/
 /.cursor/
 CLAUDE.md
 *.sqlite
