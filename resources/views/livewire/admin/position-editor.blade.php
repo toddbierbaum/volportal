@@ -27,8 +27,8 @@
                             <div class="flex items-start gap-3 min-w-0">
                                 <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0 mt-2" style="background-color: {{ $color }}"></span>
                                 <div class="min-w-0">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</span>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</div>
+                                    <div class="mt-1 flex items-center gap-3 flex-wrap text-sm">
                                         @if ($position->category)
                                             <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                                                   style="background-color: {{ $color }}1A; color: {{ $color }}">
@@ -38,8 +38,6 @@
                                         @if (! $position->is_public)
                                             <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium">Admin-only</span>
                                         @endif
-                                    </div>
-                                    <div class="mt-1 flex items-center gap-3 text-sm">
                                         <button type="button" wire:click="startEdit({{ $position->id }})"
                                                 class="text-fct-navy dark:text-fct-cyan hover:underline">Edit</button>
                                         <button type="button" wire:click="removePosition({{ $position->id }})"
