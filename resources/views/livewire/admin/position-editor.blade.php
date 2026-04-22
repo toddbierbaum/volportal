@@ -46,7 +46,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex flex-col items-end gap-2 shrink-0">
+                            <div class="flex flex-col items-end gap-1 shrink-0">
                                 <span class="text-xs px-2 py-0.5 rounded-full font-medium {{ $filledBadgeClasses }}">
                                     {{ $filled }}/{{ $position->slots_needed }} filled
                                 </span>
@@ -55,17 +55,20 @@
                                         {{ $waitlist }} waitlisted
                                     </span>
                                 @endif
-                                @if ($assigningForPositionId !== $position->id)
-                                    <button type="button" wire:click="startAssigning({{ $position->id }})"
-                                            class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
-                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                        Assign volunteer
-                                    </button>
-                                @endif
                             </div>
                         </div>
+
+                        @if ($assigningForPositionId !== $position->id)
+                            <div class="mt-2 flex justify-end">
+                                <button type="button" wire:click="startAssigning({{ $position->id }})"
+                                        class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Assign volunteer
+                                </button>
+                            </div>
+                        @endif
 
                         @if ($assigningForPositionId === $position->id)
                             <div class="mt-3 p-3 rounded-md bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-wrap">
