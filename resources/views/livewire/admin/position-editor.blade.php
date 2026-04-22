@@ -17,9 +17,9 @@
                         $cancelled = $position->signups->where('status', 'cancelled');
                         $color = $position->category?->color ?? '#9CA3AF';
                         $filledBadgeClasses = match (true) {
-                            $filled === 0                      => 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+                            $filled === 0                      => 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
                             $filled >= $position->slots_needed => 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
-                            default                            => 'bg-fct-cyan/15 text-fct-navy dark:text-fct-cyan',
+                            default                            => 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
                         };
                     @endphp
                     <li wire:key="position-{{ $position->id }}" class="px-5 py-4 hover:bg-gray-50 dark:bg-gray-800/50 transition">
