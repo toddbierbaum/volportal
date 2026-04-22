@@ -38,8 +38,6 @@
                 @else
                     <a href="{{ route('login-link') }}"
                        class="text-white hover:text-fct-cyan transition">Volunteer Login</a>
-                    <a href="{{ route('login') }}"
-                       class="text-fct-cyan-light hover:text-fct-cyan transition hidden sm:inline">Admin</a>
                 @endauth
             </nav>
         </div>
