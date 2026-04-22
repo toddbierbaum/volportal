@@ -26,7 +26,7 @@
                         <div class="flex items-start justify-between gap-3">
                             <div class="flex items-start gap-3 min-w-0 flex-1">
                                 <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0 mt-2" style="background-color: {{ $color }}"></span>
-                                <div class="min-w-0">
+                                <div class="min-w-0 flex-1">
                                     <div class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</div>
                                     <div class="mt-1 flex items-center gap-3 flex-wrap text-sm">
                                         @if ($position->category)
