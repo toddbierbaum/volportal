@@ -82,7 +82,7 @@
              (applied by toggleSidebar()) slides it in. lg:translate-x-0
              pins it for desktop. --}}
         <aside id="admin-sidebar"
-               class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
+               class="fixed lg:sticky lg:top-0 lg:h-screen inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col
                       transform transition-transform -translate-x-full lg:translate-x-0">
             {{-- Logo --}}
             <div class="h-16 flex items-center gap-3 px-5 border-b border-gray-200 dark:border-gray-700">
