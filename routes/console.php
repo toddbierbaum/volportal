@@ -18,3 +18,9 @@ Schedule::command('reminders:send')
 Schedule::command('opportunities:send-alerts')
     ->monthlyOn(1, '09:00')
     ->withoutOverlapping();
+
+// Daily digest of pending volunteers — 8am Central. Skipped when nobody
+// is pending, so admins only get email on days that need their attention.
+Schedule::command('volunteers:send-pending-digest')
+    ->dailyAt('08:00')
+    ->withoutOverlapping();
