@@ -10,6 +10,8 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {!! \App\Models\Setting::get('google_analytics_code', '') !!}
 </head>
 <body class="font-sans antialiased bg-fct-cream dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
     <header class="bg-fct-navy text-white shadow-md">

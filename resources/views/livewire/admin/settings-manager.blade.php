@@ -24,4 +24,28 @@
                     class="px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">Save</button>
         </div>
     </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Analytics</h3>
+        </div>
+        <div class="px-5 py-4 space-y-3">
+            <label for="google-analytics-code" class="block">
+                <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Site-wide tracking code</span>
+                <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    Paste the full &lt;script&gt; snippet from Google Analytics, Google Tag Manager, or any other tag provider. It will be injected into the &lt;head&gt; of every public page. Leave blank to disable.
+                </span>
+            </label>
+            <textarea id="google-analytics-code"
+                      wire:model="googleAnalyticsCode"
+                      rows="8"
+                      spellcheck="false"
+                      placeholder="&lt;!-- Google tag (gtag.js) --&gt;&#10;&lt;script async src=&quot;https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX&quot;&gt;&lt;/script&gt;&#10;..."
+                      class="w-full font-mono text-xs rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-fct-cyan focus:border-fct-cyan"></textarea>
+        </div>
+        <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg flex justify-end">
+            <button type="button" wire:click="save"
+                    class="px-4 py-2 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">Save</button>
+        </div>
+    </div>
 </div>
