@@ -11,40 +11,141 @@
             <ul class="divide-y divide-gray-100 dark:divide-gray-700/60">
                 @foreach ($positions as $position)
                     @php
-                        $filled = $position->signups->where('status','confirmed')->count();
-                        $waitlist = $position->signups->where('status','waitlisted')->count();
+                        $filled = $position->signups->whereIn('status', ['confirmed', 'attended'])->count();
+                        $waitlist = $position->signups->where('status', 'waitlisted')->count();
+                        $nonCancelled = $position->signups->filter(fn ($s) => $s->status !== 'cancelled');
+                        $cancelled = $position->signups->where('status', 'cancelled');
                         $color = $position->category?->color ?? '#9CA3AF';
+                        $filledBadgeClasses = match (true) {
+                            $filled === 0                      => 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+                            $filled >= $position->slots_needed => 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+                            default                            => 'bg-fct-cyan/15 text-fct-navy dark:text-fct-cyan',
+                        };
                     @endphp
-                    <li class="px-5 py-4 flex items-center justify-between gap-3 hover:bg-gray-50 dark:bg-gray-800/50 transition">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0" style="background-color: {{ $color }}"></span>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</span>
-                                    @if ($position->category)
-                                        <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                              style="background-color: {{ $color }}1A; color: {{ $color }}">
-                                            {{ $position->category->name }}
-                                        </span>
-                                    @endif
-                                    @if (! $position->is_public)
-                                        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium">Admin-only</span>
-                                    @endif
-                                </div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-0.5">
-                                    {{ $position->starts_at->format('g:i A') }}–{{ $position->ends_at->format('g:i A') }}
-                                    &middot; {{ $filled }}/{{ $position->slots_needed }} filled
-                                    @if ($waitlist > 0) &middot; <span class="text-amber-700 dark:text-amber-400">{{ $waitlist }} waitlisted</span> @endif
+                    <li wire:key="position-{{ $position->id }}" class="px-5 py-4 hover:bg-gray-50 dark:bg-gray-800/50 transition">
+                        <div class="flex items-start justify-between gap-3 flex-wrap">
+                            <div class="flex items-start gap-3 min-w-0">
+                                <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0 mt-2" style="background-color: {{ $color }}"></span>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</span>
+                                        @if ($position->category)
+                                            <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                                                  style="background-color: {{ $color }}1A; color: {{ $color }}">
+                                                {{ $position->category->name }}
+                                            </span>
+                                        @endif
+                                        @if (! $position->is_public)
+                                            <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium">Admin-only</span>
+                                        @endif
+                                    </div>
+                                    <div class="mt-1 flex items-center gap-3 text-sm">
+                                        <button type="button" wire:click="startEdit({{ $position->id }})"
+                                                class="text-fct-navy dark:text-fct-cyan hover:underline">Edit</button>
+                                        <button type="button" wire:click="removePosition({{ $position->id }})"
+                                                wire:confirm="Remove this position? Any existing signups will also be cancelled."
+                                                class="text-red-600 dark:text-red-400 hover:underline">Remove</button>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="flex flex-col items-end gap-2 shrink-0">
+                                <span class="text-xs px-2 py-0.5 rounded-full font-medium {{ $filledBadgeClasses }}">
+                                    {{ $filled }}/{{ $position->slots_needed }} filled
+                                </span>
+                                @if ($waitlist > 0)
+                                    <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300">
+                                        {{ $waitlist }} waitlisted
+                                    </span>
+                                @endif
+                                @if ($assigningForPositionId !== $position->id)
+                                    <button type="button" wire:click="startAssigning({{ $position->id }})"
+                                            class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
+                                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Assign volunteer
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3 shrink-0 text-sm">
-                            <button type="button" wire:click="startEdit({{ $position->id }})"
-                                    class="text-fct-navy dark:text-fct-cyan hover:underline">Edit</button>
-                            <button type="button" wire:click="removePosition({{ $position->id }})"
-                                    wire:confirm="Remove this position? Any existing signups will also be cancelled."
-                                    class="text-red-600 dark:text-red-400 hover:underline">Remove</button>
-                        </div>
+
+                        @if ($assigningForPositionId === $position->id)
+                            <div class="mt-3 p-3 rounded-md bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 flex items-center gap-2 flex-wrap">
+                                <select wire:model="selectedVolunteerId"
+                                        class="flex-1 min-w-[200px] border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md text-sm">
+                                    <option value="">— Pick a volunteer —</option>
+                                    @foreach ($availableVolunteers as $v)
+                                        <option value="{{ $v->id }}">{{ $v->name }} ({{ $v->email }})</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" wire:click="assign"
+                                        class="px-3 py-1.5 text-sm rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">Assign</button>
+                                <button type="button" wire:click="cancelAssigning"
+                                        class="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">Cancel</button>
+                            </div>
+                        @endif
+
+                        @if ($nonCancelled->isNotEmpty())
+                            <ul class="mt-3 divide-y divide-gray-100 dark:divide-gray-700/60 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                                @foreach ($nonCancelled as $signup)
+                                    <li wire:key="signup-{{ $signup->id }}" class="p-3 flex items-center justify-between gap-3 flex-wrap bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 transition">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="h-8 w-8 shrink-0 rounded-full bg-fct-cyan/15 text-fct-navy dark:text-fct-cyan flex items-center justify-center font-semibold text-xs">
+                                                {{ strtoupper(substr($signup->user->name, 0, 1)) }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <a href="{{ route('admin.volunteers.show', $signup->user_id) }}"
+                                                   class="font-medium text-gray-900 dark:text-gray-100 hover:text-fct-navy dark:text-fct-cyan">{{ $signup->user->name }}</a>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500 truncate">{{ $signup->user->email }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            @if ($isPast)
+                                                <select wire:change="setStatus({{ $signup->id }}, $event.target.value)"
+                                                        class="text-xs border-gray-300 dark:border-gray-600 rounded-md focus:border-fct-cyan focus:ring-fct-cyan py-1">
+                                                    <option value="confirmed" @selected($signup->status === 'confirmed')>Confirmed (no status)</option>
+                                                    <option value="attended" @selected($signup->status === 'attended')>Attended</option>
+                                                    <option value="no_show" @selected($signup->status === 'no_show')>No-show</option>
+                                                </select>
+                                                @if ($signup->status === 'attended')
+                                                    <input type="number" step="0.25" min="0" max="24"
+                                                           value="{{ $signup->hours_worked }}"
+                                                           wire:change="setHours({{ $signup->id }}, $event.target.value)"
+                                                           class="w-20 text-xs border-gray-300 dark:border-gray-600 rounded-md focus:border-fct-cyan focus:ring-fct-cyan py-1"
+                                                           placeholder="hrs">
+                                                    <span class="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">hrs</span>
+                                                @endif
+                                            @else
+                                                @if ($signup->status === 'pending')
+                                                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium" title="Held until volunteer is approved">Queued</span>
+                                                    <a href="{{ route('admin.volunteers.show', $signup->user_id) }}"
+                                                       class="text-xs text-fct-navy dark:text-fct-cyan hover:underline">Review</a>
+                                                @elseif ($signup->status === 'waitlisted')
+                                                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 font-medium">Waitlist</span>
+                                                    <button type="button" wire:click="setStatus({{ $signup->id }}, 'confirmed')"
+                                                            class="text-xs px-2 py-1 rounded-md bg-fct-navy text-white hover:bg-fct-navy-light font-medium">
+                                                        Promote
+                                                    </button>
+                                                @else
+                                                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 font-medium">Confirmed</span>
+                                                @endif
+                                            @endif
+
+                                            <button type="button" wire:click="removeSignup({{ $signup->id }})"
+                                                    wire:confirm="Remove this signup?"
+                                                    class="text-xs text-red-600 dark:text-red-400 hover:underline">Remove</button>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+
+                        @if ($cancelled->isNotEmpty())
+                            <div class="mt-2 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                                {{ $cancelled->count() }} cancelled signup{{ $cancelled->count() === 1 ? '' : 's' }}.
+                            </div>
+                        @endif
                     </li>
                 @endforeach
             </ul>
