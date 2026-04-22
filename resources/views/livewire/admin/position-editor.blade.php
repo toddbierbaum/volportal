@@ -26,24 +26,21 @@
                         <div class="flex items-start justify-between gap-3">
                             <div class="flex items-start gap-3 min-w-0 flex-1">
                                 <span class="inline-block h-2.5 w-2.5 rounded-full shrink-0 mt-2" style="background-color: {{ $color }}"></span>
-                                <div class="min-w-0 flex-1">
+                                <div class="min-w-0">
                                     <div class="font-medium text-gray-900 dark:text-gray-100">{{ $position->title }}</div>
-                                    <div class="mt-1 flex items-center gap-3 flex-wrap text-sm">
-                                        @if ($position->category)
-                                            <span class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                                  style="background-color: {{ $color }}1A; color: {{ $color }}">
-                                                {{ $position->category->name }}
-                                            </span>
-                                        @endif
-                                        @if (! $position->is_public)
-                                            <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium">Admin-only</span>
-                                        @endif
-                                        <button type="button" wire:click="startEdit({{ $position->id }})"
-                                                class="text-fct-navy dark:text-fct-cyan hover:underline">Edit</button>
-                                        <button type="button" wire:click="removePosition({{ $position->id }})"
-                                                wire:confirm="Remove this position? Any existing signups will also be cancelled."
-                                                class="text-red-600 dark:text-red-400 hover:underline">Remove</button>
-                                    </div>
+                                    @if ($position->category || ! $position->is_public)
+                                        <div class="mt-1 flex items-center gap-3 flex-wrap text-sm">
+                                            @if ($position->category)
+                                                <span class="text-xs px-2 py-0.5 rounded-full font-medium"
+                                                      style="background-color: {{ $color }}1A; color: {{ $color }}">
+                                                    {{ $position->category->name }}
+                                                </span>
+                                            @endif
+                                            @if (! $position->is_public)
+                                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 dark:text-gray-500 font-medium">Admin-only</span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="flex flex-col items-end gap-1 shrink-0">
@@ -59,7 +56,12 @@
                         </div>
 
                         @if ($assigningForPositionId !== $position->id)
-                            <div class="mt-2 flex justify-end">
+                            <div class="mt-2 flex items-center justify-end gap-3 flex-wrap text-sm">
+                                <button type="button" wire:click="startEdit({{ $position->id }})"
+                                        class="text-fct-navy dark:text-fct-cyan hover:underline">Edit</button>
+                                <button type="button" wire:click="removePosition({{ $position->id }})"
+                                        wire:confirm="Remove this position? Any existing signups will also be cancelled."
+                                        class="text-red-600 dark:text-red-400 hover:underline">Remove</button>
                                 <button type="button" wire:click="startAssigning({{ $position->id }})"
                                         class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
                                     <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
