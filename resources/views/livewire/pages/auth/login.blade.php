@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Forms\LoginForm;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -9,9 +10,6 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public LoginForm $form;
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function login(): void
     {
         $this->validate();
@@ -20,7 +18,17 @@ new #[Layout('layouts.guest')] class extends Component
 
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            $destination = $user->hasTotpEnabled()
+                ? route('admin.totp.challenge', absolute: false)
+                : route('admin.totp.enroll', absolute: false);
+            $this->redirect($destination, navigate: true);
+            return;
+        }
+
+        $this->redirectIntended(default: route('volunteer.dashboard', absolute: false), navigate: true);
     }
 }; ?>
 

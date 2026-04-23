@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController as AdminAdminController;
 use App\Http\Controllers\Admin\AdminPasswordSetupController;
+use App\Http\Controllers\Admin\AdminTotpController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\EventTemplateController as AdminEventTemplateController;
@@ -54,32 +55,44 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('events', AdminEventController::class)->except(['show']);
-    Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
+    // TOTP setup and challenge — no totp middleware (pre-verification flows)
+    Route::controller(AdminTotpController::class)->name('totp.')->group(function () {
+        Route::get('/totp/enroll', 'showEnroll')->name('enroll');
+        Route::post('/totp/enroll', 'confirm')->name('enroll.confirm');
+        Route::delete('/totp/enroll', 'disable')->name('disable')->middleware('password.confirm');
+        Route::get('/totp/challenge', 'showChallenge')->name('challenge');
+        Route::post('/totp/challenge', 'verify')->name('verify')->middleware('throttle:6,1');
+    });
 
-    Route::get('/volunteers', [AdminVolunteerController::class, 'index'])->name('volunteers.index');
-    Route::get('/volunteers/export', [AdminVolunteerController::class, 'exportCsv'])->name('volunteers.export');
-    Route::get('/volunteers/create', [AdminVolunteerController::class, 'create'])->name('volunteers.create');
-    Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
-    Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
-    Route::patch('/volunteers/{volunteer}', [AdminVolunteerController::class, 'update'])->name('volunteers.update');
-    Route::post('/volunteers/{volunteer}/status', [AdminVolunteerController::class, 'setStatus'])->name('volunteers.status');
-    Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
+    // All other admin routes — gated by TOTP verification
+    Route::middleware('totp')->group(function () {
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::resource('events', AdminEventController::class)->except(['show']);
+        Route::post('events/{event}/duplicate', [AdminEventController::class, 'duplicate'])->name('events.duplicate');
 
-    Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);
+        Route::get('/volunteers', [AdminVolunteerController::class, 'index'])->name('volunteers.index');
+        Route::get('/volunteers/export', [AdminVolunteerController::class, 'exportCsv'])->name('volunteers.export');
+        Route::get('/volunteers/create', [AdminVolunteerController::class, 'create'])->name('volunteers.create');
+        Route::post('/volunteers', [AdminVolunteerController::class, 'store'])->name('volunteers.store');
+        Route::get('/volunteers/{volunteer}', [AdminVolunteerController::class, 'show'])->name('volunteers.show');
+        Route::patch('/volunteers/{volunteer}', [AdminVolunteerController::class, 'update'])->name('volunteers.update');
+        Route::post('/volunteers/{volunteer}/status', [AdminVolunteerController::class, 'setStatus'])->name('volunteers.status');
+        Route::delete('/volunteers/{volunteer}', [AdminVolunteerController::class, 'destroy'])->name('volunteers.destroy');
 
-    Route::get('/admins', [AdminAdminController::class, 'index'])->name('admins.index');
-    Route::get('/admins/create', [AdminAdminController::class, 'create'])->name('admins.create');
-    Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
-    Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
-    Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update');
-    Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy')->middleware('password.confirm');
-    Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password')->middleware('password.confirm');
+        Route::resource('event-templates', AdminEventTemplateController::class)->except(['show']);
 
-    Route::view('/categories', 'admin.categories')->name('categories');
-    Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');
-    Route::view('/settings', 'admin.settings')->name('settings');
+        Route::get('/admins', [AdminAdminController::class, 'index'])->name('admins.index');
+        Route::get('/admins/create', [AdminAdminController::class, 'create'])->name('admins.create');
+        Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
+        Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
+        Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update');
+        Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy')->middleware('password.confirm');
+        Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password')->middleware('password.confirm');
+
+        Route::view('/categories', 'admin.categories')->name('categories');
+        Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');
+        Route::view('/settings', 'admin.settings')->name('settings');
+    });
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
