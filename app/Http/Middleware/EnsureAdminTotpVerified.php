@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\Admin\AdminTotpController;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ class EnsureAdminTotpVerified
             return redirect()->route('admin.totp.enroll');
         }
 
-        if (! $request->session()->get('totp_verified')) {
+        if (! AdminTotpController::isTotpFresh($request->session()->get('totp_verified_at'))) {
             return redirect()->route('admin.totp.challenge');
         }
 
