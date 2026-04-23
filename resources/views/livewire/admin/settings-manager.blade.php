@@ -31,17 +31,20 @@
         </div>
         <div class="px-5 py-4 space-y-3">
             <label for="google-analytics-code" class="block">
-                <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Site-wide tracking code</span>
+                <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Google Analytics 4 Measurement ID</span>
                 <span class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    Paste the full &lt;script&gt; snippet from Google Analytics, Google Tag Manager, or any other tag provider. It will be injected into the &lt;head&gt; of every public page. Leave blank to disable.
+                    Enter your GA4 Measurement ID (format: <code class="font-mono">G-XXXXXXXXXX</code>). Found in Google Analytics under Admin &rarr; Data Streams. Leave blank to disable tracking.
                 </span>
             </label>
-            <textarea id="google-analytics-code"
-                      wire:model="googleAnalyticsCode"
-                      rows="8"
-                      spellcheck="false"
-                      placeholder="&lt;!-- Google tag (gtag.js) --&gt;&#10;&lt;script async src=&quot;https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX&quot;&gt;&lt;/script&gt;&#10;..."
-                      class="w-full font-mono text-xs rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-fct-cyan focus:border-fct-cyan"></textarea>
+            @error('googleAnalyticsCode')
+                <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+            @enderror
+            <input id="google-analytics-code"
+                   type="text"
+                   wire:model="googleAnalyticsCode"
+                   spellcheck="false"
+                   placeholder="G-XXXXXXXXXX"
+                   class="w-full font-mono text-sm rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-fct-cyan focus:border-fct-cyan">
         </div>
         <div class="px-5 py-4 border-t border-gray-100 dark:border-gray-700/60 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg flex justify-end">
             <button type="button" wire:click="save"

@@ -63,7 +63,7 @@ class SmsSender
         }
 
         if (! $this->configured()) {
-            Log::info('SMS skipped: Twilio not configured', ['to' => $e164, 'body' => $body]);
+            Log::info('SMS skipped: Twilio not configured', ['to_suffix' => substr($e164, -4)]);
             return false;
         }
 

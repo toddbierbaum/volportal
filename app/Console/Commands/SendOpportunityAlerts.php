@@ -63,13 +63,15 @@ class SendOpportunityAlerts extends Command
                 continue;
             }
 
-            $this->line(sprintf(
-                '%s %s — %d open position%s',
-                $dryRun ? '[dry]' : '→',
-                $volunteer->email,
-                $positions->count(),
-                $positions->count() === 1 ? '' : 's',
-            ));
+            if ($dryRun) {
+                $this->line(sprintf('[dry] %s — %d open position%s',
+                    $volunteer->email, $positions->count(), $positions->count() === 1 ? '' : 's',
+                ));
+            } else {
+                $this->line(sprintf('→ user#%d — %d open position%s',
+                    $volunteer->id, $positions->count(), $positions->count() === 1 ? '' : 's',
+                ));
+            }
 
             if (! $dryRun) {
                 Mail::to($volunteer->email)->send(new OpportunityAlertsMail($volunteer, $positions));

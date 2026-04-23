@@ -9,6 +9,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\MagicLinkController;
 use App\Http\Controllers\VolunteerDashboardController;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,7 @@ Route::post('/logout', function () {
     auth()->guard('web')->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+    Cookie::queue(Cookie::forget('volunteer_id'));
     return redirect()->route('calendar');
 })->name('logout');
 

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'role', 'password', 'sms_opt_in',
+#[Fillable(['name', 'email', 'phone', 'password', 'sms_opt_in',
     'opportunity_alerts_opt_in',
     'background_check_acknowledged_at', 'background_check_acknowledged_via',
     'age_certified_at', 'age_certified_via', 'approved_at',
