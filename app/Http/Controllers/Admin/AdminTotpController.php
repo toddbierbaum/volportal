@@ -53,7 +53,7 @@ class AdminTotpController extends Controller
 
         $secret = $request->session()->get('totp_pending_secret');
 
-        if (! $secret || ! $this->google2fa->verifyKey($secret, $request->code, 1)) {
+        if (! $secret || ! $this->google2fa->verifyKey($secret, $request->code, 4)) {
             return back()->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
@@ -84,7 +84,7 @@ class AdminTotpController extends Controller
 
         $user = $request->user();
 
-        if (! $this->google2fa->verifyKey($user->totp_secret, $request->code, 1)) {
+        if (! $this->google2fa->verifyKey($user->totp_secret, $request->code, 4)) {
             return back()->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
