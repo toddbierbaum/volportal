@@ -9,16 +9,10 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-    {{-- Apply theme before paint so there's no flash, and expose a
-         plain-JS toggle that works regardless of Alpine state. --}}
+    <x-theme-init />
+
+    {{-- Plain-JS theme toggle that works regardless of Alpine state. --}}
     <script>
-        (function () {
-            const stored = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (stored === 'dark' || (!stored && prefersDark)) {
-                document.documentElement.classList.add('dark');
-            }
-        })();
         window.toggleTheme = function () {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
