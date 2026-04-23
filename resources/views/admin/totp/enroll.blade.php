@@ -23,6 +23,7 @@
 
         <form method="POST" action="{{ route('admin.totp.enroll.confirm') }}" class="space-y-4">
             @csrf
+            <input type="hidden" name="encrypted_secret" value="{{ $encryptedSecret }}">
 
             <div>
                 <label for="code" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm with your 6-digit code</label>
