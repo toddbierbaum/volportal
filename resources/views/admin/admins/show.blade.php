@@ -68,14 +68,14 @@
                 Change my password
             </a>
         @else
-            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-3">Generate a new temporary password and share it with {{ $admin->name }} securely. Have them change it from their Profile page after they log in.</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mb-3">Send {{ $admin->name }} an email with a link to set a new password. The link expires in 24 hours.</p>
             <form method="POST" action="{{ route('admin.admins.reset-password', $admin) }}"
-                  onsubmit="return confirm('Reset this admin\'s password? A new temporary password will be shown to you.');"
+                  onsubmit="return confirm('Send a password setup link to {{ $admin->email }}?');"
                   class="inline">
                 @csrf
                 <button type="submit"
                         class="px-4 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
-                    Reset password
+                    Send setup link
                 </button>
             </form>
         @endif

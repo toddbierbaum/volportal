@@ -7,14 +7,13 @@ use Illuminate\Support\Facades\URL;
 
 class EmailPreferencesLink
 {
-    // CAN-SPAM requires honoring opt-outs for at least 30 days after send;
-    // 90 days gives recipients a comfortable window to unsubscribe from
-    // older messages without forcing them to request a fresh login link.
+    // CAN-SPAM requires honoring opt-outs for 30 days; 7 days balances that
+    // requirement against the security cost of long-lived bearer-like links.
     public static function for(User $user): string
     {
         return URL::temporarySignedRoute(
             'email-preferences',
-            now()->addDays(90),
+            now()->addDays(7),
             ['user' => $user->id]
         );
     }

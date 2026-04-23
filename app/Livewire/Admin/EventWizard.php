@@ -40,6 +40,7 @@ class EventWizard extends Component
 
     public function mount(): void
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->startsAt = now()->addWeek()->setTime(18, 0)->format('Y-m-d\TH:i');
         $this->endsAt = now()->addWeek()->setTime(20, 30)->format('Y-m-d\TH:i');
     }

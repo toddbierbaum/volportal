@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController as AdminAdminController;
+use App\Http\Controllers\Admin\AdminPasswordSetupController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\EventTemplateController as AdminEventTemplateController;
@@ -31,6 +32,14 @@ Route::get('/magic-link/{user}', [MagicLinkController::class, 'login'])
 Route::get('/email-preferences/{user}', [MagicLinkController::class, 'preferences'])
     ->middleware('signed')
     ->name('email-preferences');
+
+Route::get('/admin-setup/{admin}', [AdminPasswordSetupController::class, 'show'])
+    ->middleware('signed')
+    ->name('admin.password-setup');
+
+Route::post('/admin-setup/{admin}', [AdminPasswordSetupController::class, 'store'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.password-setup.submit');
 
 Route::get('/my', [VolunteerDashboardController::class, 'index'])->name('volunteer.dashboard');
 Route::post('/my/preferences', [VolunteerDashboardController::class, 'updatePreferences'])->name('volunteer.preferences');
@@ -65,8 +74,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
     Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
     Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update');
-    Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy');
-    Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password');
+    Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy')->middleware('password.confirm');
+    Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password')->middleware('password.confirm');
 
     Route::view('/categories', 'admin.categories')->name('categories');
     Route::view('/notification-schedules', 'admin.notification-schedules')->name('notification-schedules');

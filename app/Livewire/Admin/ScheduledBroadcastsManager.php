@@ -12,6 +12,7 @@ class ScheduledBroadcastsManager extends Component
 
     public function mount(): void
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->opportunityAlertsEnabled = (bool) Setting::get('opportunity_alerts_enabled', true);
     }
 

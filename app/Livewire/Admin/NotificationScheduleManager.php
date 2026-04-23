@@ -15,6 +15,11 @@ class NotificationScheduleManager extends Component
     public ?int $editingId = null;
     public string $flash = '';
 
+    public function mount(): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+    }
+
     public function add(): void
     {
         $data = $this->validate([
