@@ -32,8 +32,8 @@ class AdminTotpController extends Controller
         if ($encryptedSecret) {
             try {
                 $secret = Crypt::decryptString($encryptedSecret);
-            } catch (\Exception) {
-                $secret = null;
+            } catch (\Illuminate\Contracts\Encryption\DecryptException) {
+                // fall through to generate a fresh secret below
             }
         }
 
@@ -75,16 +75,16 @@ class AdminTotpController extends Controller
 
         try {
             $secret = Crypt::decryptString($request->encrypted_secret);
-            file_put_contents($dbg, file_get_contents($dbg) . "decrypt: OK (secret length: " . strlen($secret) . ")\n");
-        } catch (\Exception $e) {
-            file_put_contents($dbg, file_get_contents($dbg) . "decrypt: FAILED — " . $e->getMessage() . "\n");
+            file_put_contents($dbg, "decrypt: OK (secret length: " . strlen($secret) . ")\n", FILE_APPEND);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            file_put_contents($dbg, "decrypt: FAILED — " . $e->getMessage() . "\n", FILE_APPEND);
             return back()
                 ->withInput($request->except('code'))
                 ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
         $valid = $this->google2fa->verifyKey($secret, $request->code, 4);
-        file_put_contents($dbg, file_get_contents($dbg) . "verify: " . ($valid ? 'OK' : 'FAILED') . "\n");
+        file_put_contents($dbg, "verify: " . ($valid ? 'OK' : 'FAILED') . "\n", FILE_APPEND);
 
         if (! $valid) {
             return back()
