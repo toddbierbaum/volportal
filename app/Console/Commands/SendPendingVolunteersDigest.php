@@ -46,11 +46,13 @@ class SendPendingVolunteersDigest extends Command
         ));
 
         foreach ($admins as $admin) {
-            $this->line(sprintf('%s %s', $dryRun ? '[dry]' : '→', $admin->email));
-
-            if (! $dryRun) {
-                Mail::to($admin->email)->send(new PendingVolunteersDigestMail($admin, $pending));
+            if ($dryRun) {
+                $this->line(sprintf('[dry] %s', $admin->email));
+                continue;
             }
+
+            $this->line(sprintf('→ admin#%d', $admin->id));
+            Mail::to($admin->email)->send(new PendingVolunteersDigestMail($admin, $pending));
         }
 
         return self::SUCCESS;
