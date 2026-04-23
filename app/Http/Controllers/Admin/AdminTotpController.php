@@ -68,16 +68,23 @@ class AdminTotpController extends Controller
 
         try {
             $secret = Crypt::decryptString($request->encrypted_secret);
-        } catch (\Exception) {
-            return back()
-                ->withInput($request->except('code'))
-                ->withErrors(['code' => 'That code is incorrect. Try again.']);
+        } catch (\Exception $e) {
+            return response('TOTP_DEBUG: decrypt failed — ' . $e->getMessage());
         }
 
-        if (! $this->google2fa->verifyKey($secret, $request->code, 4)) {
-            return back()
-                ->withInput($request->except('code'))
-                ->withErrors(['code' => 'That code is incorrect. Try again.']);
+        $valid = $this->google2fa->verifyKey($secret, $request->code, 4);
+        if (! $valid) {
+            $ts = floor(time() / 30);
+            $codes = [];
+            for ($i = -4; $i <= 4; $i++) {
+                $codes[] = ($i === 0 ? '>>>' : '   ') . ' ' . $this->google2fa->oathHotp($secret, $ts + $i);
+            }
+            return response(
+                'TOTP_DEBUG: verify failed' . PHP_EOL .
+                'submitted code : ' . $request->code . PHP_EOL .
+                'server UTC     : ' . now()->utc()->format('H:i:s') . PHP_EOL .
+                'valid codes    :' . PHP_EOL . implode(PHP_EOL, $codes)
+            );
         }
 
         $request->user()->update([
