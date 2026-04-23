@@ -25,10 +25,9 @@ class DisableAdminTotp extends Command
             return Command::FAILURE;
         }
 
-        $user->update([
-            'totp_secret'     => null,
-            'totp_enabled_at' => null,
-        ]);
+        $user->totp_secret = null;
+        $user->totp_enabled_at = null;
+        $user->save();
 
         $this->info("TOTP disabled for {$user->email}. They will be prompted to re-enroll on next login.");
         return Command::SUCCESS;
