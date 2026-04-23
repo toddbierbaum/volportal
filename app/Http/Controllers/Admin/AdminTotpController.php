@@ -8,7 +8,7 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use PragmaRX\Google2FA\Google2FA;
 
 class AdminTotpController extends Controller
@@ -24,12 +24,23 @@ class AdminTotpController extends Controller
     {
         $user = $request->user();
 
-        // Generate a fresh pending secret each time the page loads (unless one is in session)
-        if (! $request->session()->has('totp_pending_secret')) {
-            $request->session()->put('totp_pending_secret', $this->google2fa->generateSecretKey());
+        // Reuse the same secret if returning after a failed confirmation attempt,
+        // so the user doesn't need to rescan the QR code.
+        $encryptedSecret = old('encrypted_secret');
+        $secret = null;
+
+        if ($encryptedSecret) {
+            try {
+                $secret = Crypt::decryptString($encryptedSecret);
+            } catch (\Exception) {
+                $secret = null;
+            }
         }
 
-        $secret = $request->session()->get('totp_pending_secret');
+        if (! $secret) {
+            $secret = $this->google2fa->generateSecretKey();
+            $encryptedSecret = Crypt::encryptString($secret);
+        }
 
         $qrUrl = $this->google2fa->getQRCodeUrl(
             config('app.name'),
@@ -42,19 +53,31 @@ class AdminTotpController extends Controller
         ))->writeString($qrUrl);
 
         return view('admin.totp.enroll', [
-            'secret' => $secret,
-            'qrSvg'  => $svg,
+            'secret'          => $secret,
+            'encryptedSecret' => $encryptedSecret,
+            'qrSvg'           => $svg,
         ]);
     }
 
     public function confirm(Request $request)
     {
-        $request->validate(['code' => 'required|digits:6']);
+        $request->validate([
+            'code'             => 'required|digits:6',
+            'encrypted_secret' => 'required|string',
+        ]);
 
-        $secret = $request->session()->get('totp_pending_secret');
+        try {
+            $secret = Crypt::decryptString($request->encrypted_secret);
+        } catch (\Exception) {
+            return back()
+                ->withInput($request->except('code'))
+                ->withErrors(['code' => 'That code is incorrect. Try again.']);
+        }
 
-        if (! $secret || ! $this->google2fa->verifyKey($secret, $request->code, 4)) {
-            return back()->withErrors(['code' => 'That code is incorrect. Try again.']);
+        if (! $this->google2fa->verifyKey($secret, $request->code, 4)) {
+            return back()
+                ->withInput($request->except('code'))
+                ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
         $request->user()->update([
@@ -62,7 +85,6 @@ class AdminTotpController extends Controller
             'totp_enabled_at' => now(),
         ]);
 
-        $request->session()->forget('totp_pending_secret');
         $request->session()->put('totp_verified', true);
 
         return redirect()->route('admin.dashboard')
