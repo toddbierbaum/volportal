@@ -61,13 +61,6 @@ class AdminTotpController extends Controller
 
     public function confirm(Request $request)
     {
-        $dbg = storage_path('totp_debug.txt');
-        file_put_contents($dbg,
-            'time: ' . now()->utc()->format('H:i:s') . "\n" .
-            'has_encrypted_secret: ' . ($request->has('encrypted_secret') ? 'yes (' . strlen((string) $request->encrypted_secret) . ' chars)' : 'NO') . "\n" .
-            'code: ' . ($request->has('code') ? $request->code : 'MISSING') . "\n"
-        );
-
         $request->validate([
             'code'             => 'required|digits:6',
             'encrypted_secret' => 'required|string',
@@ -75,18 +68,13 @@ class AdminTotpController extends Controller
 
         try {
             $secret = Crypt::decryptString($request->encrypted_secret);
-            file_put_contents($dbg, "decrypt: OK (secret length: " . strlen($secret) . ")\n", FILE_APPEND);
-        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-            file_put_contents($dbg, "decrypt: FAILED — " . $e->getMessage() . "\n", FILE_APPEND);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException) {
             return back()
                 ->withInput($request->except('code'))
                 ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
-        $valid = $this->google2fa->verifyKey($secret, $request->code, 4);
-        file_put_contents($dbg, "verify: " . ($valid ? 'OK' : 'FAILED') . "\n", FILE_APPEND);
-
-        if (! $valid) {
+        if (! $this->google2fa->verifyKey($secret, $request->code, 4)) {
             return back()
                 ->withInput($request->except('code'))
                 ->withErrors(['code' => 'That code is incorrect. Try again.']);
@@ -96,7 +84,6 @@ class AdminTotpController extends Controller
         $user->totp_secret = $secret;
         $user->totp_enabled_at = now();
         $user->save();
-        file_put_contents($dbg, "save: OK (db totp_secret set: " . ($user->fresh()->totp_secret ? 'yes' : 'NO') . ")\n", FILE_APPEND);
 
         $request->session()->put('totp_verified', true);
 
