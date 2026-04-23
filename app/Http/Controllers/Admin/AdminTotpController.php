@@ -24,6 +24,11 @@ class AdminTotpController extends Controller
     {
         $user = $request->user();
 
+        abort_if(
+            $user->hasTotpEnabled() && ! $request->session()->get('totp_verified'),
+            403
+        );
+
         // Reuse the same secret if returning after a failed confirmation attempt,
         // so the user doesn't need to rescan the QR code.
         $encryptedSecret = old('encrypted_secret');
@@ -61,6 +66,11 @@ class AdminTotpController extends Controller
 
     public function confirm(Request $request)
     {
+        abort_if(
+            $request->user()->hasTotpEnabled() && ! $request->session()->get('totp_verified'),
+            403
+        );
+
         $request->validate([
             'code'             => 'required|digits:6',
             'encrypted_secret' => 'required|string',

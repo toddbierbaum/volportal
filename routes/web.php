@@ -58,7 +58,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // TOTP setup and challenge — no totp middleware (pre-verification flows)
     Route::controller(AdminTotpController::class)->name('totp.')->group(function () {
         Route::get('/totp/enroll', 'showEnroll')->name('enroll');
-        Route::post('/totp/enroll', 'confirm')->name('enroll.confirm');
+        Route::post('/totp/enroll', 'confirm')->name('enroll.confirm')->middleware('password.confirm');
         Route::delete('/totp/enroll', 'disable')->name('disable')->middleware('password.confirm');
         Route::get('/totp/challenge', 'showChallenge')->name('challenge');
         Route::post('/totp/challenge', 'verify')->name('verify')->middleware('throttle:6,1');
@@ -85,7 +85,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/admins/create', [AdminAdminController::class, 'create'])->name('admins.create');
         Route::post('/admins', [AdminAdminController::class, 'store'])->name('admins.store');
         Route::get('/admins/{admin}', [AdminAdminController::class, 'show'])->name('admins.show');
-        Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update');
+        Route::patch('/admins/{admin}', [AdminAdminController::class, 'update'])->name('admins.update')->middleware('password.confirm');
         Route::delete('/admins/{admin}', [AdminAdminController::class, 'destroy'])->name('admins.destroy')->middleware('password.confirm');
         Route::post('/admins/{admin}/reset-password', [AdminAdminController::class, 'resetPassword'])->name('admins.reset-password')->middleware('password.confirm');
 
