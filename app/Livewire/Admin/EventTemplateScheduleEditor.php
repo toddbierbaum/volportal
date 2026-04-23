@@ -17,6 +17,7 @@ class EventTemplateScheduleEditor extends Component
 
     public function mount(EventTemplate $template): void
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->template = $template;
     }
 

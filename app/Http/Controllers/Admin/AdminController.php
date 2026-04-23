@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminPasswordSetupMail;
 use App\Models\User;
 use App\Support\SmsSender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -113,12 +114,9 @@ class AdminController extends Controller
                 ->with('status', 'Change your own password from the Profile page instead.');
         }
 
-        $newPassword = Str::random(14);
-        $admin->update([
-            'password' => Hash::make($newPassword),
-        ]);
+        Mail::to($admin->email)->send(new AdminPasswordSetupMail($admin));
 
         return redirect()->route('admin.admins.show', $admin)
-            ->with('status', "Password reset. Temporary password: {$newPassword} — share it with {$admin->name} securely, then have them change it from their Profile page.");
+            ->with('status', "Password setup link sent to {$admin->email}. The link expires in 24 hours.");
     }
 }

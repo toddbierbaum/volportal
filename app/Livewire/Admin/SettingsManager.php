@@ -13,6 +13,7 @@ class SettingsManager extends Component
 
     public function mount(): void
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->requireApprovalBeforeOpportunities = (bool) Setting::get('require_approval_before_opportunities', false);
         $this->googleAnalyticsCode = (string) Setting::get('google_analytics_code', '');
     }

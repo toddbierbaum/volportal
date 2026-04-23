@@ -30,6 +30,7 @@ class PositionEditor extends Component
 
     public function mount(Event $event): void
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->event = $event;
     }
 
