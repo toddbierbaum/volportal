@@ -11,7 +11,16 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {!! \App\Models\Setting::get('google_analytics_code', '') !!}
+    @php $gaId = \App\Models\Setting::get('google_analytics_code', ''); @endphp
+    @if ($gaId && preg_match('/^G-[A-Z0-9]+$/', $gaId))
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ $gaId }}');
+        </script>
+    @endif
 </head>
 <body class="font-sans antialiased bg-fct-cream dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
     <header class="bg-fct-navy text-white shadow-md">

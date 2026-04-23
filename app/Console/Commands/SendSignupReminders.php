@@ -84,11 +84,13 @@ class SendSignupReminders extends Command
                     ->exists();
 
                 if ($wantsEmail && ! $emailAlreadySent) {
-                    $this->line(sprintf('%s [email] %s to %s — %s @ %s',
-                        $dryRun ? '[dry]' : '→',
-                        $schedule->label, $signup->user->email, $signup->position->title, $event->title,
-                    ));
+                    if ($dryRun) {
+                        $this->line(sprintf('[dry] [email] %s to %s — %s @ %s',
+                            $schedule->label, $signup->user->email, $signup->position->title, $event->title,
+                        ));
+                    }
                     if (! $dryRun) {
+                        $this->line(sprintf('→ [email] signup#%d offset=%d', $signup->id, $offsetMinutes));
                         Mail::to($signup->user->email)->send(new SignupReminderMail($signup, $schedule));
                         NotificationLog::create([
                             'signup_id' => $signup->id,
@@ -105,10 +107,13 @@ class SendSignupReminders extends Command
 
                 if ($smsEligible && ! $smsAlreadySent) {
                     $body = $this->smsBody($signup, $schedule);
-                    $this->line(sprintf('%s [sms] %s to %s — %s @ %s',
-                        $dryRun ? '[dry]' : '→',
-                        $schedule->label, $signup->user->phone, $signup->position->title, $event->title,
-                    ));
+                    if ($dryRun) {
+                        $this->line(sprintf('[dry] [sms] %s to %s — %s @ %s',
+                            $schedule->label, $signup->user->phone, $signup->position->title, $event->title,
+                        ));
+                    } else {
+                        $this->line(sprintf('→ [sms] signup#%d offset=%d', $signup->id, $offsetMinutes));
+                    }
                     $ok = $dryRun ? true : $sms->send($signup->user->phone, $body);
                     if ($ok) {
                         if (! $dryRun) {

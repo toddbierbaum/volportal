@@ -19,6 +19,9 @@ class SettingsManager extends Component
 
     public function save(): void
     {
+        $this->validate([
+            'googleAnalyticsCode' => ['nullable', 'regex:/^G-[A-Z0-9]+$/'],
+        ]);
         Setting::set('require_approval_before_opportunities', $this->requireApprovalBeforeOpportunities);
         Setting::set('google_analytics_code', $this->googleAnalyticsCode);
         $this->flash = 'Settings saved.';
