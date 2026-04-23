@@ -15,6 +15,10 @@ class AdminTotpController extends Controller
 {
     private const ENROLLMENT_TTL_SECONDS = 600;
 
+    private const TOTP_WINDOW = 2;
+
+    private const TOTP_REAUTH_AFTER_HOURS = 30;
+
     private Google2FA $google2fa;
 
     public function __construct()
@@ -22,12 +26,18 @@ class AdminTotpController extends Controller
         $this->google2fa = new Google2FA();
     }
 
+    public static function isTotpFresh(?int $verifiedAt): bool
+    {
+        return $verifiedAt !== null
+            && now()->timestamp - $verifiedAt < self::TOTP_REAUTH_AFTER_HOURS * 3600;
+    }
+
     public function showEnroll(Request $request)
     {
         $user = $request->user();
 
         abort_if(
-            $user->hasTotpEnabled() && ! $request->session()->get('totp_verified'),
+            $user->hasTotpEnabled() && ! $request->session()->get('totp_verified_at'),
             403
         );
 
@@ -61,7 +71,7 @@ class AdminTotpController extends Controller
     public function confirm(Request $request)
     {
         abort_if(
-            $request->user()->hasTotpEnabled() && ! $request->session()->get('totp_verified'),
+            $request->user()->hasTotpEnabled() && ! $request->session()->get('totp_verified_at'),
             403
         );
 
@@ -77,7 +87,7 @@ class AdminTotpController extends Controller
                 ->withErrors(['code' => 'Your enrollment session expired. Scan the new QR code and try again.']);
         }
 
-        if (! $this->google2fa->verifyKey($secret, $request->code, 4)) {
+        if (! $this->google2fa->verifyKey($secret, $request->code, self::TOTP_WINDOW)) {
             return back()
                 ->withInput($request->except('code'))
                 ->withErrors(['code' => 'That code is incorrect. Try again.']);
@@ -88,7 +98,7 @@ class AdminTotpController extends Controller
         $user->totp_enabled_at = now();
         $user->save();
 
-        $request->session()->put('totp_verified', true);
+        $request->session()->put('totp_verified_at', now()->timestamp);
 
         return redirect()->route('admin.dashboard')
             ->with('status', 'Two-factor authentication is now active on your account.');
@@ -96,7 +106,7 @@ class AdminTotpController extends Controller
 
     public function showChallenge(Request $request)
     {
-        if ($request->session()->get('totp_verified')) {
+        if (self::isTotpFresh($request->session()->get('totp_verified_at'))) {
             return redirect()->route('admin.dashboard');
         }
 
@@ -109,11 +119,11 @@ class AdminTotpController extends Controller
 
         $user = $request->user();
 
-        if (! $this->google2fa->verifyKey($user->totp_secret, $request->code, 4)) {
+        if (! $this->google2fa->verifyKey($user->totp_secret, $request->code, self::TOTP_WINDOW)) {
             return back()->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
-        $request->session()->put('totp_verified', true);
+        $request->session()->put('totp_verified_at', now()->timestamp);
 
         return redirect()->intended(route('admin.dashboard'));
     }
@@ -125,7 +135,7 @@ class AdminTotpController extends Controller
         $user->totp_enabled_at = null;
         $user->save();
 
-        $request->session()->forget('totp_verified');
+        $request->session()->forget('totp_verified_at');
 
         return redirect()->route('admin.totp.enroll')
             ->with('status', 'Two-factor authentication has been disabled.');
