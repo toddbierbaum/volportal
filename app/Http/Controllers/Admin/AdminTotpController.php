@@ -92,10 +92,11 @@ class AdminTotpController extends Controller
                 ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
-        $request->user()->update([
-            'totp_secret'     => $secret,
-            'totp_enabled_at' => now(),
-        ]);
+        $user = $request->user();
+        $user->totp_secret = $secret;
+        $user->totp_enabled_at = now();
+        $user->save();
+        file_put_contents($dbg, "save: OK (db totp_secret set: " . ($user->fresh()->totp_secret ? 'yes' : 'NO') . ")\n", FILE_APPEND);
 
         $request->session()->put('totp_verified', true);
 
@@ -129,10 +130,10 @@ class AdminTotpController extends Controller
 
     public function disable(Request $request)
     {
-        $request->user()->update([
-            'totp_secret'     => null,
-            'totp_enabled_at' => null,
-        ]);
+        $user = $request->user();
+        $user->totp_secret = null;
+        $user->totp_enabled_at = null;
+        $user->save();
 
         $request->session()->forget('totp_verified');
 
