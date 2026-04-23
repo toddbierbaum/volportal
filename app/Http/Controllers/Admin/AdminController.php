@@ -7,7 +7,6 @@ use App\Mail\AdminPasswordSetupMail;
 use App\Models\User;
 use App\Support\SmsSender;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +29,6 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'phone' => 'nullable|string|max:30',
-            'password' => 'required|string|min:8',
         ]);
 
         $rawPhone = $data['phone'] ?? null;
@@ -43,13 +41,13 @@ class AdminController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $e164 ?: $rawPhone,
-            'password' => Hash::make($data['password']),
             'role' => 'admin',
-            'email_verified_at' => now(),
         ]);
 
+        Mail::to($admin->email)->send(new AdminPasswordSetupMail($admin));
+
         return redirect()->route('admin.admins.show', $admin)
-            ->with('status', "Admin {$admin->name} added.");
+            ->with('status', "Admin {$admin->name} added. Password setup link sent to {$admin->email} — expires in 24 hours.");
     }
 
     public function show(User $admin)

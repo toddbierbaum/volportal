@@ -13,6 +13,8 @@ use PragmaRX\Google2FA\Google2FA;
 
 class AdminTotpController extends Controller
 {
+    private const ENROLLMENT_TTL_SECONDS = 600;
+
     private Google2FA $google2fa;
 
     public function __construct()
@@ -31,20 +33,12 @@ class AdminTotpController extends Controller
 
         // Reuse the same secret if returning after a failed confirmation attempt,
         // so the user doesn't need to rescan the QR code.
+        $secret = $this->decodeSecret(old('encrypted_secret'));
         $encryptedSecret = old('encrypted_secret');
-        $secret = null;
-
-        if ($encryptedSecret) {
-            try {
-                $secret = Crypt::decryptString($encryptedSecret);
-            } catch (\Illuminate\Contracts\Encryption\DecryptException) {
-                // fall through to generate a fresh secret below
-            }
-        }
 
         if (! $secret) {
             $secret = $this->google2fa->generateSecretKey();
-            $encryptedSecret = Crypt::encryptString($secret);
+            $encryptedSecret = $this->encodeSecret($secret);
         }
 
         $qrUrl = $this->google2fa->getQRCodeUrl(
@@ -76,12 +70,11 @@ class AdminTotpController extends Controller
             'encrypted_secret' => 'required|string',
         ]);
 
-        try {
-            $secret = Crypt::decryptString($request->encrypted_secret);
-        } catch (\Illuminate\Contracts\Encryption\DecryptException) {
-            return back()
-                ->withInput($request->except('code'))
-                ->withErrors(['code' => 'That code is incorrect. Try again.']);
+        $secret = $this->decodeSecret($request->encrypted_secret);
+
+        if (! $secret) {
+            return redirect()->route('admin.totp.enroll')
+                ->withErrors(['code' => 'Your enrollment session expired. Scan the new QR code and try again.']);
         }
 
         if (! $this->google2fa->verifyKey($secret, $request->code, 4)) {
@@ -136,5 +129,36 @@ class AdminTotpController extends Controller
 
         return redirect()->route('admin.totp.enroll')
             ->with('status', 'Two-factor authentication has been disabled.');
+    }
+
+    private function encodeSecret(string $secret): string
+    {
+        return Crypt::encryptString(json_encode([
+            's' => $secret,
+            't' => now()->timestamp,
+        ]));
+    }
+
+    private function decodeSecret(?string $encrypted): ?string
+    {
+        if (! $encrypted) {
+            return null;
+        }
+
+        try {
+            $payload = json_decode(Crypt::decryptString($encrypted), true);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException) {
+            return null;
+        }
+
+        if (! is_array($payload) || ! isset($payload['s'], $payload['t'])) {
+            return null;
+        }
+
+        if (now()->timestamp - (int) $payload['t'] > self::ENROLLMENT_TTL_SECONDS) {
+            return null;
+        }
+
+        return (string) $payload['s'];
     }
 }

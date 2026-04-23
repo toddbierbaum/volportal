@@ -8,7 +8,7 @@
 
     <div class="mb-6 max-w-2xl">
         <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Add admin</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-1">Pick an initial password; share it with the new admin securely and have them change it on their Profile page.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 mt-1">We'll email the new admin a setup link so they can choose their own password. The link is single-use and expires in 24 hours.</p>
     </div>
 
     <form method="POST" action="{{ route('admin.admins.store') }}"
@@ -34,13 +34,6 @@
                        placeholder="(850) 555-1234"
                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md">
                 @error('phone') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
-            </div>
-            <div class="sm:col-span-2">
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Initial password</label>
-                <input type="text" id="password" name="password" value="{{ old('password') }}" required minlength="8"
-                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 focus:border-fct-cyan focus:ring-fct-cyan rounded-md font-mono">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Minimum 8 characters. Shown here so you can copy it before saving.</p>
-                @error('password') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
             </div>
         </div>
 
