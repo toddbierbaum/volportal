@@ -43,7 +43,7 @@ class AdminTotpController extends Controller
         }
 
         $qrUrl = $this->google2fa->getQRCodeUrl(
-            config('app.name'),
+            'FCT Volunteer Portal',
             $user->email,
             $secret,
         );
