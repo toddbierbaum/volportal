@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
     'background_check_acknowledged_at', 'background_check_acknowledged_via',
     'age_certified_at', 'age_certified_via', 'approved_at',
     'background_check_verified_at', 'age_verified_at'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'totp_secret'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -36,12 +36,19 @@ class User extends Authenticatable
             'password' => 'hashed',
             'sms_opt_in' => 'boolean',
             'opportunity_alerts_opt_in' => 'boolean',
+            'totp_secret' => 'encrypted',
+            'totp_enabled_at' => 'datetime',
         ];
     }
 
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function hasTotpEnabled(): bool
+    {
+        return $this->totp_enabled_at !== null;
     }
 
     public function isApproved(): bool
