@@ -61,6 +61,13 @@ class AdminTotpController extends Controller
 
     public function confirm(Request $request)
     {
+        $dbg = storage_path('totp_debug.txt');
+        file_put_contents($dbg,
+            'time: ' . now()->utc()->format('H:i:s') . "\n" .
+            'has_encrypted_secret: ' . ($request->has('encrypted_secret') ? 'yes (' . strlen((string) $request->encrypted_secret) . ' chars)' : 'NO') . "\n" .
+            'code: ' . ($request->has('code') ? $request->code : 'MISSING') . "\n"
+        );
+
         $request->validate([
             'code'             => 'required|digits:6',
             'encrypted_secret' => 'required|string',
@@ -68,23 +75,21 @@ class AdminTotpController extends Controller
 
         try {
             $secret = Crypt::decryptString($request->encrypted_secret);
+            file_put_contents($dbg, file_get_contents($dbg) . "decrypt: OK (secret length: " . strlen($secret) . ")\n");
         } catch (\Exception $e) {
-            return response('TOTP_DEBUG: decrypt failed — ' . $e->getMessage());
+            file_put_contents($dbg, file_get_contents($dbg) . "decrypt: FAILED — " . $e->getMessage() . "\n");
+            return back()
+                ->withInput($request->except('code'))
+                ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
         $valid = $this->google2fa->verifyKey($secret, $request->code, 4);
+        file_put_contents($dbg, file_get_contents($dbg) . "verify: " . ($valid ? 'OK' : 'FAILED') . "\n");
+
         if (! $valid) {
-            $ts = floor(time() / 30);
-            $codes = [];
-            for ($i = -4; $i <= 4; $i++) {
-                $codes[] = ($i === 0 ? '>>>' : '   ') . ' ' . $this->google2fa->oathHotp($secret, $ts + $i);
-            }
-            return response(
-                'TOTP_DEBUG: verify failed' . PHP_EOL .
-                'submitted code : ' . $request->code . PHP_EOL .
-                'server UTC     : ' . now()->utc()->format('H:i:s') . PHP_EOL .
-                'valid codes    :' . PHP_EOL . implode(PHP_EOL, $codes)
-            );
+            return back()
+                ->withInput($request->except('code'))
+                ->withErrors(['code' => 'That code is incorrect. Try again.']);
         }
 
         $request->user()->update([
