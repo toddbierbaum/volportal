@@ -61,8 +61,8 @@
                         <input type="checkbox" wire:model="smsOptIn"
                                class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <span>
-                            <span class="text-gray-700 dark:text-gray-300 font-medium">Also send me text reminders</span>
-                            <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Standard message rates apply. Reply STOP to opt back out any time.</span>
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">I agree to receive text messages from Florida Chautauqua Theater about my volunteer shifts.</span>
+                            <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Messages include shift reminders, fill-in requests, and last-minute schedule changes. Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help.</span>
                         </span>
                     </label>
                 </div>

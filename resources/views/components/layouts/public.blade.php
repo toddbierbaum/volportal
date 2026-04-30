@@ -63,6 +63,9 @@
     <footer class="bg-fct-navy-dark text-fct-cyan-light mt-12">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-center">
             <div>&copy; {{ date('Y') }} The Florida Chautauqua Theater &amp; Institute</div>
+            <div class="mt-2">
+                <a href="{{ route('privacy') }}" class="text-fct-cyan-light/80 hover:text-fct-cyan underline-offset-2 hover:underline">Privacy Policy</a>
+            </div>
             <div class="mt-1 text-xs text-fct-cyan-light/60">{{ config('app.version') }}</div>
         </div>
     </footer>
