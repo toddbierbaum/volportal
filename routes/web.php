@@ -25,6 +25,7 @@ Route::get('/calendar-events', [CalendarController::class, 'events'])->name('cal
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 Route::view('/signup', 'signup')->name('signup');
 Route::view('/login-link', 'login-link')->name('login-link');
+Route::view('/privacy', 'privacy')->name('privacy');
 
 Route::get('/magic-link/{user}', [MagicLinkController::class, 'login'])
     ->middleware('signed')

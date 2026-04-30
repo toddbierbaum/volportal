@@ -55,8 +55,8 @@
                         <input type="checkbox" name="sms_opt_in" value="1" @checked(old('sms_opt_in', $user->sms_opt_in))
                                class="mt-0.5 rounded-sm border-gray-300 text-fct-navy focus:ring-fct-cyan">
                         <span>
-                            <span class="text-gray-700 font-medium">Send me text reminders</span>
-                            <span class="block text-xs text-gray-500">Standard message rates apply. Reply STOP to any text to opt back out.</span>
+                            <span class="text-gray-700 font-medium">I agree to receive text messages from Florida Chautauqua Theater about my volunteer shifts.</span>
+                            <span class="block text-xs text-gray-500">Messages include shift reminders, fill-in requests, and last-minute schedule changes. Message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help.</span>
                         </span>
                     </label>
                 </div>
