@@ -114,11 +114,17 @@ class VolunteerDashboardController extends Controller
             return back()->withErrors(['phone' => 'A valid phone number is required to receive text reminders.']);
         }
 
+        $wasOptedIn = (bool) $user->sms_opt_in;
+
         $user->update([
             'phone' => $e164 ?: $rawPhone,
             'sms_opt_in' => $smsOptIn,
             'opportunity_alerts_opt_in' => (bool) ($data['opportunity_alerts_opt_in'] ?? false),
         ]);
+
+        if (! $wasOptedIn && $smsOptIn && $e164) {
+            SmsSender::fromConfig()->send($e164, SmsSender::OPT_IN_CONFIRMATION_BODY);
+        }
 
         return redirect()->route('volunteer.dashboard')
             ->with('status', 'Preferences updated.');
