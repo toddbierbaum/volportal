@@ -66,8 +66,8 @@
             <h2>Contact</h2>
             <p>
                 Questions about this policy or your information can be directed to the Florida Chautauqua
-                Theater &amp; Institute via the contact information on
-                <a href="https://flchautauqua.org" class="text-fct-navy dark:text-fct-cyan hover:underline">flchautauqua.org</a>.
+                Theater &amp; Institute by email at
+                <a href="mailto:info@fcweb.org" class="text-fct-navy dark:text-fct-cyan hover:underline">info@fcweb.org</a>.
             </p>
         </div>
     </div>
