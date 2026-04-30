@@ -181,6 +181,10 @@ class VolunteerSignup extends Component
 
         $user->categories()->syncWithoutDetaching($this->selectedCategoryIds);
 
+        if ($user->sms_opt_in && $user->phone && ($user->wasRecentlyCreated || $user->wasChanged('sms_opt_in'))) {
+            SmsSender::fromConfig()->send($user->phone, SmsSender::OPT_IN_CONFIRMATION_BODY);
+        }
+
         $this->userId = $user->id;
     }
 

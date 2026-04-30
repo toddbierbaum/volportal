@@ -13,6 +13,16 @@ use Twilio\Rest\Client;
  */
 class SmsSender
 {
+    /**
+     * One-time message sent the moment a user opts in. Required by some
+     * carriers (notably T-Mobile) and serves as the consent receipt we
+     * point Twilio toll-free reviewers at.
+     */
+    public const OPT_IN_CONFIRMATION_BODY =
+        "Florida Chautauqua Theater: You're signed up for volunteer text reminders. "
+        . 'Msg frequency varies. Msg & data rates may apply. '
+        . 'Reply HELP for help, STOP to unsubscribe.';
+
     private ?Client $client = null;
 
     public function __construct(
