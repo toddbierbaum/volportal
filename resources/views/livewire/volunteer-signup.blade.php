@@ -72,7 +72,7 @@
                         <input type="checkbox" wire:model="opportunityAlertsOptIn"
                                class="mt-0.5 rounded-sm border-gray-300 dark:border-gray-600 text-fct-navy dark:text-fct-cyan focus:ring-fct-cyan">
                         <span>
-                            <span class="text-gray-700 dark:text-gray-300 font-medium">Get monthly opportunity alerts</span>
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">Get monthly opportunity emails</span>
                             <span class="block text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Optional — a monthly email highlighting open positions that match your interests. You can change this anytime.</span>
                         </span>
                     </label>
