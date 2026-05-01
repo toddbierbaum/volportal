@@ -33,9 +33,9 @@
                             and <strong>text</strong> to {{ $user->phone }}
                         @endif.
                         @if ($user->opportunity_alerts_opt_in)
-                            Monthly opportunity alerts are <strong>on</strong>.
+                            Monthly opportunity emails are <strong>on</strong>.
                         @else
-                            Monthly opportunity alerts are <strong>off</strong>.
+                            Monthly opportunity emails are <strong>off</strong>.
                         @endif
                     </p>
                 </div>
@@ -66,7 +66,7 @@
                         <input type="checkbox" name="opportunity_alerts_opt_in" value="1" @checked(old('opportunity_alerts_opt_in', $user->opportunity_alerts_opt_in))
                                class="mt-0.5 rounded-sm border-gray-300 text-fct-navy focus:ring-fct-cyan">
                         <span>
-                            <span class="text-gray-700 font-medium">Get monthly opportunity alerts (optional)</span>
+                            <span class="text-gray-700 font-medium">Get monthly opportunity emails (optional)</span>
                             <span class="block text-xs text-gray-500">A monthly email highlighting open positions that match your interests.</span>
                         </span>
                     </label>
