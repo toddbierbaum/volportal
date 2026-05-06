@@ -8,11 +8,11 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
-        ->middleware(['throttle:6,1'])
+        ->middleware(['throttle:password.email'])
         ->name('password.request');
 
     Volt::route('reset-password/{token}', 'pages.auth.reset-password')
-        ->middleware(['throttle:6,1'])
+        ->middleware(['throttle:password.reset.form'])
         ->name('password.reset');
 });
 

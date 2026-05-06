@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\EmailSendThrottle;
+use App\Support\LockoutLogger;
 use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -17,9 +19,19 @@ new #[Layout('layouts.guest')] class extends Component
             'email' => ['required', 'string', 'email'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
+        if (! EmailSendThrottle::allow($this->email, request()->ip())) {
+            $ref = LockoutLogger::log('password.email', [
+                'email' => strtolower($this->email),
+            ]);
+
+            $this->addError('email', __(
+                "We're sorry — we noticed unusual activity and have paused this for safety and security. Please try again later. If you need help, email :email with reference :ref.",
+                ['email' => 'info@fcweb.org', 'ref' => $ref]
+            ));
+
+            return;
+        }
+
         $status = Password::sendResetLink(
             $this->only('email')
         );
