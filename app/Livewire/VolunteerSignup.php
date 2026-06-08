@@ -72,6 +72,11 @@ class VolunteerSignup extends Component
             return;
         }
 
+        // Canonicalize before any lookup so a returning user typing the same
+        // address with different case/whitespace finds their existing record
+        // instead of creating a duplicate. Matches the mutator on User::email.
+        $this->email = strtolower(trim($this->email));
+
         if (! EmailSendThrottle::allow($this->email, request()->ip())) {
             $this->addError('email', 'Too many requests. Please wait an hour before trying again.');
             return;
