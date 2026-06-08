@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,6 +40,15 @@ class User extends Authenticatable
             'totp_secret' => 'encrypted',
             'totp_enabled_at' => 'datetime',
         ];
+    }
+
+    // Canonicalize email on every write so case/whitespace variations of the
+    // same address don't produce duplicate user records.
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $value === null ? null : strtolower(trim($value)),
+        );
     }
 
     public function isAdmin(): bool
