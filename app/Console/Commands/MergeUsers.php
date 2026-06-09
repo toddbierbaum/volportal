@@ -9,8 +9,8 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-#[Signature('users:merge {keeper : Email of the user record to keep} {duplicate : Email of the user record to merge in and delete} {--dry-run : Preview without making changes}')]
-#[Description('Consolidate two User records into one: re-parent signups, union categories, OR-merge opt-ins, then delete the duplicate. Run with --dry-run first.')]
+#[Signature('users:merge {email : Email shared by the two duplicate User rows} {--keeper= : ID of the row to keep (skips the interactive prompt)} {--dry-run : Preview without making changes}')]
+#[Description('Consolidate two User rows that share the same email into one: re-parent signups, union categories, OR-merge opt-ins, then delete the duplicate. Run with --dry-run first.')]
 class MergeUsers extends Command
 {
     // Higher = preferred when both users have a signup for the same position.
@@ -26,29 +26,28 @@ class MergeUsers extends Command
     public function handle(): int
     {
         $dryRun = (bool) $this->option('dry-run');
+        $keeperOpt = $this->option('keeper');
 
-        $keeperEmail = strtolower(trim((string) $this->argument('keeper')));
-        $dupEmail = strtolower(trim((string) $this->argument('duplicate')));
+        $email = strtolower(trim((string) $this->argument('email')));
+        $rows = User::where('email', $email)->orderBy('id')->get();
 
-        if ($keeperEmail === $dupEmail) {
-            $this->error('Keeper and duplicate emails must be different.');
+        if ($rows->isEmpty()) {
+            $this->error("No users found with email {$email}.");
+            return self::FAILURE;
+        }
+        if ($rows->count() === 1) {
+            $this->error("Only one user has email {$email} — nothing to merge.");
+            return self::FAILURE;
+        }
+        if ($rows->count() > 2) {
+            $this->error("More than 2 users share this email. Pass --keeper=ID and re-run for each duplicate:");
+            foreach ($rows as $r) $this->line('  '.sprintf('user#%-6d role=%-9s name=%s', $r->id, $r->role, $r->name ?: '(no name)'));
             return self::FAILURE;
         }
 
-        $keeper = User::where('email', $keeperEmail)->first();
-        $duplicate = User::where('email', $dupEmail)->first();
-
+        [$keeper, $duplicate] = $this->pickKeeper($rows, $keeperOpt);
         if (! $keeper) {
-            $this->error("Keeper not found: {$keeperEmail}");
-            return self::FAILURE;
-        }
-        if (! $duplicate) {
-            $this->error("Duplicate not found: {$dupEmail}");
-            return self::FAILURE;
-        }
-        if ($keeper->id === $duplicate->id) {
-            $this->error('Both emails resolve to the same user.');
-            return self::FAILURE;
+            return self::FAILURE; // pickKeeper already printed why
         }
 
         $this->summarize($keeper, 'KEEP  ');
@@ -80,6 +79,44 @@ class MergeUsers extends Command
 
         $this->info("Merged. Kept user#{$keeper->id} ({$keeper->email}). Duplicate user#{$duplicateId} deleted.");
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, User>  $rows  Exactly two users sharing an email.
+     * @return array{0: ?User, 1: ?User}  [$keeper, $duplicate] or [null, null] on bad input.
+     */
+    private function pickKeeper($rows, mixed $keeperOpt): array
+    {
+        [$a, $b] = [$rows[0], $rows[1]];
+
+        if ($keeperOpt !== null && $keeperOpt !== '') {
+            $id = (int) $keeperOpt;
+            if ($id === $a->id) return [$a, $b];
+            if ($id === $b->id) return [$b, $a];
+            $this->error("--keeper={$keeperOpt} doesn't match either user (#{$a->id} or #{$b->id}).");
+            return [null, null];
+        }
+
+        $this->line('Two users share this email:');
+        $this->line('  1) '.$this->shortDescribe($a));
+        $this->line('  2) '.$this->shortDescribe($b));
+        $pick = $this->choice('Which is the keeper?', ['1', '2'], '1');
+        return $pick === '1' ? [$a, $b] : [$b, $a];
+    }
+
+    private function shortDescribe(User $u): string
+    {
+        $signups = Signup::where('user_id', $u->id)->count();
+        $hours = Signup::where('user_id', $u->id)->sum('hours_worked');
+        return sprintf(
+            'user#%d  role=%s  name=%s  signups=%d  hours=%s  created=%s',
+            $u->id,
+            $u->role,
+            $u->name ?: '(no name)',
+            $signups,
+            $hours ?: '0',
+            $u->created_at?->toDateString() ?? '?'
+        );
     }
 
     private function summarize(User $u, string $label): void
