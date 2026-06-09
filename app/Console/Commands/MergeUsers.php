@@ -28,8 +28,12 @@ class MergeUsers extends Command
         $dryRun = (bool) $this->option('dry-run');
         $keeperOpt = $this->option('keeper');
 
+        // LOWER() on both sides so case-only duplicates ("Foo@x.com" vs
+        // "foo@x.com") are found. SQLite stores TEXT case-sensitively by
+        // default for both `=` and UNIQUE constraints, which is how the
+        // original dupe got past the unique index in the first place.
         $email = strtolower(trim((string) $this->argument('email')));
-        $rows = User::where('email', $email)->orderBy('id')->get();
+        $rows = User::whereRaw('LOWER(email) = ?', [$email])->orderBy('id')->get();
 
         if ($rows->isEmpty()) {
             $this->error("No users found with email {$email}.");
