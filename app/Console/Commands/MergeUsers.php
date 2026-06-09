@@ -29,9 +29,9 @@ class MergeUsers extends Command
         $keeperOpt = $this->option('keeper');
 
         // LOWER() on both sides so case-only duplicates ("Foo@x.com" vs
-        // "foo@x.com") are found regardless of the column's collation —
-        // DreamHost's MySQL stores email case-sensitively, which is how
-        // the original dupe got past the unique index.
+        // "foo@x.com") are found. SQLite stores TEXT case-sensitively by
+        // default for both `=` and UNIQUE constraints, which is how the
+        // original dupe got past the unique index in the first place.
         $email = strtolower(trim((string) $this->argument('email')));
         $rows = User::whereRaw('LOWER(email) = ?', [$email])->orderBy('id')->get();
 
