@@ -14,6 +14,13 @@
 
 set -euo pipefail
 
+# DreamHost shared hosting only puts the versioned PHP (php84) and the
+# per-user bin dir (where composer lives) on PATH for *login* shells.
+# A plain `ssh host './deploy.sh'` or a cron job gets neither, so bare
+# `php` resolves to an old /usr/bin/php and `composer` isn't found at all.
+# Pin both here so the script behaves identically however it's invoked.
+export PATH="/usr/local/php84/bin:$HOME/bin:$PATH"
+
 SITE_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SITE_DIR"
 
