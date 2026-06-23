@@ -40,6 +40,7 @@ class User extends Authenticatable
             'totp_secret' => 'encrypted',
             'totp_enabled_at' => 'datetime',
             'totp_nudge_snoozed_at' => 'datetime',
+            'first_login_at' => 'datetime',
         ];
     }
 
@@ -62,14 +63,23 @@ class User extends Authenticatable
         return $this->totp_enabled_at !== null;
     }
 
-    // TOTP is optional for admins; nudge un-enrolled admins to set it up, re-showing
-    // the banner every 30 days once they've snoozed it.
+    // TOTP is optional for admins. Stay quiet for the first 30 days after an admin's
+    // first login (so new admins get a clean start), then nudge them to set it up,
+    // re-showing the banner every 60 days once they've snoozed it.
     public function needsTotpNudge(): bool
     {
-        return $this->isAdmin()
-            && ! $this->hasTotpEnabled()
-            && ($this->totp_nudge_snoozed_at === null
-                || $this->totp_nudge_snoozed_at->lt(now()->subDays(30)));
+        if (! $this->isAdmin() || $this->hasTotpEnabled()) {
+            return false;
+        }
+
+        // No nudge until 30 days after the admin's first login.
+        if ($this->first_login_at === null || $this->first_login_at->gt(now()->subDays(30))) {
+            return false;
+        }
+
+        // After the grace period, nudge — then re-nudge every 60 days once snoozed.
+        return $this->totp_nudge_snoozed_at === null
+            || $this->totp_nudge_snoozed_at->lt(now()->subDays(60));
     }
 
     public function isApproved(): bool
