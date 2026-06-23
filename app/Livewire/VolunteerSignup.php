@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Mail\AdminLoginRedirectMail;
 use App\Mail\MagicLinkMail;
 use App\Mail\SignupConfirmationMail;
 use App\Models\Category;
@@ -82,14 +83,14 @@ class VolunteerSignup extends Component
             return;
         }
 
-        // Don't reveal whether an email belongs to an admin — just send
-        // the magic link silently for any existing account. MagicLinkController
-        // will block admins on redeem.
+        // Don't reveal whether an email belongs to an admin — the wizard shows
+        // the same "Done" step either way. Admins get a nudge to the password
+        // login (in their own inbox); existing volunteers get a magic link.
         $existing = User::where('email', $this->email)->first();
         if ($existing) {
-            if (! $existing->isAdmin()) {
-                Mail::to($existing->email)->send(new MagicLinkMail($existing));
-            }
+            Mail::to($existing->email)->send(
+                $existing->isAdmin() ? new AdminLoginRedirectMail($existing) : new MagicLinkMail($existing)
+            );
             $this->userId = $existing->id;
             $this->step = 5;
             return;
