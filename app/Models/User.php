@@ -39,6 +39,7 @@ class User extends Authenticatable
             'opportunity_alerts_opt_in' => 'boolean',
             'totp_secret' => 'encrypted',
             'totp_enabled_at' => 'datetime',
+            'totp_nudge_snoozed_at' => 'datetime',
         ];
     }
 
@@ -59,6 +60,16 @@ class User extends Authenticatable
     public function hasTotpEnabled(): bool
     {
         return $this->totp_enabled_at !== null;
+    }
+
+    // TOTP is optional for admins; nudge un-enrolled admins to set it up, re-showing
+    // the banner every 30 days once they've snoozed it.
+    public function needsTotpNudge(): bool
+    {
+        return $this->isAdmin()
+            && ! $this->hasTotpEnabled()
+            && ($this->totp_nudge_snoozed_at === null
+                || $this->totp_nudge_snoozed_at->lt(now()->subDays(30)));
     }
 
     public function isApproved(): bool

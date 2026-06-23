@@ -1,7 +1,7 @@
 <x-layouts.admin-auth title="Set Up Two-Factor Authentication">
     <h1 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-1">Set up two-factor authentication</h1>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">
-        Two-factor authentication is required for admin accounts. Scan the QR code below with an authenticator app
+        Two-factor authentication is optional but strongly recommended for admin accounts. Scan the QR code below with an authenticator app
         (Google Authenticator, Authy, 1Password, etc.), then enter the 6-digit code to confirm.
     </p>
 

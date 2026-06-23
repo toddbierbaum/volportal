@@ -63,6 +63,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/totp/enroll', 'disable')->name('disable')->middleware('password.confirm');
         Route::get('/totp/challenge', 'showChallenge')->name('challenge');
         Route::post('/totp/challenge', 'verify')->name('verify')->middleware('throttle:6,1');
+        Route::post('/totp/snooze-nudge', 'snoozeNudge')->name('snooze-nudge');
     });
 
     // All other admin routes — gated by TOTP verification

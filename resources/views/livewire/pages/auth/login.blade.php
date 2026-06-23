@@ -21,10 +21,13 @@ new #[Layout('layouts.guest')] class extends Component
         $user = Auth::user();
 
         if ($user->isAdmin()) {
-            $destination = $user->hasTotpEnabled()
-                ? route('admin.totp.challenge', absolute: false)
-                : route('admin.totp.enroll', absolute: false);
-            $this->redirect($destination, navigate: true);
+            // Enrolled admins must clear the TOTP challenge; un-enrolled admins
+            // (TOTP is optional) go straight to the dashboard and are nudged via a banner.
+            if ($user->hasTotpEnabled()) {
+                $this->redirect(route('admin.totp.challenge', absolute: false), navigate: true);
+                return;
+            }
+            $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
             return;
         }
 
