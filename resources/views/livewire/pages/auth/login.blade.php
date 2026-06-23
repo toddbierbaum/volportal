@@ -20,6 +20,11 @@ new #[Layout('layouts.guest')] class extends Component
 
         $user = Auth::user();
 
+        // Anchor the TOTP-nudge grace period on the user's first login.
+        if ($user->first_login_at === null) {
+            $user->forceFill(['first_login_at' => now()])->save();
+        }
+
         if ($user->isAdmin()) {
             // Enrolled admins must clear the TOTP challenge; un-enrolled admins
             // (TOTP is optional) go straight to the dashboard and are nudged via a banner.
