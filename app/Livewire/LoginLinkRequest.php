@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Mail\AdminLoginRedirectMail;
 use App\Mail\MagicLinkMail;
 use App\Models\User;
 use App\Support\EmailSendThrottle;
@@ -47,9 +48,14 @@ class LoginLinkRequest extends Component
             return;
         }
 
+        // Don't reveal whether the email belongs to an admin — the page shows
+        // the same generic "check your email" either way. Admins get a nudge
+        // to the password login (in their own inbox), volunteers get the link.
         $user = User::where('email', $this->email)->first();
-        if ($user && ! $user->isAdmin()) {
-            Mail::to($user->email)->send(new MagicLinkMail($user));
+        if ($user) {
+            Mail::to($user->email)->send(
+                $user->isAdmin() ? new AdminLoginRedirectMail($user) : new MagicLinkMail($user)
+            );
         }
 
         $this->sent = true;
