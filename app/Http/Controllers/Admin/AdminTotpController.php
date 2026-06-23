@@ -128,6 +128,13 @@ class AdminTotpController extends Controller
         return redirect()->intended(route('admin.dashboard'));
     }
 
+    public function snoozeNudge(Request $request)
+    {
+        $request->user()->forceFill(['totp_nudge_snoozed_at' => now()])->save();
+
+        return back();
+    }
+
     public function disable(Request $request)
     {
         $user = $request->user();

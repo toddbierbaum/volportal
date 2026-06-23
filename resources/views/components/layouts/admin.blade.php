@@ -152,6 +152,32 @@
                 </div>
             @endif
 
+            @if (auth()->user()?->needsTotpNudge())
+                <div class="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800">
+                    <div class="px-4 sm:px-6 lg:px-8 py-3 flex items-start gap-3 flex-wrap">
+                        <svg class="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <div class="flex-1 min-w-0 text-sm text-amber-900 dark:text-amber-200">
+                            Add an extra layer of security to your admin account with two-factor authentication. It's optional, but strongly recommended.
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <a href="{{ route('admin.totp.enroll') }}"
+                               class="inline-flex items-center px-3 py-1.5 bg-fct-navy text-white rounded-md text-sm font-medium hover:bg-fct-navy-light transition">
+                                Set up now
+                            </a>
+                            <form method="POST" action="{{ route('admin.totp.snooze-nudge') }}" class="inline">
+                                @csrf
+                                <button type="submit"
+                                        class="text-sm text-amber-800 dark:text-amber-300 hover:underline">
+                                    Remind me later
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <main class="flex-1">
                 <div class="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
                     {{ $slot }}

@@ -13,12 +13,10 @@ class EnsureAdminTotpVerified
     {
         $user = $request->user();
 
-        if (! $user?->isAdmin()) {
+        // TOTP is optional for admins — un-enrolled admins pass straight through
+        // (a banner nudges them to set it up). Only enrolled admins are challenged.
+        if (! $user?->isAdmin() || ! $user->hasTotpEnabled()) {
             return $next($request);
-        }
-
-        if (! $user->hasTotpEnabled()) {
-            return redirect()->route('admin.totp.enroll');
         }
 
         if (! AdminTotpController::isTotpFresh($request->session()->get('totp_verified_at'))) {
