@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\SmsSender;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -11,7 +12,13 @@ use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        // Resolve SmsSender from the container so commands can depend on it
+        // and tests can swap in a fake. Its constructor takes plain strings,
+        // so it needs an explicit factory binding.
+        $this->app->bind(SmsSender::class, fn () => SmsSender::fromConfig());
+    }
 
     public function boot(): void
     {
