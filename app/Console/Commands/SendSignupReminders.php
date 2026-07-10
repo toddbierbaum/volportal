@@ -19,6 +19,7 @@ class SendSignupReminders extends Command
     public function handle(SmsSender $sms): int
     {
         $dryRun = (bool) $this->option('dry-run');
+        $maxStaleness = (int) config('reminders.max_staleness_minutes');
 
         $signups = Signup::query()
             ->with(['user', 'position.event.template.schedules'])
@@ -45,7 +46,14 @@ class SendSignupReminders extends Command
             foreach ($byOffset as $offsetMinutes => $entry) {
                 $minutesUntilPosition = now()->diffInMinutes($signup->position->starts_at, false);
 
-                if ($minutesUntilPosition > $offsetMinutes || $minutesUntilPosition < 0) {
+                // Skip when the window hasn't opened yet, the event has already
+                // passed, or the reminder's scheduled time (offset before the
+                // position) is more than the grace period in the past — a stale
+                // long-lead reminder (e.g. "1 week before") shouldn't fire on
+                // event day just because it was never sent.
+                if ($minutesUntilPosition > $offsetMinutes
+                    || $minutesUntilPosition < 0
+                    || $minutesUntilPosition < $offsetMinutes - $maxStaleness) {
                     continue;
                 }
 
