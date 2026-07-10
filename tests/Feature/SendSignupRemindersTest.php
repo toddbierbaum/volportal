@@ -177,26 +177,88 @@ class SendSignupRemindersTest extends TestCase
     }
 
     /**
-     * Documents tonight's duplicate-text root cause: a 'both' schedule at two
-     * offsets is two independent reminders, so an SMS-eligible volunteer gets
-     * a distinct text per offset (one at 1 week, one at 1 day), each logged
-     * under its own offset.
+     * The staleness guard's core case (and the root cause of the earlier
+     * duplicate text): for an event ~12h out, a 'both' schedule at both the
+     * 1-week and 1-day offsets should send ONLY the 1-day text — the 1-week
+     * reminder's scheduled time is ~6 days past, so it's suppressed as stale
+     * rather than firing on event day.
      */
-    public function test_each_offset_is_an_independent_text(): void
+    public function test_stale_long_lead_offset_is_suppressed_while_timely_one_sends(): void
     {
         Mail::fake();
         $sms = $this->fakeSmsSender();
 
-        // Event is ~12h out, so both the 1-week and 1-day windows are open.
+        // ~12h out: the 1-day window is fresh, the 1-week window is long stale.
         $signup = $this->makeSignup(smsOptIn: true);
         $this->globalSchedule(10080, 'both');
         $this->globalSchedule(1440, 'both');
 
         $this->artisan('reminders:send')->assertExitCode(0);
 
-        $this->assertCount(2, $sms->sent);
-        $this->assertSmsLogged($signup, 10080);
+        $this->assertCount(1, $sms->sent);
         $this->assertSmsLogged($signup, 1440);
+        $this->assertDatabaseMissing('notification_logs', [
+            'signup_id' => $signup->id,
+            'offset_minutes' => 10080,
+        ]);
+    }
+
+    /**
+     * A long-lead reminder whose scheduled time is well past the grace period
+     * is skipped entirely (no email, no text) — e.g. a "1 week before" reminder
+     * for an event happening in ~12h.
+     */
+    public function test_stale_long_lead_reminder_is_skipped(): void
+    {
+        Mail::fake();
+        $sms = $this->fakeSmsSender();
+
+        $signup = $this->makeSignup(smsOptIn: true);
+        $this->globalSchedule(10080, 'both');
+
+        $this->artisan('reminders:send')->assertExitCode(0);
+
+        $this->assertCount(0, $sms->sent);
+        Mail::assertNotSent(SignupReminderMail::class);
+        $this->assertDatabaseMissing('notification_logs', ['signup_id' => $signup->id]);
+    }
+
+    /**
+     * A reminder still within the grace period of its scheduled time sends —
+     * e.g. the 1-day reminder catching up on event morning (like the manual
+     * remediation), where the 1440 offset is late by ~12h but within 24h grace.
+     */
+    public function test_reminder_within_grace_still_sends(): void
+    {
+        Mail::fake();
+        $sms = $this->fakeSmsSender();
+
+        $signup = $this->makeSignup(smsOptIn: true);
+        $this->globalSchedule(1440, 'both');
+
+        $this->artisan('reminders:send')->assertExitCode(0);
+
+        $this->assertCount(1, $sms->sent);
+        $this->assertSmsLogged($signup, 1440);
+        $this->assertEmailLogged($signup, 1440);
+    }
+
+    /** The grace period is read from config — tightening it suppresses a send. */
+    public function test_staleness_grace_is_configurable(): void
+    {
+        config(['reminders.max_staleness_minutes' => 60]);
+
+        Mail::fake();
+        $sms = $this->fakeSmsSender();
+
+        // 1-day offset late by ~12h — allowed at the 24h default, but not at 60m.
+        $signup = $this->makeSignup(smsOptIn: true);
+        $this->globalSchedule(1440, 'both');
+
+        $this->artisan('reminders:send')->assertExitCode(0);
+
+        $this->assertCount(0, $sms->sent);
+        $this->assertDatabaseMissing('notification_logs', ['signup_id' => $signup->id]);
     }
 
     /** No reminder fires before its window opens (event further out than the offset). */
